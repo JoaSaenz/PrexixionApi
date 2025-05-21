@@ -7,7 +7,11 @@ import lombok.Data;
 @Data
 public class XentraRequest {
     private int id;
-    private int idNombreReporte;
+    private int idArea;
+    private int idSubArea;
+    private String estiloReporte;
+    private String nombre;
+    private String proceso;
     private String responsable;
     private String fechaInicio;
     private String fechaFin;
@@ -16,4 +20,11 @@ public class XentraRequest {
     private int intervaloSemanas;
     private int diaInicioMes;
     private int diaFinMes;
+
+    //Variables para List principal
+    private String descArea;
+    private String descSubArea;
+    private String responsableNombre;
+    private String responsableApellido;
+
 }

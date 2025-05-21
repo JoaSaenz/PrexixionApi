@@ -2,6 +2,7 @@ package com.joa.prexixion.repositories;
 
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,6 +13,7 @@ import com.joa.prexixion.entities.XentraRequest;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 
 @Repository
@@ -31,7 +33,11 @@ public class XentraRepository {
             // UPDATE si el ID ya existe
             String updateSql = """
                         update xentraData set
-                            idNombreReporte = :idNombreReporte,
+                            idArea = :idArea,
+                            idSubArea = :idSubArea,
+                            estiloReporte = :estiloReporte,
+                            nombre = :nombre,
+                            proceso = :proceso,
                             responsable = :responsable,
                             fechaInicio = :fechaInicio,
                             fechaFin = :fechaFin,
@@ -44,7 +50,11 @@ public class XentraRepository {
                     """;
 
             Query query = em.createNativeQuery(updateSql);
-            query.setParameter("idNombreReporte", request.getIdNombreReporte());
+            query.setParameter("idArea", request.getIdArea());
+            query.setParameter("idSubArea", request.getIdSubArea());
+            query.setParameter("estiloReporte", request.getEstiloReporte());
+            query.setParameter("nombre", request.getNombre());
+            query.setParameter("proceso", request.getProceso());
             query.setParameter("responsable", request.getResponsable());
             query.setParameter("fechaInicio", request.getFechaInicio());
             query.setParameter("fechaFin", request.getFechaFin());
@@ -61,16 +71,20 @@ public class XentraRepository {
             // Inserción con OUTPUT para obtener el ID generado
             String insertSql = """
                         INSERT INTO xentraData (
-                            idNombreReporte, responsable, fechaInicio, fechaFin,
+                            idArea, idSubArea, estiloReporte, nombre, proceso, responsable, fechaInicio, fechaFin,
                             tipoRepeticion, diasSemana, intervaloSemanas, diaInicioMes, diaFinMes)
                         OUTPUT INSERTED.id
                         VALUES (
-                            :idNombreReporte, :responsable, :fechaInicio, :fechaFin,
+                            :idArea, :idSubArea, :estiloReporte, :nombre, :proceso, :responsable, :fechaInicio, :fechaFin,
                             :tipoRepeticion, :diasSemana, :intervaloSemanas, :diaInicioMes, :diaFinMes)
                     """;
 
             Query insertQuery = em.createNativeQuery(insertSql);
-            insertQuery.setParameter("idNombreReporte", request.getIdNombreReporte());
+            insertQuery.setParameter("idArea", request.getIdArea());
+            insertQuery.setParameter("idSubArea", request.getIdSubArea());
+            insertQuery.setParameter("estiloReporte", request.getEstiloReporte());
+            insertQuery.setParameter("nombre", request.getNombre());
+            insertQuery.setParameter("proceso", request.getProceso());
             insertQuery.setParameter("responsable", request.getResponsable());
             insertQuery.setParameter("fechaInicio", request.getFechaInicio());
             insertQuery.setParameter("fechaFin", request.getFechaFin());
@@ -106,5 +120,55 @@ public class XentraRepository {
 
         em.flush();
         em.clear();
+    }
+
+    public List<XentraRequest> list() {
+        List<XentraRequest> list = new ArrayList<>();
+
+        String sql = """
+                SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
+                nombre, proceso, x.responsable,
+                SUBSTRING (p.nombres, 1,
+                	CASE
+                	WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                	THEN LEN (p.nombres)
+                    ELSE CHARINDEX(' ', p.nombres)-1
+                    END) as responsableNombre,
+                SUBSTRING (p.apellidos, 1,
+                	CASE
+                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                    THEN LEN (p.apellidos)
+                    ELSE CHARINDEX(' ', p.apellidos)-1
+                    END) as responsableApellido,
+                x.fechaInicio, x.fechaFin, x.tipoRepeticion,
+                x.diasSemana, x.diaInicioMes, x.diaFinMes
+                FROM xentraData x
+                LEFT JOIN areas a ON x.idArea = a.id
+                LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
+                LEFT JOIN personal p ON x.responsable = p.dni
+                """;
+
+                Query query = em.createNativeQuery(sql, Tuple.class);
+                List<Tuple> resultTuples = query.getResultList();
+
+                for (Tuple tuple : resultTuples) {
+                    XentraRequest obj = new XentraRequest();
+                    obj.setId(tuple.get("id", Integer.class));
+                    obj.setIdArea(tuple.get("idArea", Integer.class));
+                    obj.setDescArea(tuple.get("descArea", String.class));
+                    obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
+                    obj.setDescSubArea(tuple.get("descSubArea", String.class));
+                    obj.setNombre(tuple.get("nombre", String.class));
+                    obj.setProceso(tuple.get("proceso", String.class));
+                    obj.setResponsable(tuple.get("responsable", String.class));
+                    obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
+                    obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
+                    obj.setFechaInicio(tuple.get("fechaInicio", String.class));
+                    obj.setFechaFin(tuple.get("fechaFin", String.class));
+                    obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
+                    list.add(obj);
+                }
+
+        return list;
     }
 }
