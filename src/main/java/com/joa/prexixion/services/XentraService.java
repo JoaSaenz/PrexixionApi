@@ -26,32 +26,35 @@ public class XentraService {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public int guardarFechas(XentraRequest request){
+    public int guardarFechas(XentraRequest request) {
         int rpta = 0;
 
-        //Adaptar request
+        // Adaptar request
         LocalDate inicio = LocalDate.parse(request.getFechaInicio(), formatter);
         LocalDate fin = LocalDate.parse(request.getFechaFin(), formatter);
         TipoRepeticion tipo = TipoRepeticion.valueOf(request.getTipoRepeticion());
         Set<DayOfWeek> diasSemana = new HashSet<DayOfWeek>();
-        request.getDiasSemana().forEach(e ->{
+        request.getDiasSemana().forEach(e -> {
             diasSemana.add(DayOfWeek.of(e));
         });
         int intervaloSemanas = 1;
-        ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(), request.getDiaFinMes());
-        
-        //Generamos las fechas
+        ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(),
+                request.getDiaFinMes());
+
+        // Generamos las fechas
         List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual);
 
-        //Guardamos la data general por el repository
-        rpta = xentraRepository.insertarDataGeneral(request);
+        // Guardamos la data general por el repository
 
-        //Guardamos las fechas por el repository
-        rpta = xentraRepository.insertarFechas(fechas);
+        System.out.println(request.toString());
+        int id = xentraRepository.insertarDataGeneral(request);
 
-        return rpta;
+        // Guardamos las fechas por el repository
+        // rpta = xentraRepository.insertarFechas(fechas);
+
+        return id;
     }
-    
+
     public static List<LocalDate> generarFechasMasivas(
             LocalDate inicio,
             TipoRepeticion tipo,
@@ -64,7 +67,8 @@ public class XentraService {
 
         switch (tipo) {
             case SEMANAL:
-                // Encontrar el lunes de la semana del inicio (puedes cambiarlo si tu semana comienza en otro día)
+                // Encontrar el lunes de la semana del inicio (puedes cambiarlo si tu semana
+                // comienza en otro día)
                 LocalDate semanaCursor = inicio.with(DayOfWeek.MONDAY);
 
                 while (!semanaCursor.isAfter(hasta)) {
