@@ -148,27 +148,82 @@ public class XentraRepository {
                 LEFT JOIN personal p ON x.responsable = p.dni
                 """;
 
-                Query query = em.createNativeQuery(sql, Tuple.class);
-                List<Tuple> resultTuples = query.getResultList();
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        List<Tuple> resultTuples = query.getResultList();
 
-                for (Tuple tuple : resultTuples) {
-                    XentraRequest obj = new XentraRequest();
-                    obj.setId(tuple.get("id", Integer.class));
-                    obj.setIdArea(tuple.get("idArea", Integer.class));
-                    obj.setDescArea(tuple.get("descArea", String.class));
-                    obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
-                    obj.setDescSubArea(tuple.get("descSubArea", String.class));
-                    obj.setNombre(tuple.get("nombre", String.class));
-                    obj.setProceso(tuple.get("proceso", String.class));
-                    obj.setResponsable(tuple.get("responsable", String.class));
-                    obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
-                    obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
-                    obj.setFechaInicio(tuple.get("fechaInicio", String.class));
-                    obj.setFechaFin(tuple.get("fechaFin", String.class));
-                    obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
-                    list.add(obj);
-                }
+        for (Tuple tuple : resultTuples) {
+            XentraRequest obj = new XentraRequest();
+            obj.setId(tuple.get("id", Integer.class));
+            obj.setIdArea(tuple.get("idArea", Integer.class));
+            obj.setDescArea(tuple.get("descArea", String.class));
+            obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
+            obj.setDescSubArea(tuple.get("descSubArea", String.class));
+            obj.setNombre(tuple.get("nombre", String.class));
+            obj.setProceso(tuple.get("proceso", String.class));
+            obj.setResponsable(tuple.get("responsable", String.class));
+            obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
+            obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
+            obj.setFechaInicio(tuple.get("fechaInicio", String.class));
+            obj.setFechaFin(tuple.get("fechaFin", String.class));
+            obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
+            obj.setDiasSemanaString(tuple.get("diasSemana", String.class));
+            obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
+            obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
+            list.add(obj);
+        }
 
         return list;
+    }
+
+    public XentraRequest getOne(int id) {
+        String sql = """
+                SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
+                estiloReporte, nombre, proceso, x.responsable,
+                SUBSTRING (p.nombres, 1,
+                	CASE
+                	WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                	THEN LEN (p.nombres)
+                    ELSE CHARINDEX(' ', p.nombres)-1
+                    END) as responsableNombre,
+                SUBSTRING (p.apellidos, 1,
+                	CASE
+                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                    THEN LEN (p.apellidos)
+                    ELSE CHARINDEX(' ', p.apellidos)-1
+                    END) as responsableApellido,
+                x.fechaInicio, x.fechaFin, x.tipoRepeticion,
+                x.diasSemana, x.intervaloSemanas, x.diaInicioMes, x.diaFinMes
+                FROM xentraData x
+                LEFT JOIN areas a ON x.idArea = a.id
+                LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
+                LEFT JOIN personal p ON x.responsable = p.dni
+                WHERE x.id = :id
+                """;
+
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        query.setParameter("id", id);
+        Tuple tuple = (Tuple) query.getSingleResult();
+
+        XentraRequest obj = new XentraRequest();
+        obj.setId(tuple.get("id", Integer.class));
+        obj.setIdArea(tuple.get("idArea", Integer.class));
+        obj.setDescArea(tuple.get("descArea", String.class));
+        obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
+        obj.setDescSubArea(tuple.get("descSubArea", String.class));
+        obj.setEstiloReporte(tuple.get("estiloReporte", String.class));
+        obj.setNombre(tuple.get("nombre", String.class));
+        obj.setProceso(tuple.get("proceso", String.class));
+        obj.setResponsable(tuple.get("responsable", String.class));
+        obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
+        obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
+        obj.setFechaInicio(tuple.get("fechaInicio", String.class));
+        obj.setFechaFin(tuple.get("fechaFin", String.class));
+        obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
+        obj.setDiasSemanaString(tuple.get("diasSemana", String.class));
+        obj.setIntervaloSemanas(tuple.get("intervaloSemanas", Integer.class));
+        obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
+        obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
+
+        return obj;
     }
 }

@@ -5,10 +5,13 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,37 @@ public class XentraService {
     XentraRepository xentraRepository;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    public List<XentraRequest> list() {
+        List<XentraRequest> list = xentraRepository.list();
+
+        // Mapa de equivalencias
+        Map<Integer, String> diaEquivalencias = Map.of(
+            1, "LU",
+            2, "MA",
+            3, "MI",
+            4, "JU",
+            5, "VI",
+            6, "SA",
+            7, "DO"
+        );
+
+        list.forEach(e -> {
+            System.out.println(e.getDiasSemanaString());
+
+            e.setDiasSemanaString(Arrays.stream(e.getDiasSemanaString().split(","))
+                                .map(String::trim)
+                                .map(Integer::parseInt)
+                                .map(diaEquivalencias::get)
+                                .collect(Collectors.joining(","))); 
+            
+            System.out.println(e.getDiasSemanaString());
+        });
+
+       
+
+        return list;
+    }
 
     public int guardarFechas(XentraRequest request) {
         int rpta = 0;
@@ -141,5 +175,9 @@ public class XentraService {
 
         Collections.sort(fechas);
         return fechas;
+    }
+
+    public XentraRequest getOne(int id) {
+        return xentraRepository.getOne(id);
     }
 }
