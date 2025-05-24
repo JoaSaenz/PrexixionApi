@@ -9,7 +9,6 @@ public class XentraRequest {
     private int id;
     private int idArea;
     private int idSubArea;
-    private String estiloReporte;
     private String nombre;
     private String proceso;
     private String responsable;
@@ -25,7 +24,10 @@ public class XentraRequest {
     //Variables para List principal
     private String descArea;
     private String descSubArea;
-    private String responsableNombre;
-    private String responsableApellido;
+    private String responsableNombreApellido;
+
+    //Variables para Calendario XentraFechas (luego crear su propia clase)
+    private int idEstado;
+    private String fecha;
 
 }

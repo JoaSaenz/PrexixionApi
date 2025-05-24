@@ -34,6 +34,7 @@ public class XentraService {
 
         // Mapa de equivalencias
         Map<Integer, String> diaEquivalencias = Map.of(
+            0, "-",
             1, "LU",
             2, "MA",
             3, "MI",
@@ -179,5 +180,9 @@ public class XentraService {
 
     public XentraRequest getOne(int id) {
         return xentraRepository.getOne(id);
+    }
+
+    public List<XentraRequest> getListXentraFechas() {
+        return xentraRepository.getListXentraFechas();
     }
 }

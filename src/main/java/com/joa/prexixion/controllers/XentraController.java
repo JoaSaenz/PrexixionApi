@@ -39,7 +39,10 @@ public class XentraController {
         System.out.println("id: "+id);
         return xentraService.getOne(id);
     }
-
     
+    @GetMapping("/getListXentraFechas")
+    public List<XentraRequest> getListXentraFechas() {
+        return xentraService.getListXentraFechas();
+    }
 
 }

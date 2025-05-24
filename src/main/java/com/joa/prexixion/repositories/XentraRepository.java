@@ -35,7 +35,6 @@ public class XentraRepository {
                         update xentraData set
                             idArea = :idArea,
                             idSubArea = :idSubArea,
-                            estiloReporte = :estiloReporte,
                             nombre = :nombre,
                             proceso = :proceso,
                             responsable = :responsable,
@@ -52,7 +51,6 @@ public class XentraRepository {
             Query query = em.createNativeQuery(updateSql);
             query.setParameter("idArea", request.getIdArea());
             query.setParameter("idSubArea", request.getIdSubArea());
-            query.setParameter("estiloReporte", request.getEstiloReporte());
             query.setParameter("nombre", request.getNombre());
             query.setParameter("proceso", request.getProceso());
             query.setParameter("responsable", request.getResponsable());
@@ -71,7 +69,7 @@ public class XentraRepository {
             // Inserción con OUTPUT para obtener el ID generado
             String insertSql = """
                         INSERT INTO xentraData (
-                            idArea, idSubArea, estiloReporte, nombre, proceso, responsable, fechaInicio, fechaFin,
+                            idArea, idSubArea, nombre, proceso, responsable, fechaInicio, fechaFin,
                             tipoRepeticion, diasSemana, intervaloSemanas, diaInicioMes, diaFinMes)
                         OUTPUT INSERTED.id
                         VALUES (
@@ -82,7 +80,6 @@ public class XentraRepository {
             Query insertQuery = em.createNativeQuery(insertSql);
             insertQuery.setParameter("idArea", request.getIdArea());
             insertQuery.setParameter("idSubArea", request.getIdSubArea());
-            insertQuery.setParameter("estiloReporte", request.getEstiloReporte());
             insertQuery.setParameter("nombre", request.getNombre());
             insertQuery.setParameter("proceso", request.getProceso());
             insertQuery.setParameter("responsable", request.getResponsable());
@@ -128,18 +125,22 @@ public class XentraRepository {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
                 nombre, proceso, x.responsable,
-                SUBSTRING (p.nombres, 1,
-                	CASE
-                	WHEN CHARINDEX(' ', p.nombres)-1 < 0
-                	THEN LEN (p.nombres)
-                    ELSE CHARINDEX(' ', p.nombres)-1
-                    END) as responsableNombre,
-                SUBSTRING (p.apellidos, 1,
-                	CASE
-                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
-                    THEN LEN (p.apellidos)
-                    ELSE CHARINDEX(' ', p.apellidos)-1
-                    END) as responsableApellido,
+                CONCAT (
+                        SUBSTRING (p.nombres, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                        THEN LEN (p.nombres)
+                        ELSE CHARINDEX(' ', p.nombres)-1
+                        END) , 
+                        ' ',
+                        SUBSTRING (p.apellidos, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                        THEN LEN (p.apellidos)
+                        ELSE CHARINDEX(' ', p.apellidos)-1
+                        END)
+                		) 
+                AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
                 x.diasSemana, x.diaInicioMes, x.diaFinMes
                 FROM xentraData x
@@ -161,8 +162,7 @@ public class XentraRepository {
             obj.setNombre(tuple.get("nombre", String.class));
             obj.setProceso(tuple.get("proceso", String.class));
             obj.setResponsable(tuple.get("responsable", String.class));
-            obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
-            obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
+            obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
             obj.setFechaInicio(tuple.get("fechaInicio", String.class));
             obj.setFechaFin(tuple.get("fechaFin", String.class));
             obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
@@ -178,19 +178,23 @@ public class XentraRepository {
     public XentraRequest getOne(int id) {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                estiloReporte, nombre, proceso, x.responsable,
-                SUBSTRING (p.nombres, 1,
-                	CASE
-                	WHEN CHARINDEX(' ', p.nombres)-1 < 0
-                	THEN LEN (p.nombres)
-                    ELSE CHARINDEX(' ', p.nombres)-1
-                    END) as responsableNombre,
-                SUBSTRING (p.apellidos, 1,
-                	CASE
-                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
-                    THEN LEN (p.apellidos)
-                    ELSE CHARINDEX(' ', p.apellidos)-1
-                    END) as responsableApellido,
+                nombre, proceso, x.responsable,
+                CONCAT (
+                        SUBSTRING (p.nombres, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                        THEN LEN (p.nombres)
+                        ELSE CHARINDEX(' ', p.nombres)-1
+                        END) , 
+                        ' ',
+                        SUBSTRING (p.apellidos, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                        THEN LEN (p.apellidos)
+                        ELSE CHARINDEX(' ', p.apellidos)-1
+                        END)
+                		) 
+                AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
                 x.diasSemana, x.intervaloSemanas, x.diaInicioMes, x.diaFinMes
                 FROM xentraData x
@@ -210,12 +214,10 @@ public class XentraRepository {
         obj.setDescArea(tuple.get("descArea", String.class));
         obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
         obj.setDescSubArea(tuple.get("descSubArea", String.class));
-        obj.setEstiloReporte(tuple.get("estiloReporte", String.class));
         obj.setNombre(tuple.get("nombre", String.class));
         obj.setProceso(tuple.get("proceso", String.class));
         obj.setResponsable(tuple.get("responsable", String.class));
-        obj.setResponsableNombre(tuple.get("responsableNombre", String.class));
-        obj.setResponsableApellido(tuple.get("responsableApellido", String.class));
+        obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
         obj.setFechaInicio(tuple.get("fechaInicio", String.class));
         obj.setFechaFin(tuple.get("fechaFin", String.class));
         obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
@@ -225,5 +227,46 @@ public class XentraRepository {
         obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
 
         return obj;
+    }
+
+    public List<XentraRequest> getListXentraFechas() {
+        List<XentraRequest> list = new ArrayList<>();
+
+        String sql = """
+                SELECT x.nombre, x.responsable,
+                CONCAT (
+                        SUBSTRING (p.nombres, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                        THEN LEN (p.nombres)
+                        ELSE CHARINDEX(' ', p.nombres)-1
+                        END) , 
+                        ' ',
+                        SUBSTRING (p.apellidos, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                        THEN LEN (p.apellidos)
+                        ELSE CHARINDEX(' ', p.apellidos)-1
+                        END)
+                		) 
+                AS responsableNombreApellido, 0 as idEstado, xf.fecha
+                FROM xentraFechas xf
+                LEFT JOIN xentraData x ON xf.idXentra = x.id
+                LEFT JOIN personal p ON x.responsable = p.dni
+                """;
+
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        List<Tuple> resultTuples = query.getResultList();
+
+        for (Tuple tuple : resultTuples) {
+            XentraRequest obj = new XentraRequest();
+            obj.setNombre(tuple.get("nombre", String.class));
+            obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
+            obj.setIdEstado(tuple.get("idEstado", Integer.class));
+            obj.setFecha(tuple.get("fecha", String.class));
+            list.add(obj);
+        }
+
+        return list;
     }
 }
