@@ -3,6 +3,7 @@ package com.joa.prexixion.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class XentraController {
     }
 
     @PostMapping
-    public int insert(@RequestBody XentraRequest request){
+    public int insert(@RequestBody XentraRequest request) {
         int rpta = 0;
         rpta = xentraService.guardarFechas(request);
         return rpta;
@@ -36,13 +37,19 @@ public class XentraController {
 
     @GetMapping("/{id}")
     public XentraRequest getOne(@PathVariable int id) {
-        System.out.println("id: "+id);
         return xentraService.getOne(id);
     }
-    
+
     @GetMapping("/getListXentraFechas")
     public List<XentraRequest> getListXentraFechas() {
         return xentraService.getListXentraFechas();
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public int delete(@PathVariable int id) {
+        System.out.println("id: " + id);
+
+        return xentraService.delete(id);
     }
 
 }

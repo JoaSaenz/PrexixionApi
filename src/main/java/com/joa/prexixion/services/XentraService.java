@@ -34,26 +34,21 @@ public class XentraService {
 
         // Mapa de equivalencias
         Map<Integer, String> diaEquivalencias = Map.of(
-            0, "-",
-            1, "LU",
-            2, "MA",
-            3, "MI",
-            4, "JU",
-            5, "VI",
-            6, "SA",
-            7, "DO"
-        );
+                0, "-",
+                1, "LU",
+                2, "MA",
+                3, "MI",
+                4, "JU",
+                5, "VI",
+                6, "SA",
+                7, "DO");
 
         list.forEach(e -> {
-            System.out.println(e.getDiasSemanaString());
-
             e.setDiasSemanaString(Arrays.stream(e.getDiasSemanaString().split(","))
                     .map(String::trim)
                     .map(Integer::parseInt)
                     .map(diaEquivalencias::get)
                     .collect(Collectors.joining(",")));
-
-            System.out.println(e.getDiasSemanaString());
         });
 
         return list;
@@ -81,7 +76,6 @@ public class XentraService {
         List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual);
         request.setFechas(fechas);
 
-        System.out.println(request.toString());
         int id = xentraRepository.insertarDataGeneral(request);
 
         return id;
@@ -181,5 +175,9 @@ public class XentraService {
 
     public List<XentraRequest> getListXentraFechas() {
         return xentraRepository.getListXentraFechas();
+    }
+
+    public int delete(int id) {
+        return xentraRepository.delete(id);
     }
 }

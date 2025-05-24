@@ -108,10 +108,11 @@ public class XentraRepository {
         int i = 0;
 
         for (LocalDate fecha : fechas) {
-            String sql = "INSERT INTO xentraFechas (idXentra, fecha) VALUES (:idXentra, :fecha)";
+            String sql = "INSERT INTO xentraFechas (idXentra, fecha, idEstado) VALUES (:idXentra, :fecha, :idEstado)";
             Query query = em.createNativeQuery(sql);
             query.setParameter("idXentra", idXentra);
             query.setParameter("fecha", fecha);
+            query.setParameter("idEstado", 1); // Insertar 1:Pendiente por defecto
             query.executeUpdate();
 
             i++;
@@ -137,7 +138,7 @@ public class XentraRepository {
                         WHEN CHARINDEX(' ', p.nombres)-1 < 0
                         THEN LEN (p.nombres)
                         ELSE CHARINDEX(' ', p.nombres)-1
-                        END) , 
+                        END) ,
                         ' ',
                         SUBSTRING (p.apellidos, 1,
                         CASE
@@ -145,7 +146,7 @@ public class XentraRepository {
                         THEN LEN (p.apellidos)
                         ELSE CHARINDEX(' ', p.apellidos)-1
                         END)
-                		) 
+                		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
                 x.diasSemana, x.diaInicioMes, x.diaFinMes
@@ -191,7 +192,7 @@ public class XentraRepository {
                         WHEN CHARINDEX(' ', p.nombres)-1 < 0
                         THEN LEN (p.nombres)
                         ELSE CHARINDEX(' ', p.nombres)-1
-                        END) , 
+                        END) ,
                         ' ',
                         SUBSTRING (p.apellidos, 1,
                         CASE
@@ -199,7 +200,7 @@ public class XentraRepository {
                         THEN LEN (p.apellidos)
                         ELSE CHARINDEX(' ', p.apellidos)-1
                         END)
-                		) 
+                		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
                 x.diasSemana, x.intervaloSemanas, x.diaInicioMes, x.diaFinMes
@@ -247,7 +248,7 @@ public class XentraRepository {
                         WHEN CHARINDEX(' ', p.nombres)-1 < 0
                         THEN LEN (p.nombres)
                         ELSE CHARINDEX(' ', p.nombres)-1
-                        END) , 
+                        END) ,
                         ' ',
                         SUBSTRING (p.apellidos, 1,
                         CASE
@@ -255,7 +256,7 @@ public class XentraRepository {
                         THEN LEN (p.apellidos)
                         ELSE CHARINDEX(' ', p.apellidos)-1
                         END)
-                		) 
+                		)
                 AS responsableNombreApellido, 0 as idEstado, xf.fecha, x.color
                 FROM xentraFechas xf
                 LEFT JOIN xentraData x ON xf.idXentra = x.id
@@ -276,5 +277,22 @@ public class XentraRepository {
         }
 
         return list;
+    }
+
+    @Transactional
+    public int delete(int id) {
+        // Elimina primero las fechas relacionadas (clave foránea)
+        String deleteFechasSql = "DELETE FROM xentraFechas WHERE idXentra = :id";
+        Query deleteFechasQuery = em.createNativeQuery(deleteFechasSql);
+        deleteFechasQuery.setParameter("id", id);
+        deleteFechasQuery.executeUpdate();
+
+        // Luego elimina el registro principal
+        String deleteSql = "DELETE FROM xentraData WHERE id = :id";
+        Query deleteQuery = em.createNativeQuery(deleteSql);
+        deleteQuery.setParameter("id", id);
+
+        int rpta = deleteQuery.executeUpdate(); // Retorna 1 si se eliminó, 0 si no se encontró
+        return (rpta == 1) ? 3 : 0;
     }
 }
