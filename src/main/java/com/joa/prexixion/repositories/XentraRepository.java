@@ -37,6 +37,7 @@ public class XentraRepository {
                             idSubArea = :idSubArea,
                             nombre = :nombre,
                             proceso = :proceso,
+                            color = :color,
                             responsable = :responsable,
                             fechaInicio = :fechaInicio,
                             fechaFin = :fechaFin,
@@ -53,6 +54,7 @@ public class XentraRepository {
             query.setParameter("idSubArea", request.getIdSubArea());
             query.setParameter("nombre", request.getNombre());
             query.setParameter("proceso", request.getProceso());
+            query.setParameter("color", request.getColor());
             query.setParameter("responsable", request.getResponsable());
             query.setParameter("fechaInicio", request.getFechaInicio());
             query.setParameter("fechaFin", request.getFechaFin());
@@ -69,11 +71,11 @@ public class XentraRepository {
             // Inserción con OUTPUT para obtener el ID generado
             String insertSql = """
                         INSERT INTO xentraData (
-                            idArea, idSubArea, nombre, proceso, responsable, fechaInicio, fechaFin,
+                            idArea, idSubArea, nombre, proceso, color, responsable, fechaInicio, fechaFin,
                             tipoRepeticion, diasSemana, intervaloSemanas, diaInicioMes, diaFinMes)
                         OUTPUT INSERTED.id
                         VALUES (
-                            :idArea, :idSubArea, :estiloReporte, :nombre, :proceso, :responsable, :fechaInicio, :fechaFin,
+                            :idArea, :idSubArea, :nombre, :proceso, :color, :responsable, :fechaInicio, :fechaFin,
                             :tipoRepeticion, :diasSemana, :intervaloSemanas, :diaInicioMes, :diaFinMes)
                     """;
 
@@ -82,6 +84,7 @@ public class XentraRepository {
             insertQuery.setParameter("idSubArea", request.getIdSubArea());
             insertQuery.setParameter("nombre", request.getNombre());
             insertQuery.setParameter("proceso", request.getProceso());
+            insertQuery.setParameter("color", request.getColor());
             insertQuery.setParameter("responsable", request.getResponsable());
             insertQuery.setParameter("fechaInicio", request.getFechaInicio());
             insertQuery.setParameter("fechaFin", request.getFechaFin());
@@ -127,7 +130,7 @@ public class XentraRepository {
 
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                nombre, proceso, x.responsable,
+                x.nombre, x.proceso, x.responsable,
                 CONCAT (
                         SUBSTRING (p.nombres, 1,
                         CASE
@@ -181,7 +184,7 @@ public class XentraRepository {
     public XentraRequest getOne(int id) {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                nombre, proceso, x.responsable,
+                x.nombre, x.proceso, x.color, x.responsable,
                 CONCAT (
                         SUBSTRING (p.nombres, 1,
                         CASE
@@ -219,6 +222,7 @@ public class XentraRepository {
         obj.setDescSubArea(tuple.get("descSubArea", String.class));
         obj.setNombre(tuple.get("nombre", String.class));
         obj.setProceso(tuple.get("proceso", String.class));
+        obj.setColor(tuple.get("color", String.class));
         obj.setResponsable(tuple.get("responsable", String.class));
         obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
         obj.setFechaInicio(tuple.get("fechaInicio", String.class));
@@ -252,7 +256,7 @@ public class XentraRepository {
                         ELSE CHARINDEX(' ', p.apellidos)-1
                         END)
                 		) 
-                AS responsableNombreApellido, 0 as idEstado, xf.fecha
+                AS responsableNombreApellido, 0 as idEstado, xf.fecha, x.color
                 FROM xentraFechas xf
                 LEFT JOIN xentraData x ON xf.idXentra = x.id
                 LEFT JOIN personal p ON x.responsable = p.dni
@@ -267,6 +271,7 @@ public class XentraRepository {
             obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
             obj.setIdEstado(tuple.get("idEstado", Integer.class));
             obj.setFecha(tuple.get("fecha", String.class));
+            obj.setColor(tuple.get("color", String.class));
             list.add(obj);
         }
 

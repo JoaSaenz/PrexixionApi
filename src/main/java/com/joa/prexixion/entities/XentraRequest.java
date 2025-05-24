@@ -12,6 +12,7 @@ public class XentraRequest {
     private int idSubArea;
     private String nombre;
     private String proceso;
+    private String color;
     private String responsable;
     private String fechaInicio;
     private String fechaFin;
