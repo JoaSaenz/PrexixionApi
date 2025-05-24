@@ -58,7 +58,7 @@ public class XentraRepository {
             query.setParameter("fechaFin", request.getFechaFin());
             query.setParameter("tipoRepeticion", request.getTipoRepeticion());
             query.setParameter("diasSemana", diasSemana);
-            query.setParameter("intervaloSemanas", request.getIntervaloSemanas());
+            query.setParameter("intervaloSemanas", 1);
             query.setParameter("diaInicioMes", request.getDiaInicioMes());
             query.setParameter("diaFinMes", request.getDiaFinMes());
             query.setParameter("id", request.getId());
@@ -94,17 +94,20 @@ public class XentraRepository {
             Object result = insertQuery.getSingleResult();
             int idGenerado = ((Number) result).intValue();
 
+            insertarFechas(idGenerado, request.getFechas());
+
             return idGenerado;
         }
     }
 
-    public void insertarFechas(List<LocalDate> fechas) {
+    public void insertarFechas(int idXentra, List<LocalDate> fechas) {
         int batchSize = 50;
         int i = 0;
 
         for (LocalDate fecha : fechas) {
-            String sql = "INSERT INTO xentraFechas values (:fecha)";
+            String sql = "INSERT INTO xentraFechas (idXentra, fecha) VALUES (:idXentra, :fecha)";
             Query query = em.createNativeQuery(sql);
+            query.setParameter("idXentra", idXentra);
             query.setParameter("fecha", fecha);
             query.executeUpdate();
 

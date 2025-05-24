@@ -1,5 +1,6 @@
 package com.joa.prexixion.entities;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import lombok.Data;
@@ -21,7 +22,7 @@ public class XentraRequest {
     private int diaInicioMes;
     private int diaFinMes;
 
-    //Variables para List principal
+    // Variables para List principal
     private String descArea;
     private String descSubArea;
     private String responsableNombreApellido;
@@ -29,5 +30,8 @@ public class XentraRequest {
     //Variables para Calendario XentraFechas (luego crear su propia clase)
     private int idEstado;
     private String fecha;
+
+    // Lista de fechas generadas
+    private List<LocalDate> fechas;
 
 }

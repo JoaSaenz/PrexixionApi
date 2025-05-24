@@ -48,15 +48,13 @@ public class XentraService {
             System.out.println(e.getDiasSemanaString());
 
             e.setDiasSemanaString(Arrays.stream(e.getDiasSemanaString().split(","))
-                                .map(String::trim)
-                                .map(Integer::parseInt)
-                                .map(diaEquivalencias::get)
-                                .collect(Collectors.joining(","))); 
-            
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .map(diaEquivalencias::get)
+                    .collect(Collectors.joining(",")));
+
             System.out.println(e.getDiasSemanaString());
         });
-
-       
 
         return list;
     }
@@ -70,22 +68,21 @@ public class XentraService {
         TipoRepeticion tipo = TipoRepeticion.valueOf(request.getTipoRepeticion());
         Set<DayOfWeek> diasSemana = new HashSet<DayOfWeek>();
         request.getDiasSemana().forEach(e -> {
-            diasSemana.add(DayOfWeek.of(e));
+            if (e != 0) {
+                diasSemana.add(DayOfWeek.of(e));
+            }
         });
+
         int intervaloSemanas = 1;
         ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(),
                 request.getDiaFinMes());
 
-        // Generamos las fechas
+        // Generamos las fechas y las asignamos al objeto request
         List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual);
-
-        // Guardamos la data general por el repository
+        request.setFechas(fechas);
 
         System.out.println(request.toString());
         int id = xentraRepository.insertarDataGeneral(request);
-
-        // Guardamos las fechas por el repository
-        // rpta = xentraRepository.insertarFechas(fechas);
 
         return id;
     }
