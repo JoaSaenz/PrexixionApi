@@ -29,8 +29,8 @@ public class XentraService {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public List<XentraRequest> list() {
-        List<XentraRequest> list = xentraRepository.list();
+    public List<XentraRequest> list(int idPuesto, int idArea) {
+        List<XentraRequest> list = xentraRepository.list(idPuesto, idArea);
 
         // Mapa de equivalencias
         Map<Integer, String> diaEquivalencias = Map.of(
@@ -173,8 +173,8 @@ public class XentraService {
         return xentraRepository.getOne(id);
     }
 
-    public List<XentraRequest> getListXentraFechas() {
-        return xentraRepository.getListXentraFechas();
+    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, String dni) {
+        return xentraRepository.getListXentraFechas(idPuesto, idArea, dni);
     }
 
     public int delete(int id) {

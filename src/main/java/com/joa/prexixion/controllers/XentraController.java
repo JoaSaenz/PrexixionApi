@@ -23,9 +23,11 @@ public class XentraController {
     @Autowired
     XentraService xentraService;
 
-    @GetMapping
-    public List<XentraRequest> list() {
-        return xentraService.list();
+    @GetMapping("/{idPuesto}/{idArea}")
+    public List<XentraRequest> list(
+        @PathVariable int idPuesto,
+            @PathVariable int idArea) {
+        return xentraService.list(idPuesto, idArea);
     }
 
     @PostMapping
@@ -40,9 +42,12 @@ public class XentraController {
         return xentraService.getOne(id);
     }
 
-    @GetMapping("/getListXentraFechas")
-    public List<XentraRequest> getListXentraFechas() {
-        return xentraService.getListXentraFechas();
+    @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{dni}")
+    public List<XentraRequest> getListXentraFechas(
+            @PathVariable int idPuesto,
+            @PathVariable int idArea,
+            @PathVariable String dni) {
+        return xentraService.getListXentraFechas(idPuesto, idArea, dni);
     }
 
     @DeleteMapping("/delete/{id}")
