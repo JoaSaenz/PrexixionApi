@@ -252,7 +252,8 @@ public class XentraRepository {
 
         if (idPuesto == 2) {
             sql = """
-                    SELECT CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                    SELECT x.idArea, x.idSubArea,
+                    CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
                     CONCAT (
                             SUBSTRING (p.nombres, 1,
                             CASE
@@ -275,7 +276,8 @@ public class XentraRepository {
                     """;
         } else if (idPuesto == 3) {
             sql = """
-                    SELECT CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                    SELECT x.idArea, x.idSubArea,
+                    CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
                     CONCAT (
                             SUBSTRING (p.nombres, 1,
                             CASE
@@ -299,7 +301,8 @@ public class XentraRepository {
                     """;
         } else {
             sql = """
-                    SELECT CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                    SELECT x.idArea, x.idSubArea,
+                    CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
                     CONCAT (
                             SUBSTRING (p.nombres, 1,
                             CASE
@@ -335,6 +338,8 @@ public class XentraRepository {
 
         for (Tuple tuple : resultTuples) {
             XentraRequest obj = new XentraRequest();
+            obj.setIdArea(tuple.get("idArea", Integer.class));
+            obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
             obj.setNombreReporte(tuple.get("nombreReporte", String.class));
             obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
             obj.setFecha(tuple.get("fecha", String.class));
