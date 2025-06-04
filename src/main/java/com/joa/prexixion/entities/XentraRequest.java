@@ -31,6 +31,7 @@ public class XentraRequest {
 
     //Variables para Calendario XentraFechas (luego crear su propia clase)
     private String fecha;
+    private int idEstadoLogico;
     private String estadoLogico;
 
     // Lista de fechas generadas

@@ -42,12 +42,13 @@ public class XentraController {
         return xentraService.getOne(id);
     }
 
-    @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{dni}")
+    @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{idSubArea}/{dni}")
     public List<XentraRequest> getListXentraFechas(
             @PathVariable int idPuesto,
             @PathVariable int idArea,
+            @PathVariable int idSubArea,
             @PathVariable String dni) {
-        return xentraService.getListXentraFechas(idPuesto, idArea, dni);
+        return xentraService.getListXentraFechas(idPuesto, idArea, idSubArea, dni);
     }
 
     @DeleteMapping("/delete/{id}")

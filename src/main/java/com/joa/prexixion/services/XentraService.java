@@ -173,8 +173,8 @@ public class XentraService {
         return xentraRepository.getOne(id);
     }
 
-    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, String dni) {
-        return xentraRepository.getListXentraFechas(idPuesto, idArea, dni);
+    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
+        return xentraRepository.getListXentraFechas(idPuesto, idArea, idSubArea, dni);
     }
 
     public int delete(int id) {

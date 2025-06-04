@@ -246,7 +246,7 @@ public class XentraRepository {
         return obj;
     }
 
-    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, String dni) {
+    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
         List<XentraRequest> list = new ArrayList<>();
         String sql = "";
 
@@ -269,10 +269,11 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
+                    LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
                     """;
         } else if (idPuesto == 3) {
             sql = """
@@ -293,11 +294,38 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
+                    LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
                     WHERE p.idArea = :idArea
+                    """;
+        } else if (idPuesto == 4) {
+            sql = """
+                    SELECT x.idArea, x.idSubArea,
+                    CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                    CONCAT (
+                            SUBSTRING (p.nombres, 1,
+                            CASE
+                            WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                            THEN LEN (p.nombres)
+                            ELSE CHARINDEX(' ', p.nombres)-1
+                            END) ,
+                            ' ',
+                            SUBSTRING (p.apellidos, 1,
+                            CASE
+                            WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                            THEN LEN (p.apellidos)
+                            ELSE CHARINDEX(' ', p.apellidos)-1
+                            END)
+                    		)
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
+                    FROM xentraFechas xf
+                    LEFT JOIN xentraData x ON xf.idXentra = x.id
+                    LEFT JOIN personal p ON x.responsable = p.dni
+                    LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
+                    WHERE p.idSubArea = :idSubArea
                     """;
         } else {
             sql = """
@@ -318,10 +346,11 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
+                    LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
                     WHERE x.responsable = :dni
                     """;
         }
@@ -330,6 +359,8 @@ public class XentraRepository {
         if (idPuesto != 2) {
             if (idPuesto == 3) {
                 query.setParameter("idArea", idArea);
+            } else if (idPuesto == 4) {
+                query.setParameter("idSubArea", idSubArea);
             } else {
                 query.setParameter("dni", dni);
             }
@@ -343,6 +374,7 @@ public class XentraRepository {
             obj.setNombreReporte(tuple.get("nombreReporte", String.class));
             obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
             obj.setFecha(tuple.get("fecha", String.class));
+            obj.setIdEstadoLogico(tuple.get("idEstadoLogico", Integer.class));
             obj.setEstadoLogico(tuple.get("estadoLogico", String.class));
             obj.setColor(tuple.get("color", String.class));
             list.add(obj);
