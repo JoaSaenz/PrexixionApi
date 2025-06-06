@@ -99,9 +99,11 @@ public class XentraService {
 
                 while (!semanaCursor.isAfter(hasta)) {
                     for (DayOfWeek d : diasSemana) {
-                        LocalDate posible = semanaCursor.with(d);
-                        if (!posible.isBefore(inicio) && !posible.isAfter(hasta)) {
-                            fechas.add(posible);
+                        if (d != DayOfWeek.SUNDAY) { // OMITIR DOMINGO
+                            LocalDate posible = semanaCursor.with(d);
+                            if (!posible.isBefore(inicio) && !posible.isAfter(hasta)) {
+                                fechas.add(posible);
+                            }
                         }
                     }
                     semanaCursor = semanaCursor.plusWeeks(intervaloSemanas);
@@ -111,7 +113,9 @@ public class XentraService {
             case DIARIA:
                 LocalDate actual = inicio;
                 while (!actual.isAfter(hasta)) {
-                    fechas.add(actual);
+                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY) { // OMITIR DOMINGO
+                        fechas.add(actual);
+                    }
                     actual = actual.plusDays(1);
                 }
                 break;
@@ -123,11 +127,24 @@ public class XentraService {
                     while (!mes.isAfter(hasta)) {
                         int y = mes.getYear();
                         int m = mes.getMonthValue();
-                        for (int d = configMensual.getDiaInicio(); d <= configMensual.getDiaFin(); d++) {
+
+                        int diaInicio = configMensual.getDiaInicio();
+                        int diaFin = configMensual.getDiaFin();
+
+                        for (int d = diaInicio; d <= diaFin; d++) {
                             try {
                                 LocalDate fecha = LocalDate.of(y, m, d);
                                 if (!fecha.isBefore(inicio) && !fecha.isAfter(hasta)) {
-                                    fechas.add(fecha);
+
+                                    // Si es domingo y día único (inicio == fin), mover al sabado
+                                    if (fecha.getDayOfWeek() == DayOfWeek.SUNDAY && diaInicio == diaFin) {
+                                        fecha = fecha.minusDays(1);
+                                    }
+
+                                    // Para rangos, OMITIR domingos
+                                    if (fecha.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                                        fechas.add(fecha);
+                                    }
                                 }
                             } catch (DateTimeException e) {
                                 /* día inexistente, ignorar */ }
@@ -138,7 +155,15 @@ public class XentraService {
                     // Caso clásico: mismo día del mes que ‘inicio’
                     LocalDate d = inicio;
                     while (!d.isAfter(hasta)) {
-                        fechas.add(d);
+                        LocalDate posible = d;
+
+                        if (posible.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                            posible = posible.minusDays(1); // mover al sábado
+                        }
+
+                        if (posible.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                            fechas.add(posible);
+                        }
                         d = d.plusMonths(1);
                     }
                 }
@@ -148,7 +173,11 @@ public class XentraService {
             case TRIMESTRAL:
                 actual = inicio;
                 while (!actual.isAfter(hasta)) {
-                    fechas.add(actual);
+                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                        fechas.add(actual);
+                    } else {
+                        fechas.add(actual.minusDays(1)); // mover al sábado
+                    }
                     actual = actual.plusMonths(3);
                 }
                 break;
@@ -156,7 +185,11 @@ public class XentraService {
             case ANUAL:
                 actual = inicio;
                 while (!actual.isAfter(hasta)) {
-                    fechas.add(actual);
+                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                        fechas.add(actual);
+                    } else {
+                        fechas.add(actual.minusDays(1)); // mover al sábado
+                    }
                     actual = actual.plusYears(1);
                 }
                 break;
