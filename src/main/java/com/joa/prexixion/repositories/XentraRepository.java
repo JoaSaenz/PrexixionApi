@@ -1,9 +1,13 @@
 package com.joa.prexixion.repositories;
 
 import java.math.BigInteger;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
@@ -37,7 +41,6 @@ public class XentraRepository {
                             idSubArea = :idSubArea,
                             abreviatura = :abreviatura,
                             nombre = :nombre,
-                            color = :color,
                             responsable = :responsable,
                             fechaInicio = :fechaInicio,
                             fechaFin = :fechaFin,
@@ -54,7 +57,6 @@ public class XentraRepository {
             query.setParameter("idSubArea", request.getIdSubArea());
             query.setParameter("abreviatura", request.getAbreviatura());
             query.setParameter("nombre", request.getNombre());
-            query.setParameter("color", request.getColor());
             query.setParameter("responsable", request.getResponsable());
             query.setParameter("fechaInicio", request.getFechaInicio());
             query.setParameter("fechaFin", request.getFechaFin());
@@ -71,11 +73,11 @@ public class XentraRepository {
             // Inserción con OUTPUT para obtener el ID generado
             String insertSql = """
                         INSERT INTO xentraData (
-                            idArea, idSubArea, abreviatura, nombre, color, responsable, fechaInicio, fechaFin,
+                            idArea, idSubArea, abreviatura, nombre, responsable, fechaInicio, fechaFin,
                             tipoRepeticion, diasSemana, intervaloSemanas, diaInicioMes, diaFinMes)
                         OUTPUT INSERTED.id
                         VALUES (
-                            :idArea, :idSubArea, :abreviatura, :nombre, :color, :responsable, :fechaInicio, :fechaFin,
+                            :idArea, :idSubArea, :abreviatura, :nombre, :responsable, :fechaInicio, :fechaFin,
                             :tipoRepeticion, :diasSemana, :intervaloSemanas, :diaInicioMes, :diaFinMes)
                     """;
 
@@ -84,7 +86,6 @@ public class XentraRepository {
             insertQuery.setParameter("idSubArea", request.getIdSubArea());
             insertQuery.setParameter("abreviatura", request.getAbreviatura());
             insertQuery.setParameter("nombre", request.getNombre());
-            insertQuery.setParameter("color", request.getColor());
             insertQuery.setParameter("responsable", request.getResponsable());
             insertQuery.setParameter("fechaInicio", request.getFechaInicio());
             insertQuery.setParameter("fechaFin", request.getFechaFin());
@@ -194,7 +195,7 @@ public class XentraRepository {
     public XentraRequest getOne(int id) {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                x.abreviatura, x.nombre, x.color, x.responsable,
+                x.abreviatura, x.nombre, x.responsable,
                 CONCAT (
                         SUBSTRING (p.nombres, 1,
                         CASE
@@ -232,7 +233,6 @@ public class XentraRepository {
         obj.setDescSubArea(tuple.get("descSubArea", String.class));
         obj.setAbreviatura(tuple.get("abreviatura", String.class));
         obj.setNombre(tuple.get("nombre", String.class));
-        obj.setColor(tuple.get("color", String.class));
         obj.setResponsable(tuple.get("responsable", String.class));
         obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));
         obj.setFechaInicio(tuple.get("fechaInicio", String.class));
@@ -269,7 +269,7 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
@@ -294,7 +294,7 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
@@ -320,7 +320,7 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
@@ -346,7 +346,7 @@ public class XentraRepository {
                             ELSE CHARINDEX(' ', p.apellidos)-1
                             END)
                     		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, x.color
+                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
                     FROM xentraFechas xf
                     LEFT JOIN xentraData x ON xf.idXentra = x.id
                     LEFT JOIN personal p ON x.responsable = p.dni
@@ -381,6 +381,27 @@ public class XentraRepository {
         }
 
         return list;
+    }
+
+    public Set<LocalDate> obtenerFeriados() {
+        Set<LocalDate> feriados = new HashSet<>();
+
+        String sql = """
+                SELECT fecha FROM cronogramaFeriados;
+                """;
+
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        List<Tuple> resultTuples = query.getResultList();
+
+        for (Tuple tuple : resultTuples) {
+            Date fechaSql = tuple.get("fecha", Date.class);
+            if (fechaSql != null) {
+                LocalDate fecha = fechaSql.toLocalDate();
+                feriados.add(fecha);
+            }
+        }
+
+        return feriados;
     }
 
     @Transactional

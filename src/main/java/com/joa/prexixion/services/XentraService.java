@@ -72,8 +72,11 @@ public class XentraService {
         ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(),
                 request.getDiaFinMes());
 
+        Set<LocalDate> feriados = xentraRepository.obtenerFeriados();
+
         // Generamos las fechas y las asignamos al objeto request
-        List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual);
+        List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual,
+                feriados);
         request.setFechas(fechas);
 
         int id = xentraRepository.insertarDataGeneral(request);
@@ -87,7 +90,8 @@ public class XentraService {
             int intervaloSemanas,
             LocalDate hasta,
             Set<DayOfWeek> diasSemana,
-            ConfiguracionMensual configMensual) {
+            ConfiguracionMensual configMensual,
+            Set<LocalDate> feriados) {
 
         List<LocalDate> fechas = new ArrayList<>();
 
@@ -99,11 +103,17 @@ public class XentraService {
 
                 while (!semanaCursor.isAfter(hasta)) {
                     for (DayOfWeek d : diasSemana) {
-                        if (d != DayOfWeek.SUNDAY) { // OMITIR DOMINGO
-                            LocalDate posible = semanaCursor.with(d);
-                            if (!posible.isBefore(inicio) && !posible.isAfter(hasta)) {
-                                fechas.add(posible);
-                            }
+                        LocalDate posible = semanaCursor.with(d);
+
+                        // Retroceder si es domingo o feriado, sin límite de semana
+                        while (posible.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(posible)) {
+                            posible = posible.minusDays(1);
+                        }
+
+                        if (!posible.isBefore(inicio) && !posible.isAfter(hasta)
+                                && posible.getDayOfWeek() != DayOfWeek.SUNDAY
+                                && !feriados.contains(posible)) {
+                            fechas.add(posible);
                         }
                     }
                     semanaCursor = semanaCursor.plusWeeks(intervaloSemanas);
@@ -113,7 +123,7 @@ public class XentraService {
             case DIARIA:
                 LocalDate actual = inicio;
                 while (!actual.isAfter(hasta)) {
-                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY) { // OMITIR DOMINGO
+                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY && !feriados.contains(actual)) { // OMITIR DOMINGO
                         fechas.add(actual);
                     }
                     actual = actual.plusDays(1);
@@ -136,13 +146,17 @@ public class XentraService {
                                 LocalDate fecha = LocalDate.of(y, m, d);
                                 if (!fecha.isBefore(inicio) && !fecha.isAfter(hasta)) {
 
-                                    // Si es domingo y día único (inicio == fin), mover al sabado
-                                    if (fecha.getDayOfWeek() == DayOfWeek.SUNDAY && diaInicio == diaFin) {
-                                        fecha = fecha.minusDays(1);
+                                    // Si es un único día y cae en domingo o feriado, retroceder
+                                    if (diaInicio == diaFin
+                                            && (fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))) {
+                                        do {
+                                            fecha = fecha.minusDays(1);
+                                        } while ((fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))
+                                                && !fecha.isBefore(inicio));
                                     }
 
-                                    // Para rangos, OMITIR domingos
-                                    if (fecha.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                                    // Para rangos, simplemente omitir domingos y feriados
+                                    if (fecha.getDayOfWeek() != DayOfWeek.SUNDAY && !feriados.contains(fecha)) {
                                         fechas.add(fecha);
                                     }
                                 }
@@ -185,11 +199,20 @@ public class XentraService {
             case ANUAL:
                 actual = inicio;
                 while (!actual.isAfter(hasta)) {
-                    if (actual.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                        fechas.add(actual);
-                    } else {
-                        fechas.add(actual.minusDays(1)); // mover al sábado
+                    LocalDate posible = actual;
+
+                    // Retroceder si cae en domingo o feriado, hasta encontrar día hábil
+                    while ((posible.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(posible))
+                            && !posible.isBefore(inicio)) {
+                        posible = posible.minusDays(1);
                     }
+
+                    // Agregar solo si no es domingo ni feriado (por seguridad extra)
+                    if (posible.getDayOfWeek() != DayOfWeek.SUNDAY && !feriados.contains(posible)) {
+                        fechas.add(posible);
+                    }
+
+                    // Avanzar un año desde la fecha original (no desde `posible`)
                     actual = actual.plusYears(1);
                 }
                 break;
