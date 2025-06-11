@@ -157,7 +157,12 @@ public class XentraRepository {
                 		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                x.diasSemana, x.mesesPermitidos, x.diaInicioMes, x.diaFinMes
+                x.diasSemana, 
+                CASE WHEN tipoRepeticion = 'DIARIA' THEN '0'
+					WHEN tipoRepeticion = 'SEMANAL' THEN '0'
+					WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
+				END AS mesesPermitidos, 
+                x.diaInicioMes, x.diaFinMes
                 FROM xentraData x
                 LEFT JOIN areas a ON x.idArea = a.id
                 LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id

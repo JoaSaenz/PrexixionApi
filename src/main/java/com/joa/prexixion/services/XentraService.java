@@ -45,6 +45,7 @@ public class XentraService {
                 6, "SA",
                 7, "DO");
         Map<Integer, String> mesEquivalencias = Map.ofEntries(
+                Map.entry(0, "-"),
                 Map.entry(1, "ENE"),
                 Map.entry(2, "FEB"),
                 Map.entry(3, "MAR"),
