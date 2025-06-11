@@ -32,6 +32,9 @@ public class XentraRepository {
         String diasSemana = request.getDiasSemana().stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
+        String mesesPermitidos = request.getMesesPermitidos().stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
 
         if (request.getId() > 0) {
             // UPDATE si el ID ya existe
@@ -47,6 +50,7 @@ public class XentraRepository {
                             tipoRepeticion = :tipoRepeticion,
                             diasSemana = :diasSemana,
                             intervaloSemanas = :intervaloSemanas,
+                            mesesPermitidos = :mesesPermitidos,
                             diaInicioMes = :diaInicioMes,
                             diaFinMes = :diaFinMes
                         where id = :id
@@ -63,6 +67,7 @@ public class XentraRepository {
             query.setParameter("tipoRepeticion", request.getTipoRepeticion());
             query.setParameter("diasSemana", diasSemana);
             query.setParameter("intervaloSemanas", 1);
+            query.setParameter("mesesPermitidos", mesesPermitidos);
             query.setParameter("diaInicioMes", request.getDiaInicioMes());
             query.setParameter("diaFinMes", request.getDiaFinMes());
             query.setParameter("id", request.getId());
@@ -74,11 +79,11 @@ public class XentraRepository {
             String insertSql = """
                         INSERT INTO xentraData (
                             idArea, idSubArea, abreviatura, nombre, responsable, fechaInicio, fechaFin,
-                            tipoRepeticion, diasSemana, intervaloSemanas, diaInicioMes, diaFinMes)
+                            tipoRepeticion, diasSemana, intervaloSemanas, mesesPermitidos, diaInicioMes, diaFinMes)
                         OUTPUT INSERTED.id
                         VALUES (
                             :idArea, :idSubArea, :abreviatura, :nombre, :responsable, :fechaInicio, :fechaFin,
-                            :tipoRepeticion, :diasSemana, :intervaloSemanas, :diaInicioMes, :diaFinMes)
+                            :tipoRepeticion, :diasSemana, :intervaloSemanas, :mesesPermitidos, :diaInicioMes, :diaFinMes)
                     """;
 
             Query insertQuery = em.createNativeQuery(insertSql);
@@ -92,6 +97,7 @@ public class XentraRepository {
             insertQuery.setParameter("tipoRepeticion", request.getTipoRepeticion());
             insertQuery.setParameter("diasSemana", diasSemana);
             insertQuery.setParameter("intervaloSemanas", request.getIntervaloSemanas());
+            insertQuery.setParameter("mesesPermitidos", mesesPermitidos);
             insertQuery.setParameter("diaInicioMes", request.getDiaInicioMes());
             insertQuery.setParameter("diaFinMes", request.getDiaFinMes());
 
@@ -151,7 +157,7 @@ public class XentraRepository {
                 		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                x.diasSemana, x.diaInicioMes, x.diaFinMes
+                x.diasSemana, x.mesesPermitidos, x.diaInicioMes, x.diaFinMes
                 FROM xentraData x
                 LEFT JOIN areas a ON x.idArea = a.id
                 LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
@@ -184,6 +190,7 @@ public class XentraRepository {
             obj.setFechaFin(tuple.get("fechaFin", String.class));
             obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
             obj.setDiasSemanaString(tuple.get("diasSemana", String.class));
+            obj.setMesesPermitidosString(tuple.get("mesesPermitidos", String.class));
             obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
             obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
             list.add(obj);
@@ -213,7 +220,7 @@ public class XentraRepository {
                 		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                x.diasSemana, x.intervaloSemanas, x.diaInicioMes, x.diaFinMes
+                x.diasSemana, x.intervaloSemanas, x.mesesPermitidos, x.diaInicioMes, x.diaFinMes
                 FROM xentraData x
                 LEFT JOIN areas a ON x.idArea = a.id
                 LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
@@ -240,6 +247,7 @@ public class XentraRepository {
         obj.setTipoRepeticion(tuple.get("tipoRepeticion", String.class));
         obj.setDiasSemanaString(tuple.get("diasSemana", String.class));
         obj.setIntervaloSemanas(tuple.get("intervaloSemanas", Integer.class));
+        obj.setMesesPermitidosString(tuple.get("mesesPermitidos", String.class));
         obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
         obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
 

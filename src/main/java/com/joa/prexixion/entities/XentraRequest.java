@@ -20,6 +20,8 @@ public class XentraRequest {
     private List<Integer> diasSemana; // ej. 1 (Lunes), 4 (Jueves)
     private String diasSemanaString;
     private int intervaloSemanas;
+    private List<Integer> mesesPermitidos; // ej. 1 (Enero), 4 (Febreo)
+    private String mesesPermitidosString;
     private int diaInicioMes;
     private int diaFinMes;
 

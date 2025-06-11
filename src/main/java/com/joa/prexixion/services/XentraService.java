@@ -3,10 +3,12 @@ package com.joa.prexixion.services;
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +44,32 @@ public class XentraService {
                 5, "VI",
                 6, "SA",
                 7, "DO");
+        Map<Integer, String> mesEquivalencias = Map.ofEntries(
+                Map.entry(1, "ENE"),
+                Map.entry(2, "FEB"),
+                Map.entry(3, "MAR"),
+                Map.entry(4, "ABR"),
+                Map.entry(5, "MAY"),
+                Map.entry(6, "JUN"),
+                Map.entry(7, "JUL"),
+                Map.entry(8, "AGO"),
+                Map.entry(9, "SEP"),
+                Map.entry(10, "OCT"),
+                Map.entry(11, "NOV"),
+                Map.entry(12, "DIC"));
 
         list.forEach(e -> {
             e.setDiasSemanaString(Arrays.stream(e.getDiasSemanaString().split(","))
                     .map(String::trim)
                     .map(Integer::parseInt)
                     .map(diaEquivalencias::get)
+                    .collect(Collectors.joining(",")));
+        });
+        list.forEach(e -> {
+            e.setMesesPermitidosString(Arrays.stream(e.getMesesPermitidosString().split(","))
+                    .map(String::trim)
+                    .map(Integer::parseInt)
+                    .map(mesEquivalencias::get)
                     .collect(Collectors.joining(",")));
         });
 
@@ -69,13 +91,22 @@ public class XentraService {
         });
 
         int intervaloSemanas = 1;
+
+        Set<Month> mesesPermitidos = new HashSet<Month>();
+        request.getMesesPermitidos().forEach(e -> {
+            if (e != 0) {
+                mesesPermitidos.add(Month.of(e));
+            }
+        });
+
         ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(),
                 request.getDiaFinMes());
 
         Set<LocalDate> feriados = xentraRepository.obtenerFeriados();
 
         // Generamos las fechas y las asignamos al objeto request
-        List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, configMensual,
+        List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, mesesPermitidos,
+                configMensual,
                 feriados);
         request.setFechas(fechas);
 
@@ -90,6 +121,7 @@ public class XentraService {
             int intervaloSemanas,
             LocalDate hasta,
             Set<DayOfWeek> diasSemana,
+            Set<Month> mesesPermitidos,
             ConfiguracionMensual configMensual,
             Set<LocalDate> feriados) {
 
@@ -131,55 +163,43 @@ public class XentraService {
                 break;
 
             case MENSUAL: {
-                if (configMensual != null) {
-                    // Caso “rango de días”: p. ej. 5-15 de cada mes
-                    LocalDate mes = inicio.withDayOfMonth(1);
-                    while (!mes.isAfter(hasta)) {
-                        int y = mes.getYear();
-                        int m = mes.getMonthValue();
-
-                        int diaInicio = configMensual.getDiaInicio();
-                        int diaFin = configMensual.getDiaFin();
-
-                        for (int d = diaInicio; d <= diaFin; d++) {
-                            try {
-                                LocalDate fecha = LocalDate.of(y, m, d);
-                                if (!fecha.isBefore(inicio) && !fecha.isAfter(hasta)) {
-
-                                    // Si es un único día y cae en domingo o feriado, retroceder
-                                    if (diaInicio == diaFin
-                                            && (fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))) {
-                                        do {
-                                            fecha = fecha.minusDays(1);
-                                        } while ((fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))
-                                                && !fecha.isBefore(inicio));
-                                    }
-
-                                    // Para rangos, simplemente omitir domingos y feriados
-                                    if (fecha.getDayOfWeek() != DayOfWeek.SUNDAY && !feriados.contains(fecha)) {
-                                        fechas.add(fecha);
-                                    }
-                                }
-                            } catch (DateTimeException e) {
-                                /* día inexistente, ignorar */ }
-                        }
+                LocalDate mes = inicio.withDayOfMonth(1);
+                while (!mes.isAfter(hasta)) {
+                    if (mesesPermitidos != null && !mesesPermitidos.contains(mes.getMonth())) {
                         mes = mes.plusMonths(1);
+                        continue;
                     }
-                } else {
-                    // Caso clásico: mismo día del mes que ‘inicio’
-                    LocalDate d = inicio;
-                    while (!d.isAfter(hasta)) {
-                        LocalDate posible = d;
 
-                        if (posible.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                            posible = posible.minusDays(1); // mover al sábado
-                        }
+                    int y = mes.getYear();
+                    int m = mes.getMonthValue();
 
-                        if (posible.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                            fechas.add(posible);
+                    int diaInicio = configMensual.getDiaInicio();
+                    int diaFin = configMensual.getDiaFin();
+
+                    for (int d = diaInicio; d <= diaFin; d++) {
+                        try {
+                            LocalDate fecha = LocalDate.of(y, m, d);
+                            if (!fecha.isBefore(inicio) && !fecha.isAfter(hasta)) {
+
+                                // Si es un único día y cae en domingo o feriado, retroceder
+                                if (diaInicio == diaFin
+                                        && (fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))) {
+                                    do {
+                                        fecha = fecha.minusDays(1);
+                                    } while ((fecha.getDayOfWeek() == DayOfWeek.SUNDAY || feriados.contains(fecha))
+                                            && !fecha.isBefore(inicio));
+                                }
+
+                                // Para rangos, simplemente omitir domingos y feriados
+                                if (fecha.getDayOfWeek() != DayOfWeek.SUNDAY && !feriados.contains(fecha)) {
+                                    fechas.add(fecha);
+                                }
+                            }
+                        } catch (DateTimeException e) {
+                            // día inexistente, ignorar
                         }
-                        d = d.plusMonths(1);
                     }
+                    mes = mes.plusMonths(1);
                 }
                 break;
             }
