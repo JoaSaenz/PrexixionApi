@@ -138,46 +138,54 @@ public class XentraRepository {
         List<XentraRequest> list = new ArrayList<>();
 
         String sql = """
-                SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte,  x.responsable,
-                CONCAT (
-                        SUBSTRING (p.nombres, 1,
-                        CASE
-                        WHEN CHARINDEX(' ', p.nombres)-1 < 0
-                        THEN LEN (p.nombres)
-                        ELSE CHARINDEX(' ', p.nombres)-1
-                        END) ,
-                        ' ',
-                        SUBSTRING (p.apellidos, 1,
-                        CASE
-                        WHEN CHARINDEX(' ', p.apellidos)-1 < 0
-                        THEN LEN (p.apellidos)
-                        ELSE CHARINDEX(' ', p.apellidos)-1
-                        END)
-                		)
-                AS responsableNombreApellido,
-                x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                x.diasSemana, 
-                CASE WHEN tipoRepeticion = 'DIARIA' THEN '0'
-					WHEN tipoRepeticion = 'SEMANAL' THEN '0'
-					WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
-				END AS mesesPermitidos, 
-                x.diaInicioMes, x.diaFinMes
-                FROM xentraData x
-                LEFT JOIN areas a ON x.idArea = a.id
-                LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
-                LEFT JOIN personal p ON x.responsable = p.dni
-                """;
+                            SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
+                            CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte,  x.responsable,
+                            CONCAT (
+                                    SUBSTRING (p.nombres, 1,
+                                    CASE
+                                    WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                                    THEN LEN (p.nombres)
+                                    ELSE CHARINDEX(' ', p.nombres)-1
+                                    END) ,
+                                    ' ',
+                                    SUBSTRING (p.apellidos, 1,
+                                    CASE
+                                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                                    THEN LEN (p.apellidos)
+                                    ELSE CHARINDEX(' ', p.apellidos)-1
+                                    END)
+                            		)
+                            AS responsableNombreApellido,
+                            x.fechaInicio, x.fechaFin, x.tipoRepeticion,
+                            x.diasSemana,
+                            CASE WHEN tipoRepeticion = 'DIARIA' THEN '0'
+                                WHEN tipoRepeticion = 'SEMANAL' THEN '0'
+                                WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
+                            END AS mesesPermitidos,
+                            x.diaInicioMes, x.diaFinMes
+                            FROM xentraData x
+                            LEFT JOIN areas a ON x.idArea = a.id
+                            LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
+                            LEFT JOIN personal p ON x.responsable = p.dni
+                            """;
 
         if (idPuesto == 3) {
-            sql += """
-                    WHERE p.idArea = :idArea
-                    """;
+            if (idArea == 2) {
+                sql += """
+                        WHERE p.idArea in (2,4)
+                        """;
+            } else {
+                sql += """
+                        WHERE p.idArea = :idArea
+                        """;
+            }
         }
 
         Query query = em.createNativeQuery(sql, Tuple.class);
         if (idPuesto == 3) {
-            query.setParameter("idArea", idArea);
+            if (idArea != 2) {
+                query.setParameter("idArea", idArea);
+            }
         }
         List<Tuple> resultTuples = query.getResultList();
 
@@ -289,31 +297,59 @@ public class XentraRepository {
                     LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
                     """;
         } else if (idPuesto == 3) {
-            sql = """
-                    SELECT x.idArea, x.idSubArea,
-                    CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
-                    CONCAT (
-                            SUBSTRING (p.nombres, 1,
-                            CASE
-                            WHEN CHARINDEX(' ', p.nombres)-1 < 0
-                            THEN LEN (p.nombres)
-                            ELSE CHARINDEX(' ', p.nombres)-1
-                            END) ,
-                            ' ',
-                            SUBSTRING (p.apellidos, 1,
-                            CASE
-                            WHEN CHARINDEX(' ', p.apellidos)-1 < 0
-                            THEN LEN (p.apellidos)
-                            ELSE CHARINDEX(' ', p.apellidos)-1
-                            END)
-                    		)
-                    AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
-                    FROM xentraFechas xf
-                    LEFT JOIN xentraData x ON xf.idXentra = x.id
-                    LEFT JOIN personal p ON x.responsable = p.dni
-                    LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
-                    WHERE p.idArea = :idArea
-                    """;
+            if (idArea == 2) {
+                sql = """
+                        SELECT x.idArea, x.idSubArea,
+                        CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                        CONCAT (
+                                SUBSTRING (p.nombres, 1,
+                                CASE
+                                WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                                THEN LEN (p.nombres)
+                                ELSE CHARINDEX(' ', p.nombres)-1
+                                END) ,
+                                ' ',
+                                SUBSTRING (p.apellidos, 1,
+                                CASE
+                                WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                                THEN LEN (p.apellidos)
+                                ELSE CHARINDEX(' ', p.apellidos)-1
+                                END)
+                        		)
+                        AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
+                        FROM xentraFechas xf
+                        LEFT JOIN xentraData x ON xf.idXentra = x.id
+                        LEFT JOIN personal p ON x.responsable = p.dni
+                        LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
+                        WHERE p.idArea in (2,4)
+                        """;
+            } else {
+                sql = """
+                        SELECT x.idArea, x.idSubArea,
+                        CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
+                        CONCAT (
+                                SUBSTRING (p.nombres, 1,
+                                CASE
+                                WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                                THEN LEN (p.nombres)
+                                ELSE CHARINDEX(' ', p.nombres)-1
+                                END) ,
+                                ' ',
+                                SUBSTRING (p.apellidos, 1,
+                                CASE
+                                WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                                THEN LEN (p.apellidos)
+                                ELSE CHARINDEX(' ', p.apellidos)-1
+                                END)
+                        		)
+                        AS responsableNombreApellido, xf.idEstado, xf.fecha, xfe.id as idEstadoLogico, xf.estadoLogico, p.color
+                        FROM xentraFechas xf
+                        LEFT JOIN xentraData x ON xf.idXentra = x.id
+                        LEFT JOIN personal p ON x.responsable = p.dni
+                        LEFT JOIN xentraFechasEstadosLogicos xfe ON xf.estadoLogico = xfe.descripcion
+                        WHERE p.idArea = :idArea
+                        """;
+            }
         } else if (idPuesto == 4) {
             sql = """
                     SELECT x.idArea, x.idSubArea,
@@ -371,7 +407,9 @@ public class XentraRepository {
         Query query = em.createNativeQuery(sql, Tuple.class);
         if (idPuesto != 2) {
             if (idPuesto == 3) {
-                query.setParameter("idArea", idArea);
+                if (idArea != 2) {
+                    query.setParameter("idArea", idArea);
+                }
             } else if (idPuesto == 4) {
                 query.setParameter("idSubArea", idSubArea);
             } else {
