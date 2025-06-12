@@ -23,6 +23,7 @@ public class XentraReporteRepository {
         List<XentraReporte> list = new ArrayList<>();
         String sql = """
                 SELECT xf.id, xf.idXentra,
+                x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
                 CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte, x.responsable,
                 CONCAT (
                         SUBSTRING (p.nombres, 1,
@@ -43,6 +44,8 @@ public class XentraReporteRepository {
                 xf.fecha, xf.idEstado, xfe.descripcion AS descEstado, xf.fechaEstado, xf.horaEstado, xf.estadoLogico
                 FROM xentraFechas xf
                 LEFT JOIN xentraData x ON xf.idXentra = x.id
+                LEFT JOIN areas a ON x.idArea = a.id
+                LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
                 LEFT JOIN personal p ON x.responsable = p.dni
                 LEFT JOIN xentraFechasEstados xfe ON xf.idEstado = xfe.id
                 """;
@@ -52,19 +55,30 @@ public class XentraReporteRepository {
                     WHERE xf.fecha >= :fechaInicial AND xf.fecha <= :fechaFinal
                     """;
         } else if (idPuesto == 3) {
-            sql += """
-                    WHERE p.idArea = :idArea AND xf.fecha >= :fechaInicial AND xf.fecha <= :fechaFinal
-                    """;
+            if (idArea == 2) {
+                sql += """
+                        WHERE p.idArea in (2,4) AND xf.fecha >= :fechaInicial AND xf.fecha <= :fechaFinal
+                        """;
+            } else {
+                sql += """
+                        WHERE p.idArea = :idArea AND xf.fecha >= :fechaInicial AND xf.fecha <= :fechaFinal
+                        """;
+            }
         } else {
             sql += """
                     WHERE x.responsable = :dni AND xf.fecha >= :fechaInicial AND xf.fecha <= :fechaFinal
                     """;
         }
+        sql += """
+                ORDER BY x.idArea, x.idSubArea
+                """;
 
         Query query = em.createNativeQuery(sql, Tuple.class);
         if (idPuesto != 2) {
             if (idPuesto == 3) {
-                query.setParameter("idArea", idArea);
+                if (idArea != 2) {
+                    query.setParameter("idArea", idArea);
+                }
             } else {
                 query.setParameter("dni", dni);
             }
@@ -77,6 +91,10 @@ public class XentraReporteRepository {
             XentraReporte obj = new XentraReporte();
             obj.setId(tuple.get("id", Integer.class));
             obj.setIdXentra(tuple.get("idXentra", Integer.class));
+            obj.setIdArea(tuple.get("idArea", Integer.class));
+            obj.setDescArea(tuple.get("descArea", String.class));
+            obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
+            obj.setDescSubArea(tuple.get("descSubArea", String.class));
             obj.setNombreReporte(tuple.get("nombreReporte", String.class));
             obj.setResponsable(tuple.get("responsable", String.class));
             obj.setResponsableNombreApellido(tuple.get("responsableNombreApellido", String.class));

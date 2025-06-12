@@ -13,6 +13,10 @@ public class XentraReporte {
     private String estadoLogico;
 
     //Variabls para List principal
+    private int idArea;
+    private String descArea;
+    private int idSubArea;
+    private String descSubArea;
     private String nombreReporte;
     private String responsable;
     private String responsableNombreApellido;
