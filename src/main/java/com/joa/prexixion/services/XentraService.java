@@ -128,6 +128,9 @@ public class XentraService {
 
         List<LocalDate> fechas = new ArrayList<>();
 
+        // Set para evitar duplicados (por retrocesos en días consecutivos)
+        Set<LocalDate> fechasAsignadas = new HashSet<>();
+
         switch (tipo) {
             case SEMANAL:
                 // Encontrar el lunes de la semana del inicio (puedes cambiarlo si tu semana
@@ -144,9 +147,9 @@ public class XentraService {
                         }
 
                         if (!posible.isBefore(inicio) && !posible.isAfter(hasta)
-                                && posible.getDayOfWeek() != DayOfWeek.SUNDAY
-                                && !feriados.contains(posible)) {
+                                && !fechasAsignadas.contains(posible)) {
                             fechas.add(posible);
+                            fechasAsignadas.add(posible);
                         }
                     }
                     semanaCursor = semanaCursor.plusWeeks(intervaloSemanas);
