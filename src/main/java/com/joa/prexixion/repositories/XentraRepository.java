@@ -162,7 +162,7 @@ public class XentraRepository {
                                 WHEN tipoRepeticion = 'SEMANAL' THEN '0'
                                 WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
                             END AS mesesPermitidos,
-                            x.diaInicioMes, x.diaFinMes
+                            x.diaInicioMes, x.diaFinMes, x.estado
                             FROM xentraData x
                             LEFT JOIN areas a ON x.idArea = a.id
                             LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
@@ -206,6 +206,7 @@ public class XentraRepository {
             obj.setMesesPermitidosString(tuple.get("mesesPermitidos", String.class));
             obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
             obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
+            obj.setEstado(tuple.get("estado", String.class));
             list.add(obj);
         }
 

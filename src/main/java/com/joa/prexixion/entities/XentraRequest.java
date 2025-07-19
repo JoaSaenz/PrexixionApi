@@ -24,6 +24,7 @@ public class XentraRequest {
     private String mesesPermitidosString;
     private int diaInicioMes;
     private int diaFinMes;
+    private String estado;
 
     // Variables para List principal
     private String descArea;
