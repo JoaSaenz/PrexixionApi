@@ -52,7 +52,8 @@ public class XentraRepository {
                             intervaloSemanas = :intervaloSemanas,
                             mesesPermitidos = :mesesPermitidos,
                             diaInicioMes = :diaInicioMes,
-                            diaFinMes = :diaFinMes
+                            diaFinMes = :diaFinMes,
+                            estado = :estado
                         where id = :id
                     """;
 
@@ -70,6 +71,7 @@ public class XentraRepository {
             query.setParameter("mesesPermitidos", mesesPermitidos);
             query.setParameter("diaInicioMes", request.getDiaInicioMes());
             query.setParameter("diaFinMes", request.getDiaFinMes());
+            query.setParameter("estado", request.getEstado());
             query.setParameter("id", request.getId());
 
             query.executeUpdate();
@@ -79,11 +81,11 @@ public class XentraRepository {
             String insertSql = """
                         INSERT INTO xentraData (
                             idArea, idSubArea, abreviatura, nombre, responsable, fechaInicio, fechaFin,
-                            tipoRepeticion, diasSemana, intervaloSemanas, mesesPermitidos, diaInicioMes, diaFinMes)
+                            tipoRepeticion, diasSemana, intervaloSemanas, mesesPermitidos, diaInicioMes, diaFinMes, estado)
                         OUTPUT INSERTED.id
                         VALUES (
                             :idArea, :idSubArea, :abreviatura, :nombre, :responsable, :fechaInicio, :fechaFin,
-                            :tipoRepeticion, :diasSemana, :intervaloSemanas, :mesesPermitidos, :diaInicioMes, :diaFinMes)
+                            :tipoRepeticion, :diasSemana, :intervaloSemanas, :mesesPermitidos, :diaInicioMes, :diaFinMes, :estado)
                     """;
 
             Query insertQuery = em.createNativeQuery(insertSql);
@@ -100,6 +102,7 @@ public class XentraRepository {
             insertQuery.setParameter("mesesPermitidos", mesesPermitidos);
             insertQuery.setParameter("diaInicioMes", request.getDiaInicioMes());
             insertQuery.setParameter("diaFinMes", request.getDiaFinMes());
+            insertQuery.setParameter("estado", request.getEstado());
 
             Object result = insertQuery.getSingleResult();
             int idGenerado = ((Number) result).intValue();
@@ -234,7 +237,7 @@ public class XentraRepository {
                 		)
                 AS responsableNombreApellido,
                 x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                x.diasSemana, x.intervaloSemanas, x.mesesPermitidos, x.diaInicioMes, x.diaFinMes
+                x.diasSemana, x.intervaloSemanas, x.mesesPermitidos, x.diaInicioMes, x.diaFinMes, x.estado
                 FROM xentraData x
                 LEFT JOIN areas a ON x.idArea = a.id
                 LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
@@ -264,6 +267,7 @@ public class XentraRepository {
         obj.setMesesPermitidosString(tuple.get("mesesPermitidos", String.class));
         obj.setDiaInicioMes(tuple.get("diaInicioMes", Integer.class));
         obj.setDiaFinMes(tuple.get("diaFinMes", Integer.class));
+        obj.setEstado(tuple.get("estado", String.class));
 
         return obj;
     }
