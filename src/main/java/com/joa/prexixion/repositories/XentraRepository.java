@@ -36,8 +36,19 @@ public class XentraRepository {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
         if (request.getId() > 0) {
-            // UPDATE si el ID ya existe
+            // 1. Obtener fechaFin actual en BD
+            String fechaFinStr = (String) em.createNativeQuery(
+                    "SELECT fechaFin FROM xentraData WHERE id = :id")
+                    .setParameter("id", request.getId())
+                    .getSingleResult();
+            LocalDate fechaFinActual = LocalDate.parse(fechaFinStr, formatter);
+
+            LocalDate nuevaFechaFin = LocalDate.parse(request.getFechaFin(), formatter);
+
+            // 2. Ejecutar UPDATE
             String updateSql = """
                         update xentraData set
                             idArea = :idArea,
@@ -73,8 +84,37 @@ public class XentraRepository {
             query.setParameter("diaFinMes", request.getDiaFinMes());
             query.setParameter("estado", request.getEstado());
             query.setParameter("id", request.getId());
-
             query.executeUpdate();
+
+            // 3. Comparar fechaFin ACTUAL vs NUEVA
+            if (nuevaFechaFin.isAfter(fechaFinActual)) {
+                // Extensión → Insertar nuevas fechas
+
+                // 1. Obtener las fechas que ya existen en BD
+                List<String> fechasExistentesStr = em.createNativeQuery(
+                        "SELECT fecha FROM xentraFechas WHERE idXentra = :idXentra")
+                        .setParameter("idXentra", request.getId())
+                        .getResultList();
+                List<LocalDate> fechasExistentes = fechasExistentesStr.stream()
+                        .map(f -> LocalDate.parse(f, formatter))
+                        .toList();
+
+                // 2. Filtrar solo las nuevas (las que están en request pero no en BD)
+                List<LocalDate> nuevasFechas = request.getFechas().stream()
+                        .filter(f -> !fechasExistentes.contains(f))
+                        .toList();
+
+                // 3. Insertar masivamente con el método existente
+                if (!nuevasFechas.isEmpty()) {
+                    insertarFechas(request.getId(), nuevasFechas);
+                }
+
+            } else if (nuevaFechaFin.isBefore(fechaFinActual)) {
+                // Acortamiento → eliminar fechas sobrantes y desactivar xentraData
+                eliminarFechasPosteriores(request.getId(), nuevaFechaFin);
+                desactivarXentraData(request.getId());
+            }
+
             return request.getId();
         } else {
             // Inserción con OUTPUT para obtener el ID generado
@@ -137,40 +177,61 @@ public class XentraRepository {
         em.clear();
     }
 
+    // Elimina físicamente las fechas sobrantes
+    public void eliminarFechasPosteriores(int idXentra, LocalDate nuevaFechaFin) {
+        String sql = """
+                DELETE FROM xentraFechas
+                WHERE idXentra = :idXentra
+                AND fecha > :nuevaFechaFin
+                """;
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("idXentra", idXentra);
+        query.setParameter("nuevaFechaFin", nuevaFechaFin);
+        query.executeUpdate();
+    }
+
+    // Marca el registro principal como INACTIVO
+    public void desactivarXentraData(int idXentra) {
+        String sql = "UPDATE xentraData SET estado = 'INACTIVO' WHERE id = :idXentra";
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("idXentra", idXentra);
+        query.executeUpdate();
+    }
+
     public List<XentraRequest> list(int idPuesto, int idArea) {
         List<XentraRequest> list = new ArrayList<>();
 
         String sql = """
-                            SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
-                            CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte,  x.responsable,
-                            CONCAT (
-                                    SUBSTRING (p.nombres, 1,
-                                    CASE
-                                    WHEN CHARINDEX(' ', p.nombres)-1 < 0
-                                    THEN LEN (p.nombres)
-                                    ELSE CHARINDEX(' ', p.nombres)-1
-                                    END) ,
-                                    ' ',
-                                    SUBSTRING (p.apellidos, 1,
-                                    CASE
-                                    WHEN CHARINDEX(' ', p.apellidos)-1 < 0
-                                    THEN LEN (p.apellidos)
-                                    ELSE CHARINDEX(' ', p.apellidos)-1
-                                    END)
-                            		)
-                            AS responsableNombreApellido,
-                            x.fechaInicio, x.fechaFin, x.tipoRepeticion,
-                            x.diasSemana,
-                            CASE WHEN tipoRepeticion = 'DIARIA' THEN '0'
-                                WHEN tipoRepeticion = 'SEMANAL' THEN '0'
-                                WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
-                            END AS mesesPermitidos,
-                            x.diaInicioMes, x.diaFinMes, x.estado
-                            FROM xentraData x
-                            LEFT JOIN areas a ON x.idArea = a.id
-                            LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
-                            LEFT JOIN personal p ON x.responsable = p.dni
-                            """;
+                SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
+                CONCAT (x.abreviatura,' - ', x.nombre) AS nombreReporte,  x.responsable,
+                CONCAT (
+                        SUBSTRING (p.nombres, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.nombres)-1 < 0
+                        THEN LEN (p.nombres)
+                        ELSE CHARINDEX(' ', p.nombres)-1
+                        END) ,
+                        ' ',
+                        SUBSTRING (p.apellidos, 1,
+                        CASE
+                        WHEN CHARINDEX(' ', p.apellidos)-1 < 0
+                        THEN LEN (p.apellidos)
+                        ELSE CHARINDEX(' ', p.apellidos)-1
+                        END)
+                		)
+                AS responsableNombreApellido,
+                x.fechaInicio, x.fechaFin, x.tipoRepeticion,
+                x.diasSemana,
+                CASE WHEN tipoRepeticion = 'DIARIA' THEN '0'
+                    WHEN tipoRepeticion = 'SEMANAL' THEN '0'
+                    WHEN tipoRepeticion = 'MENSUAL' THEN x.mesesPermitidos
+                END AS mesesPermitidos,
+                x.diaInicioMes, x.diaFinMes, x.estado
+                FROM xentraData x
+                LEFT JOIN areas a ON x.idArea = a.id
+                LEFT JOIN personalSubAreas ps ON x.idSubArea = ps.id
+                LEFT JOIN personal p ON x.responsable = p.dni
+                """;
 
         if (idPuesto == 3) {
             if (idArea == 2) {
