@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class XentraRequest {
+public class Xentra {
     private int id;
     private int idArea;
     private int idSubArea;
@@ -32,7 +32,7 @@ public class XentraRequest {
     private String nombreReporte;
     private String responsableNombreApellido;
 
-    //Variables para Calendario XentraFechas (luego crear su propia clase)
+    // Variables para Calendario XentraFechas (luego crear su propia clase)
     private String fecha;
     private int idEstadoLogico;
     private String estadoLogico;

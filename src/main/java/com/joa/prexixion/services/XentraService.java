@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.joa.prexixion.entities.ConfiguracionMensual;
-import com.joa.prexixion.entities.XentraRequest;
+import com.joa.prexixion.entities.Xentra;
 import com.joa.prexixion.enums.TipoRepeticion;
 import com.joa.prexixion.repositories.XentraRepository;
 
@@ -31,8 +31,8 @@ public class XentraService {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public List<XentraRequest> list(int idPuesto, int idArea) {
-        List<XentraRequest> list = xentraRepository.list(idPuesto, idArea);
+    public List<Xentra> list(int idPuesto, int idArea) {
+        List<Xentra> list = xentraRepository.list(idPuesto, idArea);
 
         // Mapa de equivalencias
         Map<Integer, String> diaEquivalencias = Map.of(
@@ -77,46 +77,99 @@ public class XentraService {
         return list;
     }
 
-    public int guardarFechas(XentraRequest request) {
+    public int editarXentra(int id, String fechaFinFront) {
         int rpta = 0;
+        Xentra xentra = xentraRepository.getOne(id);
 
-        // Adaptar request
-        LocalDate inicio = LocalDate.parse(request.getFechaInicio(), formatter);
-        LocalDate fin = LocalDate.parse(request.getFechaFin(), formatter);
-        TipoRepeticion tipo = TipoRepeticion.valueOf(request.getTipoRepeticion());
-        Set<DayOfWeek> diasSemana = new HashSet<DayOfWeek>();
-        request.getDiasSemana().forEach(e -> {
-            if (e != 0) {
-                diasSemana.add(DayOfWeek.of(e));
-            }
-        });
+        // Adaptar xentra DB
+        LocalDate inicio = LocalDate.parse(xentra.getFechaInicio(), formatter);
+        LocalDate fin = LocalDate.parse(fechaFinFront, formatter);
+        TipoRepeticion tipo = TipoRepeticion.valueOf(xentra.getTipoRepeticion());
+
+        Set<DayOfWeek> diasSemana = Arrays.stream(xentra.getDiasSemanaString().split(","))
+                .map(String::trim) // eliminar espacios
+                .map(Integer::parseInt) // convertir a int
+                .filter(e -> e != 0) // descartar ceros
+                .map(DayOfWeek::of) // convertir al enum DayOfWeek
+                .collect(Collectors.toSet());
 
         int intervaloSemanas = 1;
 
-        Set<Month> mesesPermitidos = new HashSet<Month>();
-        request.getMesesPermitidos().forEach(e -> {
-            if (e != 0) {
-                mesesPermitidos.add(Month.of(e));
-            }
-        });
+        Set<Month> mesesPermitidos = Arrays.stream(xentra.getMesesPermitidosString().split(","))
+                .map(String::trim)
+                .map(Integer::parseInt)
+                .filter(e -> e != 0)
+                .map(Month::of)
+                .collect(Collectors.toSet());
 
-        ConfiguracionMensual configMensual = new ConfiguracionMensual(request.getDiaInicioMes(),
-                request.getDiaFinMes());
+        ConfiguracionMensual configMensual = new ConfiguracionMensual(xentra.getDiaInicioMes(), xentra.getDiaFinMes());
 
         Set<LocalDate> feriados = xentraRepository.obtenerFeriados();
 
         // Generamos las fechas y las asignamos al objeto request
-        List<LocalDate> fechas = generarFechasMasivas(inicio, tipo, intervaloSemanas, fin, diasSemana, mesesPermitidos,
+        List<LocalDate> fechas = generarFechas(inicio, tipo, intervaloSemanas, fin, diasSemana, mesesPermitidos,
                 configMensual,
                 feriados);
-        request.setFechas(fechas);
+        xentra.setFechas(fechas);
 
-        int id = xentraRepository.insertarDataGeneral(request);
+        rpta = xentraRepository.editarXentraDB(xentra, fechaFinFront);
+
+        return rpta;
+    }
+
+    public int insertarXentra(Xentra xentra) {
+        // Adaptar xentra
+        LocalDate inicio = LocalDate.parse(xentra.getFechaInicio(), formatter);
+        LocalDate fin = LocalDate.parse(xentra.getFechaFin(), formatter);
+        TipoRepeticion tipo = TipoRepeticion.valueOf(xentra.getTipoRepeticion());
+
+        Set<DayOfWeek> diasSemana = new HashSet<DayOfWeek>();
+        if (xentra.getDiasSemana() != null) {
+            xentra.getDiasSemana().forEach(e -> {
+                if (e != 0) {
+                    diasSemana.add(DayOfWeek.of(e));
+                }
+            });
+        }
+
+        String diasSemanaString = xentra.getDiasSemana().stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+        xentra.setDiasSemanaString(diasSemanaString);
+
+        int intervaloSemanas = 1;
+
+        Set<Month> mesesPermitidos = new HashSet<Month>();
+        if (xentra.getMesesPermitidos() != null) {
+            xentra.getMesesPermitidos().forEach(e -> {
+                if (e != 0) {
+                    mesesPermitidos.add(Month.of(e));
+                }
+            });
+        }
+
+        String mesesPermitidosString = xentra.getMesesPermitidos().stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+        xentra.setMesesPermitidosString(mesesPermitidosString);
+
+        ConfiguracionMensual configMensual = new ConfiguracionMensual(xentra.getDiaInicioMes(),
+                xentra.getDiaFinMes());
+
+        Set<LocalDate> feriados = xentraRepository.obtenerFeriados();
+
+        // Generamos las fechas y las asignamos al objeto request
+        List<LocalDate> fechas = generarFechas(inicio, tipo, intervaloSemanas, fin, diasSemana, mesesPermitidos,
+                configMensual,
+                feriados);
+        xentra.setFechas(fechas);
+
+        int id = xentraRepository.insertarXentraDB(xentra);
 
         return id;
     }
 
-    public static List<LocalDate> generarFechasMasivas(
+    public static List<LocalDate> generarFechas(
             LocalDate inicio,
             TipoRepeticion tipo,
             int intervaloSemanas,
@@ -249,11 +302,11 @@ public class XentraService {
         return fechas;
     }
 
-    public XentraRequest getOne(int id) {
+    public Xentra getOne(int id) {
         return xentraRepository.getOne(id);
     }
 
-    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
+    public List<Xentra> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
         return xentraRepository.getListXentraFechas(idPuesto, idArea, idSubArea, dni);
     }
 

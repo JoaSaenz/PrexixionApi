@@ -1,6 +1,5 @@
 package com.joa.prexixion.repositories;
 
-import java.math.BigInteger;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,11 +7,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
-import com.joa.prexixion.entities.XentraRequest;
+import com.joa.prexixion.entities.Xentra;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -27,130 +25,101 @@ public class XentraRepository {
     private EntityManager em;
 
     @Transactional
-    public int insertarDataGeneral(XentraRequest request) {
+    public int insertarXentraDB(Xentra request) {
 
-        String diasSemana = request.getDiasSemana().stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
-        String mesesPermitidos = request.getMesesPermitidos().stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+        // Inserción con OUTPUT para obtener el ID generado
+        String insertSql = """
+                    INSERT INTO xentraData (
+                        idArea, idSubArea, abreviatura, nombre, responsable, fechaInicio, fechaFin,
+                        tipoRepeticion, diasSemana, intervaloSemanas, mesesPermitidos, diaInicioMes, diaFinMes, estado)
+                    OUTPUT INSERTED.id
+                    VALUES (
+                        :idArea, :idSubArea, :abreviatura, :nombre, :responsable, :fechaInicio, :fechaFin,
+                        :tipoRepeticion, :diasSemana, :intervaloSemanas, :mesesPermitidos, :diaInicioMes, :diaFinMes, :estado)
+                """;
+
+        Query insertQuery = em.createNativeQuery(insertSql);
+        insertQuery.setParameter("idArea", request.getIdArea());
+        insertQuery.setParameter("idSubArea", request.getIdSubArea());
+        insertQuery.setParameter("abreviatura", request.getAbreviatura());
+        insertQuery.setParameter("nombre", request.getNombre());
+        insertQuery.setParameter("responsable", request.getResponsable());
+        insertQuery.setParameter("fechaInicio", request.getFechaInicio());
+        insertQuery.setParameter("fechaFin", request.getFechaFin());
+        insertQuery.setParameter("tipoRepeticion", request.getTipoRepeticion());
+        insertQuery.setParameter("diasSemana", request.getDiasSemanaString());
+        insertQuery.setParameter("intervaloSemanas", request.getIntervaloSemanas());
+        insertQuery.setParameter("mesesPermitidos", request.getMesesPermitidosString());
+        insertQuery.setParameter("diaInicioMes", request.getDiaInicioMes());
+        insertQuery.setParameter("diaFinMes", request.getDiaFinMes());
+        insertQuery.setParameter("estado", request.getEstado());
+
+        Object result = insertQuery.getSingleResult();
+        int idGenerado = ((Number) result).intValue();
+
+        insertarFechas(idGenerado, request.getFechas());
+
+        return idGenerado;
+
+    }
+
+    @Transactional
+    public int editarXentraDB(Xentra xentra, String fechaFinFront) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        if (request.getId() > 0) {
-            // 1. Obtener fechaFin actual en BD
-            String fechaFinStr = (String) em.createNativeQuery(
-                    "SELECT fechaFin FROM xentraData WHERE id = :id")
-                    .setParameter("id", request.getId())
-                    .getSingleResult();
-            LocalDate fechaFinActual = LocalDate.parse(fechaFinStr, formatter);
+        // 1. Obtener fechas
+        LocalDate fechaFinActual = LocalDate.parse(xentra.getFechaFin(), formatter);
+        LocalDate fechaFinNueva = LocalDate.parse(fechaFinFront, formatter);
 
-            LocalDate nuevaFechaFin = LocalDate.parse(request.getFechaFin(), formatter);
+        // 2. Ejecutar UPDATE
+        String updateSql = """
+                    UPDATE xentraData set
+                        fechaFin = :fechaFin
+                    WHERE id = :id
+                """;
 
-            // 2. Ejecutar UPDATE
-            String updateSql = """
-                        update xentraData set
-                            idArea = :idArea,
-                            idSubArea = :idSubArea,
-                            abreviatura = :abreviatura,
-                            nombre = :nombre,
-                            responsable = :responsable,
-                            fechaInicio = :fechaInicio,
-                            fechaFin = :fechaFin,
-                            tipoRepeticion = :tipoRepeticion,
-                            diasSemana = :diasSemana,
-                            intervaloSemanas = :intervaloSemanas,
-                            mesesPermitidos = :mesesPermitidos,
-                            diaInicioMes = :diaInicioMes,
-                            diaFinMes = :diaFinMes,
-                            estado = :estado
-                        where id = :id
-                    """;
+        Query query = em.createNativeQuery(updateSql);
+        query.setParameter("fechaFin", fechaFinFront);
+        query.setParameter("id", xentra.getId());
+        query.executeUpdate();
 
-            Query query = em.createNativeQuery(updateSql);
-            query.setParameter("idArea", request.getIdArea());
-            query.setParameter("idSubArea", request.getIdSubArea());
-            query.setParameter("abreviatura", request.getAbreviatura());
-            query.setParameter("nombre", request.getNombre());
-            query.setParameter("responsable", request.getResponsable());
-            query.setParameter("fechaInicio", request.getFechaInicio());
-            query.setParameter("fechaFin", request.getFechaFin());
-            query.setParameter("tipoRepeticion", request.getTipoRepeticion());
-            query.setParameter("diasSemana", diasSemana);
-            query.setParameter("intervaloSemanas", 1);
-            query.setParameter("mesesPermitidos", mesesPermitidos);
-            query.setParameter("diaInicioMes", request.getDiaInicioMes());
-            query.setParameter("diaFinMes", request.getDiaFinMes());
-            query.setParameter("estado", request.getEstado());
-            query.setParameter("id", request.getId());
-            query.executeUpdate();
+        // 3. Comparar fechaFin ACTUAL vs NUEVA
+        if (fechaFinNueva.isAfter(fechaFinActual)) {
+            // Extensión → Insertar nuevas fechas
 
-            // 3. Comparar fechaFin ACTUAL vs NUEVA
-            if (nuevaFechaFin.isAfter(fechaFinActual)) {
-                // Extensión → Insertar nuevas fechas
+            // 1. Obtener las fechas que ya existen en BD
+            List<String> fechasExistentesStr = em.createNativeQuery(
+                    "SELECT fecha FROM xentraFechas WHERE idXentra = :idXentra")
+                    .setParameter("idXentra", xentra.getId())
+                    .getResultList();
+            List<LocalDate> fechasExistentes = fechasExistentesStr.stream()
+                    .map(f -> LocalDate.parse(f, formatter))
+                    .toList();
 
-                // 1. Obtener las fechas que ya existen en BD
-                List<String> fechasExistentesStr = em.createNativeQuery(
-                        "SELECT fecha FROM xentraFechas WHERE idXentra = :idXentra")
-                        .setParameter("idXentra", request.getId())
-                        .getResultList();
-                List<LocalDate> fechasExistentes = fechasExistentesStr.stream()
-                        .map(f -> LocalDate.parse(f, formatter))
-                        .toList();
+            // 2. Filtrar solo las nuevas (las que están en request pero no en BD)
+            List<LocalDate> nuevasFechas = xentra.getFechas().stream()
+                    .filter(f -> !fechasExistentes.contains(f))
+                    .toList();
 
-                // 2. Filtrar solo las nuevas (las que están en request pero no en BD)
-                List<LocalDate> nuevasFechas = request.getFechas().stream()
-                        .filter(f -> !fechasExistentes.contains(f))
-                        .toList();
-
-                // 3. Insertar masivamente con el método existente
-                if (!nuevasFechas.isEmpty()) {
-                    insertarFechas(request.getId(), nuevasFechas);
-                }
-
-            } else if (nuevaFechaFin.isBefore(fechaFinActual)) {
-                // Acortamiento → eliminar fechas sobrantes y desactivar xentraData
-                eliminarFechasPosteriores(request.getId(), nuevaFechaFin);
-                desactivarXentraData(request.getId());
+            // 3. Insertar masivamente con el método existente
+            if (!nuevasFechas.isEmpty()) {
+                insertarFechas(xentra.getId(), nuevasFechas);
             }
 
-            return request.getId();
-        } else {
-            // Inserción con OUTPUT para obtener el ID generado
-            String insertSql = """
-                        INSERT INTO xentraData (
-                            idArea, idSubArea, abreviatura, nombre, responsable, fechaInicio, fechaFin,
-                            tipoRepeticion, diasSemana, intervaloSemanas, mesesPermitidos, diaInicioMes, diaFinMes, estado)
-                        OUTPUT INSERTED.id
-                        VALUES (
-                            :idArea, :idSubArea, :abreviatura, :nombre, :responsable, :fechaInicio, :fechaFin,
-                            :tipoRepeticion, :diasSemana, :intervaloSemanas, :mesesPermitidos, :diaInicioMes, :diaFinMes, :estado)
-                    """;
+        } else if (fechaFinNueva.isBefore(fechaFinActual)) {
+            // Acortamiento → eliminar fechas sobrantes y desactivar xentraData
+            eliminarFechasPosteriores(xentra.getId(), fechaFinNueva);
 
-            Query insertQuery = em.createNativeQuery(insertSql);
-            insertQuery.setParameter("idArea", request.getIdArea());
-            insertQuery.setParameter("idSubArea", request.getIdSubArea());
-            insertQuery.setParameter("abreviatura", request.getAbreviatura());
-            insertQuery.setParameter("nombre", request.getNombre());
-            insertQuery.setParameter("responsable", request.getResponsable());
-            insertQuery.setParameter("fechaInicio", request.getFechaInicio());
-            insertQuery.setParameter("fechaFin", request.getFechaFin());
-            insertQuery.setParameter("tipoRepeticion", request.getTipoRepeticion());
-            insertQuery.setParameter("diasSemana", diasSemana);
-            insertQuery.setParameter("intervaloSemanas", request.getIntervaloSemanas());
-            insertQuery.setParameter("mesesPermitidos", mesesPermitidos);
-            insertQuery.setParameter("diaInicioMes", request.getDiaInicioMes());
-            insertQuery.setParameter("diaFinMes", request.getDiaFinMes());
-            insertQuery.setParameter("estado", request.getEstado());
-
-            Object result = insertQuery.getSingleResult();
-            int idGenerado = ((Number) result).intValue();
-
-            insertarFechas(idGenerado, request.getFechas());
-
-            return idGenerado;
+            // Cambiar a estado INACTIVO siempre y cuando la nueva fecha sea menor a la
+            // fecha actual
+            if (fechaFinNueva.isBefore(LocalDate.now())) {
+                desactivarXentraData(xentra.getId());
+            }
         }
+
+        return xentra.getId();
+
     }
 
     public void insertarFechas(int idXentra, List<LocalDate> fechas) {
@@ -198,8 +167,8 @@ public class XentraRepository {
         query.executeUpdate();
     }
 
-    public List<XentraRequest> list(int idPuesto, int idArea) {
-        List<XentraRequest> list = new ArrayList<>();
+    public List<Xentra> list(int idPuesto, int idArea) {
+        List<Xentra> list = new ArrayList<>();
 
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
@@ -254,7 +223,7 @@ public class XentraRepository {
         List<Tuple> resultTuples = query.getResultList();
 
         for (Tuple tuple : resultTuples) {
-            XentraRequest obj = new XentraRequest();
+            Xentra obj = new Xentra();
             obj.setId(tuple.get("id", Integer.class));
             obj.setIdArea(tuple.get("idArea", Integer.class));
             obj.setDescArea(tuple.get("descArea", String.class));
@@ -277,7 +246,7 @@ public class XentraRepository {
         return list;
     }
 
-    public XentraRequest getOne(int id) {
+    public Xentra getOne(int id) {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
                 x.abreviatura, x.nombre, x.responsable,
@@ -310,7 +279,7 @@ public class XentraRepository {
         query.setParameter("id", id);
         Tuple tuple = (Tuple) query.getSingleResult();
 
-        XentraRequest obj = new XentraRequest();
+        Xentra obj = new Xentra();
         obj.setId(tuple.get("id", Integer.class));
         obj.setIdArea(tuple.get("idArea", Integer.class));
         obj.setDescArea(tuple.get("descArea", String.class));
@@ -333,8 +302,8 @@ public class XentraRepository {
         return obj;
     }
 
-    public List<XentraRequest> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
-        List<XentraRequest> list = new ArrayList<>();
+    public List<Xentra> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
+        List<Xentra> list = new ArrayList<>();
         String sql = "";
 
         if (idPuesto == 2) {
@@ -485,7 +454,7 @@ public class XentraRepository {
         List<Tuple> resultTuples = query.getResultList();
 
         for (Tuple tuple : resultTuples) {
-            XentraRequest obj = new XentraRequest();
+            Xentra obj = new Xentra();
             obj.setIdArea(tuple.get("idArea", Integer.class));
             obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
             obj.setNombreReporte(tuple.get("nombreReporte", String.class));

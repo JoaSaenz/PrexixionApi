@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.joa.prexixion.entities.Gclass;
-import com.joa.prexixion.entities.XentraRequest;
+import com.joa.prexixion.entities.Xentra;
 import com.joa.prexixion.services.XentraService;
 
 @RestController
@@ -24,26 +25,35 @@ public class XentraController {
     XentraService xentraService;
 
     @GetMapping("/{idPuesto}/{idArea}")
-    public List<XentraRequest> list(
-        @PathVariable int idPuesto,
+    public List<Xentra> list(
+            @PathVariable int idPuesto,
             @PathVariable int idArea) {
         return xentraService.list(idPuesto, idArea);
     }
 
     @PostMapping
-    public int insert(@RequestBody XentraRequest request) {
+    public int insert(@RequestBody Xentra request) {
         int rpta = 0;
-        rpta = xentraService.guardarFechas(request);
+        rpta = xentraService.insertarXentra(request);
+        return rpta;
+    }
+
+    @PutMapping("/{id}")
+    public int edit(@PathVariable int id, @RequestParam String fechaFinFront) {
+        int rpta = 0;
+        System.out.println(id);
+        System.out.println(fechaFinFront);
+        rpta = xentraService.editarXentra(id, fechaFinFront);
         return rpta;
     }
 
     @GetMapping("/{id}")
-    public XentraRequest getOne(@PathVariable int id) {
+    public Xentra getOne(@PathVariable int id) {
         return xentraService.getOne(id);
     }
 
     @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{idSubArea}/{dni}")
-    public List<XentraRequest> getListXentraFechas(
+    public List<Xentra> getListXentraFechas(
             @PathVariable int idPuesto,
             @PathVariable int idArea,
             @PathVariable int idSubArea,
