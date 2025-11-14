@@ -7,9 +7,9 @@ import lombok.Data;
 
 @Data
 public class XentraDataDTO {
-    private int id;
-    private int idArea;
-    private int idSubArea;
+    private Integer id;
+    private Integer idArea;
+    private Integer idSubArea;
     private String abreviatura;
     private String nombre;
     private String color;
@@ -19,11 +19,11 @@ public class XentraDataDTO {
     private String tipoRepeticion;
     private List<Integer> diasSemana; // ej. 1 (Lunes), 4 (Jueves)
     private String diasSemanaString;
-    private int intervaloSemanas;
+    private Integer intervaloSemanas;
     private List<Integer> mesesPermitidos; // ej. 1 (Enero), 4 (Febreo)
     private String mesesPermitidosString;
-    private int diaInicioMes;
-    private int diaFinMes;
+    private Integer diaInicioMes;
+    private Integer diaFinMes;
     private String estado;
 
     // Variables para List principal
@@ -34,7 +34,7 @@ public class XentraDataDTO {
 
     // Variables para Calendario XentraFechas (luego crear su propia clase)
     private String fecha;
-    private int idEstadoLogico;
+    private Integer idEstadoLogico;
     private String estadoLogico;
 
     // Lista de fechas generadas

@@ -172,6 +172,15 @@ public class XentraService {
         // convertir a Entity
         XentraData xentraData = mapper.toEntity(xentraDTO);
 
+        // 🔥 Asignar el padre a cada fecha (OBLIGATORIO)
+        if (xentraData.getFechas() != null) {
+            xentraData.getFechas().forEach(f -> {
+                f.setXentra(xentraData);
+                f.setIdEstado(1);
+                f.setEstadoLogico("PENDIENTE");
+            });
+        }
+
         XentraData guardado = xentraDataRepository.save(xentraData);
 
         return guardado.getId();
