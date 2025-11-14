@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Repository;
 
-import com.joa.prexixion.entities.Xentra;
+import com.joa.prexixion.dto.XentraDataDTO;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -25,7 +25,7 @@ public class XentraRepository {
     private EntityManager em;
 
     @Transactional
-    public int insertarXentraDB(Xentra request) {
+    public int insertarXentraDB(XentraDataDTO request) {
 
         // Inserción con OUTPUT para obtener el ID generado
         String insertSql = """
@@ -64,7 +64,7 @@ public class XentraRepository {
     }
 
     @Transactional
-    public int editarXentraDB(Xentra xentra, String fechaFinFront) {
+    public int editarXentraDB(XentraDataDTO xentra, String fechaFinFront) {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -167,8 +167,8 @@ public class XentraRepository {
         query.executeUpdate();
     }
 
-    public List<Xentra> list(int idPuesto, int idArea) {
-        List<Xentra> list = new ArrayList<>();
+    public List<XentraDataDTO> list(int idPuesto, int idArea) {
+        List<XentraDataDTO> list = new ArrayList<>();
 
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
@@ -223,7 +223,7 @@ public class XentraRepository {
         List<Tuple> resultTuples = query.getResultList();
 
         for (Tuple tuple : resultTuples) {
-            Xentra obj = new Xentra();
+            XentraDataDTO obj = new XentraDataDTO();
             obj.setId(tuple.get("id", Integer.class));
             obj.setIdArea(tuple.get("idArea", Integer.class));
             obj.setDescArea(tuple.get("descArea", String.class));
@@ -246,7 +246,7 @@ public class XentraRepository {
         return list;
     }
 
-    public Xentra getOne(int id) {
+    public XentraDataDTO getOne(int id) {
         String sql = """
                 SELECT x.id, x.idArea, a.descripcion AS descArea, x.idSubArea, ps.descripcion as descSubArea,
                 x.abreviatura, x.nombre, x.responsable,
@@ -279,7 +279,7 @@ public class XentraRepository {
         query.setParameter("id", id);
         Tuple tuple = (Tuple) query.getSingleResult();
 
-        Xentra obj = new Xentra();
+        XentraDataDTO obj = new XentraDataDTO();
         obj.setId(tuple.get("id", Integer.class));
         obj.setIdArea(tuple.get("idArea", Integer.class));
         obj.setDescArea(tuple.get("descArea", String.class));
@@ -302,8 +302,8 @@ public class XentraRepository {
         return obj;
     }
 
-    public List<Xentra> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
-        List<Xentra> list = new ArrayList<>();
+    public List<XentraDataDTO> getListXentraFechas(int idPuesto, int idArea, int idSubArea, String dni) {
+        List<XentraDataDTO> list = new ArrayList<>();
         String sql = "";
 
         if (idPuesto == 2) {
@@ -454,7 +454,7 @@ public class XentraRepository {
         List<Tuple> resultTuples = query.getResultList();
 
         for (Tuple tuple : resultTuples) {
-            Xentra obj = new Xentra();
+            XentraDataDTO obj = new XentraDataDTO();
             obj.setIdArea(tuple.get("idArea", Integer.class));
             obj.setIdSubArea(tuple.get("idSubArea", Integer.class));
             obj.setNombreReporte(tuple.get("nombreReporte", String.class));

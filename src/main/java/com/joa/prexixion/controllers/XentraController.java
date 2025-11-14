@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.joa.prexixion.entities.Gclass;
-import com.joa.prexixion.entities.Xentra;
+import com.joa.prexixion.dto.XentraDataDTO;
 import com.joa.prexixion.services.XentraService;
 
 @RestController
@@ -25,16 +24,16 @@ public class XentraController {
     XentraService xentraService;
 
     @GetMapping("/{idPuesto}/{idArea}")
-    public List<Xentra> list(
+    public List<XentraDataDTO> list(
             @PathVariable int idPuesto,
             @PathVariable int idArea) {
         return xentraService.list(idPuesto, idArea);
     }
 
     @PostMapping
-    public int insert(@RequestBody Xentra request) {
+    public int insert(@RequestBody XentraDataDTO xentraDTO) {
         int rpta = 0;
-        rpta = xentraService.insertarXentra(request);
+        rpta = xentraService.insertarXentra(xentraDTO);
         return rpta;
     }
 
@@ -48,12 +47,12 @@ public class XentraController {
     }
 
     @GetMapping("/{id}")
-    public Xentra getOne(@PathVariable int id) {
+    public XentraDataDTO getOne(@PathVariable int id) {
         return xentraService.getOne(id);
     }
 
     @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{idSubArea}/{dni}")
-    public List<Xentra> getListXentraFechas(
+    public List<XentraDataDTO> getListXentraFechas(
             @PathVariable int idPuesto,
             @PathVariable int idArea,
             @PathVariable int idSubArea,

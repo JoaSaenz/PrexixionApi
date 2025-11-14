@@ -1,4 +1,4 @@
-package com.joa.prexixion.entities;
+package com.joa.prexixion.dto;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class Xentra {
+public class XentraDataDTO {
     private int id;
     private int idArea;
     private int idSubArea;
