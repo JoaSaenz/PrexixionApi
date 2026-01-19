@@ -1,8 +1,5 @@
 package com.joa.prexixion.entities;
 
-import lombok.Data;
-
-//@Data
 public class Cliente {
     private String ruc;
     private String y;
@@ -38,7 +35,7 @@ public class Cliente {
     private String ccbUsuario;
     private String ccbClave;
 
-    //Variables para los Niveles(F - X3)
+    // Variables para los Niveles(F - X3)
     private SignerNivel signerNivel;
 
     private int administracion;
@@ -301,5 +298,4 @@ public class Cliente {
         this.periodoInicioCom = periodoInicioCom;
     }
 
-    
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.joa.prexixion.entities.Gclass;
 import com.joa.prexixion.entities.Xentra;
 import com.joa.prexixion.services.XentraService;
 
