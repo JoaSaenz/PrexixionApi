@@ -23,4 +23,7 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
         List<NotificacionProjection> findNotificacionesWithEstadoByJobStatus(
                         @org.springframework.data.repository.query.Param("jobStatusId") Long jobStatusId);
 
+        List<Notificacion> findByRucAndFechaBetween(String ruc, java.time.LocalDateTime inicio,
+                        java.time.LocalDateTime fin);
+
 }
