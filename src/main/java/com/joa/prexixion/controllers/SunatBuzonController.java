@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/sunat")
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class SunatBuzonController {
 
     private final JobLauncherService jobLauncherService;
@@ -44,6 +45,7 @@ public class SunatBuzonController {
     }
 
     @GetMapping("/notificacion/{id}/descargar")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<byte[]> descargarAdjuntos(@PathVariable Long id) {
         Notificacion notif = notificacionRepository.findById(id).orElse(null);
         if (notif == null || notif.getAdjuntos().isEmpty()) {
@@ -60,6 +62,10 @@ public class SunatBuzonController {
                         && !filename.toLowerCase().endsWith(".zip")) {
                     filename += ".pdf";
                 }
+
+                notif.setRevisado(true);
+                notificacionRepository.save(notif);
+
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                         .contentType(MediaType.APPLICATION_PDF)
@@ -76,6 +82,9 @@ public class SunatBuzonController {
                 }
                 zos.close();
 
+                notif.setRevisado(true);
+                notificacionRepository.save(notif);
+
                 return ResponseEntity.ok()
                         .header(HttpHeaders.CONTENT_DISPOSITION,
                                 "attachment; filename=\"notificacion_" + notif.getIdSunat() + ".zip\"")
@@ -83,11 +92,13 @@ public class SunatBuzonController {
                         .body(baos.toByteArray());
             }
         } catch (Exception e) {
+            log.error("Error al descargar adjunto para id: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/descargar-lote")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<byte[]> descargarLote(@RequestParam("ruc") String ruc,
             @RequestParam("fecha") String fecha) {
         if (ruc == null || fecha == null) {
@@ -108,6 +119,12 @@ public class SunatBuzonController {
             if (allAdjuntos.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
+
+            // Mark as reviewed first to ensure it's saved even if there's only 1 attachment
+            for (Notificacion notif : notificaciones) {
+                notif.setRevisado(true);
+            }
+            notificacionRepository.saveAllAndFlush(notificaciones);
 
             if (allAdjuntos.size() == 1) {
                 NotificacionAdjunto adj = allAdjuntos.get(0);
@@ -139,6 +156,7 @@ public class SunatBuzonController {
                         .body(baos.toByteArray());
             }
         } catch (Exception e) {
+            log.error("Error al descargar lote para RUC: {} y fecha: {}", ruc, fecha, e);
             return ResponseEntity.internalServerError().build();
         }
     }

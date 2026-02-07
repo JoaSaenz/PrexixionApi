@@ -40,6 +40,9 @@ public class Notificacion {
     @Column(name = "jobStatusId")
     private Long jobStatusId;
 
+    @Column(columnDefinition = "BIT DEFAULT 0")
+    private Boolean revisado = false;
+
     @OneToMany(mappedBy = "notificacion", cascade = CascadeType.ALL)
     private List<NotificacionAdjunto> adjuntos = new ArrayList<>();
 
@@ -108,6 +111,14 @@ public class Notificacion {
 
     public void setAdjuntos(List<NotificacionAdjunto> adjuntos) {
         this.adjuntos = adjuntos;
+    }
+
+    public boolean isRevisado() {
+        return revisado != null && revisado;
+    }
+
+    public void setRevisado(boolean revisado) {
+        this.revisado = revisado;
     }
 
 }
