@@ -1,9 +1,6 @@
 package com.joa.prexixion.dto;
 
 import lombok.Data;
-import java.util.Map;
-import java.util.List;
-import com.joa.prexixion.entities.Cliente;
 
 @Data
 public class ClienteDataTablesRequest {

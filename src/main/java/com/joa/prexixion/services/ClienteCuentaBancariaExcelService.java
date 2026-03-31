@@ -2,7 +2,7 @@ package com.joa.prexixion.services;
 
 import com.joa.prexixion.dto.ClienteCuentaBancariaProjection;
 import com.joa.prexixion.repositories.ClienteCuentaBancariaRepository;
-import com.joa.prexixion.utils.PoiUtils;
+import com.joa.prexixion.utils.ExcelStyleManager;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.*;
@@ -35,32 +35,16 @@ public class ClienteCuentaBancariaExcelService {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             XSSFWorkbook wb = new XSSFWorkbook();
 
-            // --- COLORES ---
-            XSSFColor GERENCIA_BLUE = PoiUtils.createColor(0, 51, 204);
-            XSSFColor GERENCIA_GREY = PoiUtils.createColor(214, 220, 228);
-            XSSFColor MATTE_BLACK   = PoiUtils.createColor(43, 43, 43);
-            XSSFColor WHITE         = PoiUtils.createColor(255, 255, 255);
-
-            // --- FONTS ---
-            boolean negrita = true;
-            XSSFFont cabeceraFont  = PoiUtils.fuente(wb, WHITE, 17, negrita);
-            XSSFFont whiteNegFont9 = PoiUtils.fuente(wb, WHITE, 9, negrita);
-            XSSFFont dataNegFont   = PoiUtils.fuente(wb, MATTE_BLACK, 9, negrita);
+            ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
             // --- ESTILOS ---
-            XSSFCellStyle cabeceraStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
+            XSSFCellStyle estiloCabeceraCentroAzul = styleManager.getHeaderStyle();
 
-            XSSFCellStyle subHeaderStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, MATTE_BLACK, whiteNegFont9);
-            PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            XSSFCellStyle estiloSubCabeceraCentroNegroNegrita = styleManager.getSubHeaderStyle();
 
-            XSSFCellStyle dataStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataNegFont);
-            PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            XSSFCellStyle estiloDatosCentroGrisNegrita = styleManager.getDataCenterBoldStyle();
 
-            XSSFCellStyle dataContStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataNegFont);
-            PoiUtils.addBorders(dataContStyle, BorderStyle.THIN, IndexedColors.WHITE);
-
-            XSSFCellStyle dataLeftContStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataNegFont);
-            PoiUtils.addBorders(dataLeftContStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            XSSFCellStyle estiloDatosIzquierdaGrisNegrita = styleManager.getDataLeftBoldStyle();
 
             // --- HOJA ---
             Sheet sheet = wb.createSheet("CCI");
@@ -71,7 +55,7 @@ public class ClienteCuentaBancariaExcelService {
             Row cabecera = sheet.createRow(rowNum);
             cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
             Cell cellCabecera = cabecera.createCell(0);
-            cellCabecera.setCellStyle(cabeceraStyle);
+            cellCabecera.setCellStyle(estiloCabeceraCentroAzul);
             cellCabecera.setCellValue("C  O  R  P  O  R  A  C  I  O  N      G  E  R  E  N  C  I  A.  C  O  M      S. A. C.");
             sheet.addMergedRegion(CellRangeAddress.valueOf("A1:H1"));
 
@@ -82,7 +66,7 @@ public class ClienteCuentaBancariaExcelService {
                     "APELLIDOS Y NOMBRES o RAZON SOCIAL", "CCI"};
             for (String h : headers) {
                 Cell c = subHeader.createCell(colNum++);
-                c.setCellStyle(subHeaderStyle);
+                c.setCellStyle(estiloSubCabeceraCentroNegroNegrita);
                 c.setCellValue(h);
             }
 
@@ -98,38 +82,38 @@ public class ClienteCuentaBancariaExcelService {
 
                 Cell iData = data.createCell(colData++);
                 iData.setCellValue(i);
-                iData.setCellStyle(dataStyle);
+                iData.setCellStyle(estiloDatosCentroGrisNegrita);
 
                 Cell estadoData = data.createCell(colData++);
                 estadoData.setCellValue(obj.getDescEstado() != null ? obj.getDescEstado() : "");
-                estadoData.setCellStyle(dataStyle);
+                estadoData.setCellStyle(estiloDatosCentroGrisNegrita);
 
                 Cell altaData = data.createCell(colData++);
                 altaData.setCellValue(obj.getAcInicioCom() != null ? obj.getAcInicioCom() : "");
-                altaData.setCellStyle(dataStyle);
+                altaData.setCellStyle(estiloDatosCentroGrisNegrita);
 
                 Cell rucData = data.createCell(colData++);
                 rucData.setCellValue(obj.getIdCliente() != null ? obj.getIdCliente() : "");
-                rucData.setCellStyle(dataContStyle);
+                rucData.setCellStyle(estiloDatosCentroGrisNegrita);
 
                 Cell yData = data.createCell(colData++);
                 yData.setCellValue(obj.getY() != null ? obj.getY() : "");
-                yData.setCellStyle(dataContStyle);
+                yData.setCellStyle(estiloDatosCentroGrisNegrita);
 
-                Cell tipoData = data.createCell(colData++);
-                tipoData.setCellValue(obj.getAbrContribuyente() != null ? obj.getAbrContribuyente() : "");
-                tipoData.setCellStyle(dataContStyle);
+                Cell contribuyenteData = data.createCell(colData++);
+                contribuyenteData.setCellValue(obj.getAbrContribuyente() != null ? obj.getAbrContribuyente() : "");
+                contribuyenteData.setCellStyle(estiloDatosCentroGrisNegrita);
 
                 Cell rsData = data.createCell(colData++);
                 rsData.setCellValue(obj.getRazonSocial() != null ? obj.getRazonSocial() : "");
-                rsData.setCellStyle(dataLeftContStyle);
+                rsData.setCellStyle(estiloDatosIzquierdaGrisNegrita);
 
                 Cell cciData = data.createCell(colData++);
                 cciData.setCellValue(obj.getCcbCCI() != null ? obj.getCcbCCI() : "");
-                cciData.setCellStyle(dataContStyle);
+                cciData.setCellStyle(estiloDatosCentroGrisNegrita);
 
-                rowNum++;
                 i++;
+                rowNum++;
             }
 
             int finFilt = rowNum - 1;
