@@ -84,11 +84,13 @@ public class ClienteRepository {
         """;
     }
 
+    @SuppressWarnings("unchecked")
     public List<Cliente> list() {
         Query query = em.createNativeQuery(getBaseSelect(), Tuple.class);
-        return mapTuples(query.getResultList());
+        return mapTuples((List<Tuple>) query.getResultList());
     }
 
+    @SuppressWarnings("unchecked")
     public List<Cliente> listServerSide(ClienteDataTablesRequest req) {
         StringBuilder sql = new StringBuilder(getBaseSelect());
         appendFilters(sql, req);
@@ -100,7 +102,7 @@ public class ClienteRepository {
         query.setParameter("offset", req.getStart());
         query.setParameter("limit", req.getLength());
 
-        return mapTuples(query.getResultList());
+        return mapTuples((List<Tuple>) query.getResultList());
     }
 
     public int countServerSide(ClienteDataTablesRequest req) {
@@ -140,7 +142,8 @@ public class ClienteRepository {
         setFilterParams(query, req);
         
         Map<Integer, Integer> result = new HashMap<>();
-        List<Tuple> tuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> tuples = (List<Tuple>) query.getResultList();
         for (Tuple t : tuples) {
             Number idEstado = t.get("idEstado", Number.class);
             Number cantidad = t.get("cantidad", Number.class);
@@ -170,7 +173,8 @@ public class ClienteRepository {
         setFilterParams(query, req);
         
         Map<Integer, Integer> result = new HashMap<>();
-        List<Tuple> tuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> tuples = (List<Tuple>) query.getResultList();
         for (Tuple t : tuples) {
             Number idCategoria = t.get("idCategoria", Number.class);
             Number cantidad = t.get("cantidad", Number.class);

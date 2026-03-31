@@ -22,7 +22,8 @@ public class GclassRepository {
         String sql = "SELECT id, descripcion FROM " + tableName + " ORDER BY descripcion ";
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -39,7 +40,8 @@ public class GclassRepository {
         String sql = "SELECT id, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -56,7 +58,8 @@ public class GclassRepository {
         String sql = "SELECT id, abreviatura, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         // Crear objeto vacío
@@ -81,7 +84,8 @@ public class GclassRepository {
         String sql = "SELECT id, descripcion FROM " + tableName + " ORDER BY descripcion";
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         // Crear objeto vacío
@@ -105,7 +109,8 @@ public class GclassRepository {
         String sql = "SELECT id, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         // Crear objeto vacío
@@ -137,7 +142,8 @@ public class GclassRepository {
                 + "          END ";
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -164,7 +170,8 @@ public class GclassRepository {
                 + "          END ";
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -181,7 +188,8 @@ public class GclassRepository {
         String sql = "SELECT id, abreviatura, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -199,7 +207,8 @@ public class GclassRepository {
         String sql = "SELECT id, codigo as abreviatura, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
 
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -287,7 +296,8 @@ public class GclassRepository {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
         
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         Gclass gclass = new Gclass();
         if(!results.isEmpty()) {
             Object[] result = results.get(0);
@@ -302,7 +312,8 @@ public class GclassRepository {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
         
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         Gclass gclass = new Gclass();
         if(!results.isEmpty()) {
             Object[] result = results.get(0);
@@ -318,7 +329,8 @@ public class GclassRepository {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
         
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
         for (Object[] result : results) {
             Gclass gclass = new Gclass();
@@ -337,7 +349,8 @@ public class GclassRepository {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("ip", ip);
         
-        List<String> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<String> results = (List<String>) query.getResultList();
         Gclass gclass = new Gclass();
         if (!results.isEmpty()) {
             gclass.setDescripcion(results.get(0));
@@ -350,7 +363,8 @@ public class GclassRepository {
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
         
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
         for (Object[] result : results) {
             Gclass gclass = new Gclass();
@@ -367,7 +381,8 @@ public class GclassRepository {
         query.setParameter("id1", id1);
         query.setParameter("id2", id2);
         
-        List<Object[]> results = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
         for (Object[] result : results) {
             Gclass gclass = new Gclass();

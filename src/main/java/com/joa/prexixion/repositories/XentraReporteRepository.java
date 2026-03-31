@@ -11,7 +11,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
-import jakarta.transaction.Transactional;
 
 @Repository
 public class XentraReporteRepository {
@@ -85,7 +84,8 @@ public class XentraReporteRepository {
         }
         query.setParameter("fechaInicial", fechaInicial);
         query.setParameter("fechaFinal", fechaFinal);
-        List<Tuple> retultTuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> retultTuples = (List<Tuple>) query.getResultList();
 
         for (Tuple tuple : retultTuples) {
             XentraReporte obj = new XentraReporte();

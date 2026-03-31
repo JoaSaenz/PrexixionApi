@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.joa.prexixion.entities.Notificacion;
+import com.joa.prexixion.dto.NotificacionProjection;
 
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {

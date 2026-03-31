@@ -1,4 +1,4 @@
-package com.joa.prexixion.repositories;
+package com.joa.prexixion.dto;
 
 import java.time.LocalDateTime;
 

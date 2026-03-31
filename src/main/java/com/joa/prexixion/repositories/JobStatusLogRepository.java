@@ -2,6 +2,7 @@ package com.joa.prexixion.repositories;
 
 import com.joa.prexixion.entities.JobStatus;
 import com.joa.prexixion.entities.JobStatusLog;
+import com.joa.prexixion.dto.JobStatusLogProjection;
 
 import java.util.List;
 

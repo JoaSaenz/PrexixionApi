@@ -89,7 +89,8 @@ public class XentraRepository {
             // Extensión → Insertar nuevas fechas
 
             // 1. Obtener las fechas que ya existen en BD
-            List<String> fechasExistentesStr = em.createNativeQuery(
+            @SuppressWarnings("unchecked")
+            List<String> fechasExistentesStr = (List<String>) em.createNativeQuery(
                     "SELECT fecha FROM xentraFechas WHERE idXentra = :idXentra")
                     .setParameter("idXentra", xentra.getId())
                     .getResultList();
@@ -220,7 +221,8 @@ public class XentraRepository {
                 query.setParameter("idArea", idArea);
             }
         }
-        List<Tuple> resultTuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> resultTuples = (List<Tuple>) query.getResultList();
 
         for (Tuple tuple : resultTuples) {
             XentraDataDTO obj = new XentraDataDTO();
@@ -451,7 +453,8 @@ public class XentraRepository {
                 query.setParameter("dni", dni);
             }
         }
-        List<Tuple> resultTuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> resultTuples = (List<Tuple>) query.getResultList();
 
         for (Tuple tuple : resultTuples) {
             XentraDataDTO obj = new XentraDataDTO();
@@ -477,7 +480,8 @@ public class XentraRepository {
                 """;
 
         Query query = em.createNativeQuery(sql, Tuple.class);
-        List<Tuple> resultTuples = query.getResultList();
+        @SuppressWarnings("unchecked")
+        List<Tuple> resultTuples = (List<Tuple>) query.getResultList();
 
         for (Tuple tuple : resultTuples) {
             Date fechaSql = tuple.get("fecha", Date.class);

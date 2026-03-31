@@ -94,10 +94,6 @@ public class ClienteExcelService {
                         }
                 }
 
-                int total(int y) {
-                        return activos[y] + bajas[y] + libres[y] + retirados[y] + suspendidos[y] + externos[y]
-                                        + ceros[y] + morosos[y];
-                }
         }
 
         public byte[] exportDataToExcel(List<ClienteExcelProjection> list) {
@@ -110,24 +106,28 @@ public class ClienteExcelService {
                         ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
                         // <editor-fold defaultstate="collapsed" desc="CELL STYLES">
-                        XSSFCellStyle estiloDatosDerechaBlanco = styleManager.getGenericStyle(ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
+                        XSSFCellStyle estiloDatosDerechaBlanco = styleManager.getGenericStyle(
+                                        ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
                         estiloDatosDerechaBlanco.setAlignment(HorizontalAlignment.RIGHT);
 
                         XSSFCellStyle estiloDatosCentroNegroNegrita = styleManager.getFondoBlackStyle();
 
                         // FONDO BLANCO
-                        XSSFCellStyle estiloDatosIzquierdaBlancoAzulNegrita = styleManager.getGenericStyle(ExcelStyleManager.WHITE_RGB, ExcelStyleManager.BLUE_RGB, true);
+                        XSSFCellStyle estiloDatosIzquierdaBlancoAzulNegrita = styleManager
+                                        .getGenericStyle(ExcelStyleManager.WHITE_RGB, ExcelStyleManager.BLUE_RGB, true);
                         estiloDatosIzquierdaBlancoAzulNegrita.setAlignment(HorizontalAlignment.LEFT);
 
                         // FONDO COLORES SUAVES
                         XSSFCellStyle estiloDatosCentroRojoClaroNegrita = styleManager.getFondoLightRedStyle();
                         XSSFCellStyle estiloDatosCentroAzulClaro = styleManager.getFondoLightBlueStyle();
-                        XSSFCellStyle estiloDatosDerechaBlancoNegrita = styleManager.getGenericStyle(ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
+                        XSSFCellStyle estiloDatosDerechaBlancoNegrita = styleManager.getGenericStyle(
+                                        ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
                         estiloDatosDerechaBlancoNegrita.setAlignment(HorizontalAlignment.RIGHT);
-                        
+
                         XSSFCellStyle estiloDatosCentroAmarilloClaroNegrita = styleManager.getFondoLightYellowStyle();
-                        
-                        XSSFCellStyle estiloDatosDerechaRojoClaroRojoNegrita = styleManager.getGenericStyle(ExcelStyleManager.VERY_LIGHT_RED_RGB, ExcelStyleManager.RED_RGB, true);
+
+                        XSSFCellStyle estiloDatosDerechaRojoClaroRojoNegrita = styleManager.getGenericStyle(
+                                        ExcelStyleManager.VERY_LIGHT_RED_RGB, ExcelStyleManager.RED_RGB, true);
                         estiloDatosDerechaRojoClaroRojoNegrita.setAlignment(HorizontalAlignment.RIGHT);
 
                         // FONDO AZUL
@@ -136,18 +136,26 @@ public class ClienteExcelService {
                         XSSFCellStyle estiloSubCabeceraCentroAzulNegrita = styleManager.getSubHeaderStyleBlue();
 
                         // FONDO PLOMO BAJO (DATA STATUS)
-                        XSSFCellStyle estiloDatosCentroGrisRojoNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.RED_RGB);
-                        XSSFCellStyle estiloDatosCentroGrisAzulNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.LIGHT_BLUE_RGB);
+                        XSSFCellStyle estiloDatosCentroGrisRojoNegrita = styleManager
+                                        .getDataStatusStyle(ExcelStyleManager.RED_RGB);
+                        XSSFCellStyle estiloDatosCentroGrisAzulNegrita = styleManager
+                                        .getDataStatusStyle(ExcelStyleManager.LIGHT_BLUE_RGB);
 
-                        XSSFCellStyle estiloDatosCentroGrisNegrita = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
-                        XSSFCellStyle estiloDatosCentroGris = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
-                        XSSFCellStyle estiloDatosDerechaGrisNegrita = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
+                        XSSFCellStyle estiloDatosCentroGrisNegrita = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
+                        XSSFCellStyle estiloDatosCentroGris = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
+                        XSSFCellStyle estiloDatosDerechaGrisNegrita = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
                         estiloDatosDerechaGrisNegrita.setAlignment(HorizontalAlignment.RIGHT);
-                        XSSFCellStyle estiloDatosDerechaGris = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
+                        XSSFCellStyle estiloDatosDerechaGris = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
                         estiloDatosDerechaGris.setAlignment(HorizontalAlignment.RIGHT);
-                        XSSFCellStyle estiloDatosIzquierdaGrisNegrita = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
+                        XSSFCellStyle estiloDatosIzquierdaGrisNegrita = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
                         estiloDatosIzquierdaGrisNegrita.setAlignment(HorizontalAlignment.LEFT);
-                        XSSFCellStyle estiloDatosIzquierdaGris = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
+                        XSSFCellStyle estiloDatosIzquierdaGris = styleManager.getGenericStyle(
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
                         estiloDatosIzquierdaGris.setAlignment(HorizontalAlignment.LEFT);
                         // </editor-fold>
 
@@ -1119,7 +1127,8 @@ public class ClienteExcelService {
                                                         dataCategoriaGrupoE.setCellValue("");
                                                         break;
                                                 case 1:
-                                                        dataCategoriaGrupoE.setCellStyle(estiloDatosCentroGrisRojoNegrita);
+                                                        dataCategoriaGrupoE
+                                                                        .setCellStyle(estiloDatosCentroGrisRojoNegrita);
                                                         dataCategoriaGrupoE.setCellValue("SI");
                                                         break;
                                         }
@@ -1133,7 +1142,8 @@ public class ClienteExcelService {
                                                         dataCategoriaStore.setCellValue("");
                                                         break;
                                                 case 1:
-                                                        dataCategoriaStore.setCellStyle(estiloDatosCentroGrisRojoNegrita);
+                                                        dataCategoriaStore
+                                                                        .setCellStyle(estiloDatosCentroGrisRojoNegrita);
                                                         dataCategoriaStore.setCellValue("SI");
                                                         break;
                                         }

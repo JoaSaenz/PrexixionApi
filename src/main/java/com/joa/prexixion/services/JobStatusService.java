@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import com.joa.prexixion.entities.JobStatus;
 import com.joa.prexixion.entities.JobStatusLog;
 import com.joa.prexixion.entities.Notificacion;
-import com.joa.prexixion.repositories.JobStatusLogProjection;
+import com.joa.prexixion.dto.JobStatusLogProjection;
 import com.joa.prexixion.repositories.JobStatusLogRepository;
 import com.joa.prexixion.repositories.JobStatusRepository;
-import com.joa.prexixion.repositories.NotificacionProjection;
+import com.joa.prexixion.dto.NotificacionProjection;
 import com.joa.prexixion.repositories.NotificacionRepository;
 
 import lombok.RequiredArgsConstructor;

@@ -14,7 +14,9 @@ import com.joa.prexixion.dto.XentraDataDTO;
 import com.joa.prexixion.entities.XentraData;
 import com.joa.prexixion.entities.XentraFecha;
 
-@Mapper(componentModel = "spring") // así Spring lo detecta como bean
+import org.mapstruct.ReportingPolicy;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE) // así Spring lo detecta como bean
 public interface XentraMapper {
 
     XentraMapper INSTANCE = Mappers.getMapper(XentraMapper.class);
