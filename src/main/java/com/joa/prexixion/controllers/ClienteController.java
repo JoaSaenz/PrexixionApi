@@ -8,16 +8,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.joa.prexixion.entities.Cliente;
+import com.joa.prexixion.services.ClieCuentaBancariaExcelService;
+import com.joa.prexixion.services.ClienteClavesExcelService;
+import com.joa.prexixion.services.ClienteExcelService;
 import com.joa.prexixion.services.ClienteService;
+import com.joa.prexixion.services.CliePersonalExcelService;
 import com.joa.prexixion.dto.ClienteDataTablesRequest;
 import com.joa.prexixion.dto.ClienteDataTablesResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/cliente")
 public class ClienteController {
-    
+
     @Autowired
     ClienteService clienteService;
+
+    @Autowired
+    ClienteExcelService clienteExcelService;
+
+    @Autowired
+    ClienteClavesExcelService clienteClavesExcelService;
+
+    @Autowired
+    CliePersonalExcelService cliePersonalExcelService;
+
+    @Autowired
+    ClieCuentaBancariaExcelService clieCuentaBancariaExcelService;
 
     @GetMapping
     public List<Cliente> list() {
@@ -27,5 +47,53 @@ public class ClienteController {
     @GetMapping("/server-side")
     public ClienteDataTablesResponse listServerSide(ClienteDataTablesRequest req) {
         return clienteService.listServerSide(req);
+    }
+
+    @GetMapping("/excel-download")
+    public ResponseEntity<byte[]> downloadExcel(@RequestParam(required = false) String estados,
+            @RequestParam(required = false) String grupos) {
+        byte[] excelBytes = clienteExcelService.exportarExcelCliente(estados, grupos);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Clientes.xlsx\"")
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
+    }
+
+    @GetMapping("/excel-claves-download")
+    public ResponseEntity<byte[]> downloadExcelClaves(@RequestParam(required = false) String estados,
+            @RequestParam(required = false) String grupos) {
+        byte[] excelBytes = clienteClavesExcelService.exportarExcelClaves(estados, grupos);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Clientes_Claves.xlsx\"")
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
+    }
+
+    @GetMapping("/excel-personal-download")
+    public ResponseEntity<byte[]> downloadExcelPersonal(@RequestParam(required = false) String estados,
+            @RequestParam(required = false) String grupos) {
+        byte[] excelBytes = cliePersonalExcelService.exportarExcelPersonal(estados, grupos);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Signers_Personal.xlsx\"")
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
+    }
+
+    @GetMapping("/excel-cci-download")
+    public ResponseEntity<byte[]> downloadExcelCCI(@RequestParam(required = false) String estados,
+            @RequestParam(required = false) String grupos) {
+        byte[] excelBytes = clieCuentaBancariaExcelService.exportarExcelCCI(estados, grupos);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ReporteCCI.xlsx\"")
+                .contentType(
+                        MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
     }
 }
