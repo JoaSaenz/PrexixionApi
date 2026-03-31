@@ -92,7 +92,7 @@ public class ClienteRepository {
     public List<Cliente> listServerSide(ClienteDataTablesRequest req) {
         StringBuilder sql = new StringBuilder(getBaseSelect());
         appendFilters(sql, req);
-        sql.append(buildClieServerSideOrderClause(req.getSortKey(), req.getSortDir()));
+        sql.append(buildClienteServerSideOrderClause(req.getSortKey(), req.getSortDir()));
         sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
@@ -277,7 +277,7 @@ public class ClienteRepository {
         return Arrays.stream(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
 
-    private String buildClieServerSideOrderClause(String sortKey, String sortDir) {
+    private String buildClienteServerSideOrderClause(String sortKey, String sortDir) {
         String direction = "desc".equalsIgnoreCase(sortDir != null ? sortDir.trim() : "") ? "DESC" : "ASC";
         if (sortKey == null || sortKey.trim().isEmpty()) {
             return " ORDER BY cl.ruc " + direction + " ";

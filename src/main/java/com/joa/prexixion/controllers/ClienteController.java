@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.joa.prexixion.entities.Cliente;
-import com.joa.prexixion.services.ClieCuentaBancariaExcelService;
+import com.joa.prexixion.services.ClienteCuentaBancariaExcelService;
 import com.joa.prexixion.services.ClienteClavesExcelService;
 import com.joa.prexixion.services.ClienteExcelService;
 import com.joa.prexixion.services.ClienteService;
-import com.joa.prexixion.services.CliePersonalExcelService;
+import com.joa.prexixion.services.ClientePersonalExcelService;
 import com.joa.prexixion.dto.ClienteDataTablesRequest;
 import com.joa.prexixion.dto.ClienteDataTablesResponse;
 import org.springframework.http.HttpHeaders;
@@ -34,10 +34,10 @@ public class ClienteController {
     ClienteClavesExcelService clienteClavesExcelService;
 
     @Autowired
-    CliePersonalExcelService cliePersonalExcelService;
+    ClientePersonalExcelService clientePersonalExcelService;
 
     @Autowired
-    ClieCuentaBancariaExcelService clieCuentaBancariaExcelService;
+    ClienteCuentaBancariaExcelService clienteCuentaBancariaExcelService;
 
     @GetMapping
     public List<Cliente> list() {
@@ -76,7 +76,7 @@ public class ClienteController {
     @GetMapping("/excel-personal-download")
     public ResponseEntity<byte[]> downloadExcelPersonal(@RequestParam(required = false) String estados,
             @RequestParam(required = false) String grupos) {
-        byte[] excelBytes = cliePersonalExcelService.exportarExcelPersonal(estados, grupos);
+        byte[] excelBytes = clientePersonalExcelService.exportarExcelPersonal(estados, grupos);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Signers_Personal.xlsx\"")
@@ -88,7 +88,7 @@ public class ClienteController {
     @GetMapping("/excel-cci-download")
     public ResponseEntity<byte[]> downloadExcelCCI(@RequestParam(required = false) String estados,
             @RequestParam(required = false) String grupos) {
-        byte[] excelBytes = clieCuentaBancariaExcelService.exportarExcelCCI(estados, grupos);
+        byte[] excelBytes = clienteCuentaBancariaExcelService.exportarExcelCCI(estados, grupos);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ReporteCCI.xlsx\"")

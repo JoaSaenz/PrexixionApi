@@ -1,6 +1,6 @@
 package com.joa.prexixion.repositories;
 
-import com.joa.prexixion.dto.ClieCuentaBancariaProjection;
+import com.joa.prexixion.dto.ClienteCuentaBancariaProjection;
 import com.joa.prexixion.entities.ClienteExcelEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ClieCuentaBancariaRepository extends JpaRepository<ClienteExcelEntity, String> {
+public interface ClienteCuentaBancariaRepository extends JpaRepository<ClienteExcelEntity, String> {
 
     @Query(nativeQuery = true, value = """
         SELECT
@@ -30,7 +30,7 @@ public interface ClieCuentaBancariaRepository extends JpaRepository<ClienteExcel
         LEFT JOIN clientesTiposContribuyente ctc ON c.idContribuyente = ctc.id
         WHERE ce.id IN (:estados) AND c.y IN (:grupos)
         """)
-    List<ClieCuentaBancariaProjection> getCuentaBancariaData(
+    List<ClienteCuentaBancariaProjection> getCuentaBancariaData(
             @Param("estados") List<Integer> estados,
             @Param("grupos") List<Integer> grupos
     );

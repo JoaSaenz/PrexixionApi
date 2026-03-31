@@ -1,6 +1,6 @@
 package com.joa.prexixion.dto;
 
-public interface CliePersonalProjection {
+public interface ClientePersonalProjection {
     Integer getIdEstado();
     String getDescEstado();
     String getDescGrupoEconomico();

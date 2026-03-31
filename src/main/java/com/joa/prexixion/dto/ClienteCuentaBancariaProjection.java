@@ -1,6 +1,6 @@
 package com.joa.prexixion.dto;
 
-public interface ClieCuentaBancariaProjection {
+public interface ClienteCuentaBancariaProjection {
     String getDescEstado();
     String getAcInicioCom();
     String getIdCliente();

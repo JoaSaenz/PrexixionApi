@@ -1,7 +1,7 @@
 package com.joa.prexixion.services;
 
-import com.joa.prexixion.dto.ClieCuentaBancariaProjection;
-import com.joa.prexixion.repositories.ClieCuentaBancariaRepository;
+import com.joa.prexixion.dto.ClienteCuentaBancariaProjection;
+import com.joa.prexixion.repositories.ClienteCuentaBancariaRepository;
 import com.joa.prexixion.utils.PoiUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -13,11 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class ClieCuentaBancariaExcelService {
+public class ClienteCuentaBancariaExcelService {
 
-    private final ClieCuentaBancariaRepository repository;
+    private final ClienteCuentaBancariaRepository repository;
 
-    public ClieCuentaBancariaExcelService(ClieCuentaBancariaRepository repository) {
+    public ClienteCuentaBancariaExcelService(ClienteCuentaBancariaRepository repository) {
         this.repository = repository;
     }
 
@@ -27,11 +27,11 @@ public class ClieCuentaBancariaExcelService {
         List<Integer> listGrupos = Arrays.stream(grupos.split(","))
                 .map(String::trim).map(Integer::valueOf).toList();
 
-        List<ClieCuentaBancariaProjection> list = repository.getCuentaBancariaData(listEstados, listGrupos);
+        List<ClienteCuentaBancariaProjection> list = repository.getCuentaBancariaData(listEstados, listGrupos);
         return generateExcel(list);
     }
 
-    private byte[] generateExcel(List<ClieCuentaBancariaProjection> list) {
+    private byte[] generateExcel(List<ClienteCuentaBancariaProjection> list) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             XSSFWorkbook wb = new XSSFWorkbook();
 
@@ -92,7 +92,7 @@ public class ClieCuentaBancariaExcelService {
 
             // --- DATA ---
             int i = 1;
-            for (ClieCuentaBancariaProjection obj : list) {
+            for (ClienteCuentaBancariaProjection obj : list) {
                 Row data = sheet.createRow(rowNum);
                 int colData = 0;
 

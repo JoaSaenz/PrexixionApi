@@ -1,6 +1,6 @@
 package com.joa.prexixion.repositories;
 
-import com.joa.prexixion.dto.CliePersonalProjection;
+import com.joa.prexixion.dto.ClientePersonalProjection;
 import com.joa.prexixion.entities.ClienteExcelEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CliePersonalRepository extends JpaRepository<ClienteExcelEntity, String> {
+public interface ClientePersonalRepository extends JpaRepository<ClienteExcelEntity, String> {
 
     @Query(nativeQuery = true, value = """
         SELECT
@@ -33,7 +33,7 @@ public interface CliePersonalRepository extends JpaRepository<ClienteExcelEntity
         WHERE ce.id IN (:estados) AND c.y IN (:grupos)
         ORDER BY c.y
         """)
-    List<CliePersonalProjection> getPersonalData(
+    List<ClientePersonalProjection> getPersonalData(
             @Param("estados") List<Integer> estados,
             @Param("grupos") List<Integer> grupos
     );

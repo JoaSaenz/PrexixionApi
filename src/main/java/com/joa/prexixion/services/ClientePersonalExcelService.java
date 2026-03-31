@@ -1,7 +1,7 @@
 package com.joa.prexixion.services;
 
-import com.joa.prexixion.dto.CliePersonalProjection;
-import com.joa.prexixion.repositories.CliePersonalRepository;
+import com.joa.prexixion.dto.ClientePersonalProjection;
+import com.joa.prexixion.repositories.ClientePersonalRepository;
 import com.joa.prexixion.utils.PoiUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -13,11 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-public class CliePersonalExcelService {
+public class ClientePersonalExcelService {
 
-    private final CliePersonalRepository repository;
+    private final ClientePersonalRepository repository;
 
-    public CliePersonalExcelService(CliePersonalRepository repository) {
+    public ClientePersonalExcelService(ClientePersonalRepository repository) {
         this.repository = repository;
     }
 
@@ -27,11 +27,11 @@ public class CliePersonalExcelService {
         List<Integer> listGrupos = Arrays.stream(grupos.split(","))
                 .map(String::trim).map(Integer::valueOf).toList();
 
-        List<CliePersonalProjection> list = repository.getPersonalData(listEstados, listGrupos);
+        List<ClientePersonalProjection> list = repository.getPersonalData(listEstados, listGrupos);
         return generateExcel(list);
     }
 
-    private byte[] generateExcel(List<CliePersonalProjection> list) {
+    private byte[] generateExcel(List<ClientePersonalProjection> list) {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             XSSFWorkbook wb = new XSSFWorkbook();
 
@@ -132,7 +132,7 @@ public class CliePersonalExcelService {
 
             // --- DATA ---
             int i = 1;
-            for (CliePersonalProjection cp : list) {
+            for (ClientePersonalProjection cp : list) {
                 Row data = sheet.createRow(rowNum);
                 int colData = 0;
 
