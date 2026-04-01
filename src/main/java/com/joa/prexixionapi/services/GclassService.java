@@ -17,6 +17,10 @@ public class GclassService {
         return gclassRepository.list(tableName);
     }
 
+    public List<Gclass> listString(String tableName) {
+        return gclassRepository.listString(tableName);
+    }
+
     public List<Gclass> listOrderById(String tableName) {
         return gclassRepository.listOrderById(tableName);
     }

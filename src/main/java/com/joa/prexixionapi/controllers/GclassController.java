@@ -27,6 +27,11 @@ public class GclassController {
         return gclassService.list(tableName);
     }
 
+    @GetMapping("/listString")
+    public List<Gclass> listString(@RequestParam String tableName) {
+        return gclassService.listString(tableName);
+    }
+
     @GetMapping("/listOrderById")
     public List<Gclass> listOrderById(@RequestParam String tableName) {
         return gclassService.listOrderById(tableName);
@@ -108,12 +113,14 @@ public class GclassController {
     }
 
     @GetMapping("/fromTwoTables")
-    public List<Gclass> listFromTwoTables(@RequestParam String tabla1, @RequestParam String tabla2, @RequestParam int id) {
+    public List<Gclass> listFromTwoTables(@RequestParam String tabla1, @RequestParam String tabla2,
+            @RequestParam int id) {
         return gclassService.listFromTwoTables(tabla1, tabla2, id);
     }
 
     @GetMapping("/fromThreeTables")
-    public List<Gclass> listFromThreeTables(@RequestParam String tabla1, @RequestParam String tabla2, @RequestParam int id1, @RequestParam int id2) {
+    public List<Gclass> listFromThreeTables(@RequestParam String tabla1, @RequestParam String tabla2,
+            @RequestParam int id1, @RequestParam int id2) {
         return gclassService.listFromThreeTables(tabla1, tabla2, id1, id2);
     }
 

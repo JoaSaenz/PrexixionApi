@@ -36,6 +36,24 @@ public class GclassRepository {
         return gclasses;
     }
 
+    public List<Gclass> listString(String tableName) {
+        String sql = "SELECT id, descripcion FROM " + tableName + " ORDER BY descripcion ";
+        Query query = entityManager.createNativeQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = (List<Object[]>) query.getResultList();
+        List<Gclass> gclasses = new ArrayList<>();
+
+        for (Object[] result : results) {
+            Gclass gclass = new Gclass();
+            gclass.setIdString((String) result[0]);
+            gclass.setDescripcion((String) result[1]);
+            gclasses.add(gclass);
+        }
+
+        return gclasses;
+    }
+
     public List<Gclass> listOrderById(String tableName) {
         String sql = "SELECT id, descripcion FROM " + tableName;
         Query query = entityManager.createNativeQuery(sql);
@@ -229,7 +247,7 @@ public class GclassRepository {
         Query queryCheck = entityManager.createNativeQuery(sqlCheck);
         queryCheck.setParameter("id", obj.getId());
         Number count = (Number) queryCheck.getSingleResult();
-        
+
         if (count.intValue() > 0) {
             String sqlUpdate = "UPDATE " + tableName + " SET abreviatura = :abbr, descripcion = :desc WHERE id = :id";
             Query queryUpdate = entityManager.createNativeQuery(sqlUpdate);
@@ -256,7 +274,7 @@ public class GclassRepository {
         Query queryCheck = entityManager.createNativeQuery(sqlCheck);
         queryCheck.setParameter("id", obj.getId());
         Number count = (Number) queryCheck.getSingleResult();
-        
+
         if (count.intValue() > 0) {
             String sqlUpdate = "UPDATE " + tableName + " SET descripcion = :desc WHERE id = :id";
             Query queryUpdate = entityManager.createNativeQuery(sqlUpdate);
@@ -295,11 +313,11 @@ public class GclassRepository {
         String sql = "SELECT id, descripcion FROM " + tableName + " WHERE id = :id";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
-        
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = (List<Object[]>) query.getResultList();
         Gclass gclass = new Gclass();
-        if(!results.isEmpty()) {
+        if (!results.isEmpty()) {
             Object[] result = results.get(0);
             gclass.setId(((Number) result[0]).intValue());
             gclass.setDescripcion((String) result[1]);
@@ -311,11 +329,11 @@ public class GclassRepository {
         String sql = "SELECT id, abreviatura, descripcion FROM " + tableName + " WHERE id = :id";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
-        
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = (List<Object[]>) query.getResultList();
         Gclass gclass = new Gclass();
-        if(!results.isEmpty()) {
+        if (!results.isEmpty()) {
             Object[] result = results.get(0);
             gclass.setId(((Number) result[0]).intValue());
             gclass.setAbreviatura((String) result[1]);
@@ -328,7 +346,7 @@ public class GclassRepository {
         String sql = "{call credencialesEquipo(:id)}";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
-        
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
@@ -348,7 +366,7 @@ public class GclassRepository {
                 + "where i.id= :ip";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("ip", ip);
-        
+
         @SuppressWarnings("unchecked")
         List<String> results = (List<String>) query.getResultList();
         Gclass gclass = new Gclass();
@@ -359,10 +377,11 @@ public class GclassRepository {
     }
 
     public List<Gclass> listFromTwoTables(String tabla1, String tabla2, int id) {
-        String sql = "select id, descripcion from " + tabla1 + " where id in (select b from " + tabla2 + " where a = :id) order by descripcion";
+        String sql = "select id, descripcion from " + tabla1 + " where id in (select b from " + tabla2
+                + " where a = :id) order by descripcion";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id", id);
-        
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
@@ -376,11 +395,12 @@ public class GclassRepository {
     }
 
     public List<Gclass> listFromThreeTables(String tabla1, String tabla2, int id1, int id2) {
-        String sql = "select id, descripcion from " + tabla1 + " where id in (select z from " + tabla2 + " where x = :id1 and y = :id2) order by descripcion";
+        String sql = "select id, descripcion from " + tabla1 + " where id in (select z from " + tabla2
+                + " where x = :id1 and y = :id2) order by descripcion";
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("id1", id1);
         query.setParameter("id2", id2);
-        
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = (List<Object[]>) query.getResultList();
         List<Gclass> gclasses = new ArrayList<>();
