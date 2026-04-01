@@ -16,13 +16,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.joa.prexixionapi.dto.ApiResponse;
+import com.joa.prexixionapi.dto.SunatBuzonDataTablesRequest;
+import com.joa.prexixionapi.dto.SunatBuzonDataTablesResponse;
 import com.joa.prexixionapi.entities.Notificacion;
 import com.joa.prexixionapi.entities.NotificacionAdjunto;
 import com.joa.prexixionapi.repositories.NotificacionRepository;
 import com.joa.prexixionapi.services.JobLauncherService;
+import com.joa.prexixionapi.services.SunatBuzonService;
+import com.joa.prexixionapi.services.SunatBuzonExcelService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,6 +39,52 @@ public class SunatBuzonController {
 
     private final JobLauncherService jobLauncherService;
     private final NotificacionRepository notificacionRepository;
+    private final SunatBuzonService sunatBuzonService;
+    private final SunatBuzonExcelService sunatBuzonExcelService;
+
+    @PostMapping("/server-side")
+    public ResponseEntity<SunatBuzonDataTablesResponse> listServerSide(@RequestBody SunatBuzonDataTablesRequest req) {
+        return ResponseEntity.ok(sunatBuzonService.listServerSide(req));
+    }
+
+    @GetMapping("/server-side-proxy")
+    public ResponseEntity<SunatBuzonDataTablesResponse> listServerSideProxy(
+            @RequestParam int draw,
+            @RequestParam int start,
+            @RequestParam int length,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String fecha,
+            @RequestParam(required = false) String tieneNotificacion,
+            @RequestParam(required = false) String gruposEconomicos,
+            @RequestParam(required = false) String estados,
+            @RequestParam(required = false) String grupos,
+            @RequestParam(required = false, defaultValue = "0") Integer sortKey,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir) {
+
+        SunatBuzonDataTablesRequest req = new SunatBuzonDataTablesRequest();
+        req.setDraw(draw);
+        req.setStart(start);
+        req.setLength(length);
+        req.setSearch(search);
+        req.setFecha(fecha);
+        req.setTieneNotificacionString(tieneNotificacion);
+        req.setGrupoEconomicoString(gruposEconomicos);
+        req.setEstadosString(estados);
+        req.setGruposString(grupos);
+        req.setSortKey(String.valueOf(sortKey));
+        req.setSortDir(sortDir);
+
+        return ResponseEntity.ok(sunatBuzonService.listServerSide(req));
+    }
+
+    @GetMapping("/excel-reporte-ejecucion")
+    public ResponseEntity<byte[]> descargarExcelReporteEjecucion(@RequestParam Long jobStatusId) {
+        byte[] excel = sunatBuzonExcelService.exportarDetalleJobStatus(jobStatusId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=SUNAT_JobStatus_" + jobStatusId + ".xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
 
     @PostMapping("/sincronizar")
     public ResponseEntity<ApiResponse> sincronizarManualmente() {
