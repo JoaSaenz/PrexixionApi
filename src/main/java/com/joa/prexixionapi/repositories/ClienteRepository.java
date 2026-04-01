@@ -363,6 +363,10 @@ public class ClienteRepository {
                     tuple.get("idCategoria", Integer.class) == null ? 0 : tuple.get("idCategoria", Integer.class),
                     tuple.get("abrCategoria", String.class),
                     tuple.get("descCategoria", String.class)));
+            sn.setCategoriaGrupoE(tuple.get("categoriaGrupoE", Integer.class) == null ? 0
+                    : tuple.get("categoriaGrupoE", Integer.class));
+            sn.setCategoriaStore(tuple.get("categoriaStore", Integer.class) == null ? 0
+                    : tuple.get("categoriaStore", Integer.class));
             obj.setSignerNivel(sn);
 
             obj.setGrupoEconomico(new Gclass(
