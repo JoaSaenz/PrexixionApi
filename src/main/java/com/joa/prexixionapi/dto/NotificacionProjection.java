@@ -12,6 +12,10 @@ public interface NotificacionProjection {
     String getTitulo();
 
     LocalDateTime getFecha();
+    
+    Boolean getRevisado();
+    
+    Integer getTieneAdjuntos();
 
     Long getJobStatusId();
 

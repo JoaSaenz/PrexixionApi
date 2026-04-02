@@ -36,22 +36,27 @@ public class SunatBuzonRepository {
     private String getBaseSelect(String fecha) {
         return """
                 SELECT c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, c.idEstado, cE.descripcion AS estado, 
-                c.ruc, c.y, c.razonSocial, c.nombreCorto, STRING_AGG(sbn.titulo , CHAR(13) + CHAR(10)) AS notificaciones, 
-                (SELECT COUNT(*) FROM sunatBuzonAdjunto sba JOIN sunatBuzonNotificacion n ON sba.notificacion_id = n.id 
-                 WHERE n.ruc = c.ruc AND CONVERT(char(10), n.fecha, 120) = '""" + fecha + """
-                ') as adjuntosDiaCount, 
-                (SELECT COUNT(*) FROM sunatBuzonNotificacion n 
-                 WHERE n.ruc = c.ruc AND CONVERT(char(10), n.fecha, 120) = '""" + fecha + """
-                ' AND EXISTS (SELECT 1 FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id)) as notifDiaCount, 
-                (SELECT COUNT(*) FROM sunatBuzonNotificacion n 
-                 WHERE n.ruc = c.ruc AND CONVERT(char(10), n.fecha, 120) = '""" + fecha + """
-                ' AND (n.revisado = 0 OR n.revisado IS NULL) AND EXISTS (SELECT 1 FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id)) as notifPendientesCount 
+                c.ruc, c.y, c.razonSocial, c.nombreCorto, sc.notificaciones, 
+                ISNULL(sc.adjuntosDiaCount, 0) as adjuntosDiaCount, 
+                ISNULL(sc.notifDiaCount, 0) as notifDiaCount, 
+                ISNULL(sc.notifPendientesCount, 0) as notifPendientesCount 
                 FROM cliente c 
+                LEFT JOIN ( 
+                  SELECT n.ruc, 
+                         STRING_AGG(n.titulo , CHAR(13) + CHAR(10)) AS notificaciones, 
+                         SUM(t.adjCount) as adjuntosDiaCount, 
+                         COUNT(CASE WHEN t.adjCount > 0 THEN 1 END) as notifDiaCount, 
+                         COUNT(CASE WHEN t.adjCount > 0 AND (n.revisado = 0 OR n.revisado IS NULL) THEN 1 END) as notifPendientesCount 
+                  FROM sunatBuzonNotificacion n 
+                  OUTER APPLY ( 
+                      SELECT COUNT(*) as adjCount FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id 
+                  ) t 
+                  WHERE CONVERT(char(10), n.fecha, 120) = '""" + fecha + """
+                ' 
+                  GROUP BY n.ruc 
+                ) sc ON c.ruc = sc.ruc 
                 LEFT JOIN gruposEconomicos ge ON c.idGrupoEconomico = ge.id 
                 INNER JOIN clientsEstados cE ON c.idEstado = cE.id 
-                LEFT JOIN sunatBuzonNotificacion sbn ON c.ruc = sbn.ruc 
-                AND CONVERT(char(10), sbn.fecha, 120) = '""" + fecha + """
-                ' 
                 """;
     }
 
@@ -60,11 +65,7 @@ public class SunatBuzonRepository {
         StringBuilder sql = new StringBuilder(getBaseSelect(req.getFecha()));
         sql.append(" WHERE 1=1 ");
         appendFilters(sql, req);
-        sql.append(" GROUP BY c.idGrupoEconomico, ge.descripcion, c.idEstado, cE.descripcion, c.ruc, c.y, c.razonSocial, c.nombreCorto ");
         
-        // El HAVING se usa para el filtro de "Tiene Notificación" porque notifDiaCount es un subquery/agregado
-        appendHavingFilters(sql, req);
-
         sql.append(buildOrderClause(req.getSortKey(), req.getSortDir()));
         sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
@@ -77,18 +78,18 @@ public class SunatBuzonRepository {
     }
 
     public int countServerSide(SunatBuzonDataTablesRequest req) {
-        // Para el conteo con filtros complejos y HAVING, necesitamos envolverlo en una subconsulta
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM ( ");
-        sql.append("SELECT c.ruc ");
-        sql.append("FROM cliente c ");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cliente c ");
+        sql.append("LEFT JOIN ( ");
+        sql.append("  SELECT n.ruc, COUNT(CASE WHEN t.adjCount > 0 THEN 1 END) as notifDiaCount ");
+        sql.append("  FROM sunatBuzonNotificacion n ");
+        sql.append("  OUTER APPLY ( SELECT COUNT(*) as adjCount FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id ) t ");
+        sql.append("  WHERE CONVERT(char(10), n.fecha, 120) = :fecha ");
+        sql.append("  GROUP BY n.ruc ");
+        sql.append(") sc ON c.ruc = sc.ruc ");
         sql.append("LEFT JOIN gruposEconomicos ge ON c.idGrupoEconomico = ge.id ");
         sql.append("INNER JOIN clientsEstados cE ON c.idEstado = cE.id ");
-        sql.append("LEFT JOIN sunatBuzonNotificacion sbn ON c.ruc = sbn.ruc AND CONVERT(char(10), sbn.fecha, 120) = :fecha ");
         sql.append(" WHERE 1=1 ");
         appendFilters(sql, req);
-        sql.append(" GROUP BY c.idGrupoEconomico, ge.descripcion, c.idEstado, cE.descripcion, c.ruc, c.y, c.razonSocial, c.nombreCorto ");
-        appendHavingFilters(sql, req);
-        sql.append(" ) as sub ");
 
         Query query = em.createNativeQuery(sql.toString());
         query.setParameter("fecha", req.getFecha());
@@ -112,18 +113,15 @@ public class SunatBuzonRepository {
         if (req.getGruposString() != null && !req.getGruposString().isEmpty()) {
             query.append(" AND c.y IN (:grupos) ");
         }
-    }
 
-    private void appendHavingFilters(StringBuilder query, SunatBuzonDataTablesRequest req) {
         String tieneNotif = req.getTieneNotificacionString();
         if (tieneNotif != null && !tieneNotif.isEmpty()) {
-            // "1" = SI (notifDiaCount > 0), "0" = NO (notifDiaCount = 0)
             List<Integer> filters = Arrays.stream(tieneNotif.split(",")).map(Integer::parseInt).toList();
             if (filters.size() == 1) {
                 if (filters.contains(1)) {
-                    query.append(" HAVING (SELECT COUNT(*) FROM sunatBuzonNotificacion n WHERE n.ruc = c.ruc AND CONVERT(char(10), n.fecha, 120) = :fecha AND EXISTS (SELECT 1 FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id)) > 0 ");
+                    query.append(" AND ISNULL(sc.notifDiaCount, 0) > 0 ");
                 } else if (filters.contains(0)) {
-                    query.append(" HAVING (SELECT COUNT(*) FROM sunatBuzonNotificacion n WHERE n.ruc = c.ruc AND CONVERT(char(10), n.fecha, 120) = :fecha AND EXISTS (SELECT 1 FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id)) = 0 ");
+                    query.append(" AND ISNULL(sc.notifDiaCount, 0) = 0 ");
                 }
             }
         }
@@ -142,11 +140,10 @@ public class SunatBuzonRepository {
         if (req.getGruposString() != null && !req.getGruposString().isEmpty()) {
             query.setParameter("grupos", Arrays.asList(req.getGruposString().split(",")));
         }
-        // El parámetro fecha ya se usó en el constructor de SQL pero si se usa en appendHavingFilters como :fecha:
         try {
             query.setParameter("fecha", req.getFecha());
         } catch (IllegalArgumentException e) {
-            // Ignorar si no está el parámetro en la query
+            // Ignorar si no está el parámetro
         }
     }
 

@@ -211,4 +211,24 @@ public class SunatBuzonController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/notificaciones/{ruc}")
+    public ResponseEntity<List<com.joa.prexixionapi.dto.NotificacionResumenDTO>> getNotificacionesByRuc(@PathVariable String ruc) {
+        List<com.joa.prexixionapi.dto.NotificacionProjection> notificaciones = notificacionRepository.findResumenByRuc(ruc);
+        List<com.joa.prexixionapi.dto.NotificacionResumenDTO> resumen = new ArrayList<>();
+
+        for (com.joa.prexixionapi.dto.NotificacionProjection n : notificaciones) {
+            resumen.add(com.joa.prexixionapi.dto.NotificacionResumenDTO.builder()
+                    .id(n.getId())
+                    .ruc(n.getRuc())
+                    .idSunat(n.getIdSunat())
+                    .titulo(n.getTitulo())
+                    .fecha(n.getFecha())
+                    .revisado(n.getRevisado() != null ? n.getRevisado() : false)
+                    .tieneAdjuntos(n.getTieneAdjuntos() != null && n.getTieneAdjuntos() > 0)
+                    .build());
+        }
+
+        return ResponseEntity.ok(resumen);
+    }
 }
