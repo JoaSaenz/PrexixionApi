@@ -22,11 +22,15 @@ public class DepreciacionService {
     private final DepreciacionRepository repository;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // --- Métodos de Lectura (Resumenes) ---
+    // --- Métodos de Lectura (Resúmenes) ---
 
+    /**
+     * Devuelve el resumen de depreciaciones agrupado por cliente/tipo para un año dado.
+     * Usado por el endpoint de listado del módulo de depreciaciones.
+     */
     public List<DepreciacionResumenDTO> getResumenByAnio(String anio) {
         List<Object[]> rawList = repository.findResumenByAnioRaw(anio);
-        
+
         return rawList.stream().map(row -> DepreciacionResumenDTO.builder()
                 .ruc((String) row[0])
                 .razonSocial((String) row[1])
@@ -48,10 +52,6 @@ public class DepreciacionService {
         ).collect(Collectors.toList());
     }
 
-    public long getCountByAnio(String anio) {
-        return repository.findResumenByAnioRaw(anio).size();
-    }
-
     private Double toDouble(Object obj) {
         if (obj == null) return 0.0;
         if (obj instanceof Double) return (Double) obj;
@@ -60,6 +60,21 @@ public class DepreciacionService {
     }
 
     // --- Métodos de Cálculo (Depreciar) ---
+
+    /**
+     * Rellena los años faltantes en una lista de depreciaciones hasta {@code limitYear}.
+     * <ul>
+     *   <li>Si la lista está vacía (activo con 0% de depreciación) genera registros
+     *       sintéticos con costo inicial pero depreciación cero.</li>
+     *   <li>Si la lista tiene datos, propaga el saldo final del último año calculado
+     *       hacia los años posteriores, respetando la fecha de baja del activo.</li>
+     * </ul>
+     *
+     * @param list      lista mutada con los registros de depreciación
+     * @param obj       activo dueño de la lista
+     * @param limitYear año máximo del reporte
+     * @param idTipo    1 = contable, 2 = tributario
+     */
 
     public void completarAniosFaltantes(List<ActivoDepreciacionDTO> list, ActivoDTO obj, Integer limitYear, int idTipo) {
         if (limitYear == null || list == null) return;
@@ -121,13 +136,25 @@ public class DepreciacionService {
         }
     }
 
+    /**
+     * Calcula la lista completa de depreciaciones anuales para un activo dado.
+     * <ul>
+     *   <li>Activos con 0% de depreciación o sin fecha fin devuelven lista vacía.</li>
+     *   <li>Activos dados de baja (idEstado == 2) truncan el cálculo en {@code fechaBaja}.</li>
+     *   <li>Activos activos se extienden hasta {@code limitYear} propagando el saldo.</li>
+     * </ul>
+     *
+     * @param obj       activo a depreciar
+     * @param tipo      1 = contable, 2 = tributario
+     * @param limitYear año hasta el que extrapolar (null = solo hasta fecha fin)
+     */
     public List<ActivoDepreciacionDTO> calcularDepreciacion(ActivoDTO obj, int tipo, Integer limitYear) {
         List<ActivoDepreciacionDTO> list = new ArrayList<>();
 
         double porcentajeDepreciacion = (tipo == 1)
                 ? obj.getPorcentajeDepreciacionContable()
                 : obj.getPorcentajeDepreciacionTributaria();
-        
+
         String fechaFinStr = (tipo == 1)
                 ? obj.getFechaFinContable()
                 : obj.getFechaFinTributaria();
