@@ -4,6 +4,7 @@ import com.joa.prexixionapi.dto.ActivoDTO;
 import com.joa.prexixionapi.dto.ActivoExcelDTO;
 import com.joa.prexixionapi.services.ActivoExcelService;
 import com.joa.prexixionapi.services.ActivoService;
+import com.joa.prexixionapi.services.DepreciacionReporteExcelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -21,6 +22,7 @@ public class ActivoController {
 
     private final ActivoService activoService;
     private final ActivoExcelService excelService;
+    private final DepreciacionReporteExcelService reporteExcelService;
 
     @GetMapping("/cliente/{idCliente}")
     public List<ActivoDTO> getActivosByCliente(@PathVariable String idCliente) {
@@ -90,6 +92,23 @@ public class ActivoController {
                     .body(new ByteArrayResource(excel));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/cliente/{idCliente}/reporte-excel")
+    public ResponseEntity<Resource> getReporteExcel(
+            @PathVariable String idCliente,
+            @RequestParam String razonSocial) {
+        try {
+            byte[] excel = reporteExcelService.generateExcel(idCliente, razonSocial);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=DEPRECIACIONES_" + razonSocial + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                    .body(new ByteArrayResource(excel));
+        } catch (Exception e) {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            e.printStackTrace(new java.io.PrintWriter(sw));
+            return ResponseEntity.internalServerError().body(new ByteArrayResource(sw.toString().getBytes()));
         }
     }
 }

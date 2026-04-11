@@ -61,8 +61,8 @@ public class DepreciacionService {
 
     // --- Métodos de Cálculo (Depreciar) ---
 
-    public void completarAniosFaltantes(List<ActivoDepreciacionDTO> list, ActivoDTO obj, Integer limitYear) {
-        if (limitYear == null || list == null || list.isEmpty()) return;
+    public void completarAniosFaltantes(List<ActivoDepreciacionDTO> list, ActivoDTO obj, Integer limitYear, int idTipo) {
+        if (limitYear == null || list == null) return;
 
         int targetYear = limitYear;
         Integer anioBaja = extraerAnio(obj.getFechaBaja());
@@ -70,27 +70,51 @@ public class DepreciacionService {
             targetYear = Math.min(limitYear, anioBaja);
         }
 
+        if (list.isEmpty()) {
+            Integer anioCompra = extraerAnio(obj.getFechaCompra());
+            if (anioCompra == null) return;
+
+            for (int anio = anioCompra; anio <= targetYear; anio++) {
+                boolean esPrimerAnio = (anio == anioCompra);
+
+                ActivoDepreciacionDTO d = ActivoDepreciacionDTO.builder()
+                        .idCliente(obj.getIdCliente())
+                        .idBien(obj.getId())
+                        .anio(String.valueOf(anio))
+                        .idTipo(idTipo)
+                        .activoSaldoInicial(esPrimerAnio ? 0.0 : obj.getCostoInicial())
+                        .activoCompras(esPrimerAnio ? obj.getCostoInicial() : 0.0)
+                        .activoRetiros(0.0)
+                        .activoSaldoFinal(obj.getCostoInicial())
+                        .inicial(0.0).ene(0.0).feb(0.0).mar(0.0).abr(0.0).may(0.0).jun(0.0)
+                        .jul(0.0).ago(0.0).sep(0.0).oct(0.0).nov(0.0).dec(0.0)
+                        .total(0.0).retiros(0.0).saldoFinal(0.0).activoFijo(0.0)
+                        .build();
+                list.add(d);
+            }
+            return;
+        }
+
         int lastCalculatedAnio = Integer.parseInt(list.get(list.size() - 1).getAnio());
         while (lastCalculatedAnio < targetYear) {
             ActivoDepreciacionDTO adAnterior = list.get(list.size() - 1);
-            boolean esUltimoAnioBaja = (obj.getIdEstado() == 2 && (lastCalculatedAnio + 1) == targetYear);
 
             ActivoDepreciacionDTO d = ActivoDepreciacionDTO.builder()
                     .idCliente(adAnterior.getIdCliente())
                     .idBien(adAnterior.getIdBien())
                     .anio(String.valueOf(lastCalculatedAnio + 1))
-                    .idTipo(adAnterior.getIdTipo())
+                    .idTipo(idTipo)
                     .activoSaldoInicial(obj.getCostoInicial())
                     .activoCompras(0.0)
-                    .activoRetiros(esUltimoAnioBaja ? obj.getCostoInicial() * -1 : 0.0)
-                    .activoSaldoFinal(esUltimoAnioBaja ? 0.0 : obj.getCostoInicial())
-                    .inicial(0.0)
+                    .activoRetiros(0.0)
+                    .activoSaldoFinal(obj.getCostoInicial())
+                    .inicial(adAnterior.getInicial() + adAnterior.getTotal())
                     .ene(0.0).feb(0.0).mar(0.0).abr(0.0).may(0.0).jun(0.0)
                     .jul(0.0).ago(0.0).sep(0.0).oct(0.0).nov(0.0).dec(0.0)
                     .total(0.0)
-                    .retiros(esUltimoAnioBaja ? adAnterior.getSaldoFinal() : 0.0)
-                    .saldoFinal(0.0)
-                    .activoFijo(0.0)
+                    .retiros(0.0)
+                    .saldoFinal(adAnterior.getInicial() + adAnterior.getTotal())
+                    .activoFijo(adAnterior.getActivoFijo())
                     .build();
             list.add(d);
             lastCalculatedAnio++;
@@ -235,20 +259,23 @@ public class DepreciacionService {
             if (limitYear != null && !list.isEmpty()) {
                 int lastCalculatedAnio = Integer.parseInt(list.get(list.size() - 1).getAnio());
                 while (lastCalculatedAnio < limitYear) {
+                    ActivoDepreciacionDTO adAnterior = list.get(list.size() - 1);
                     ActivoDepreciacionDTO d = ActivoDepreciacionDTO.builder()
                             .idCliente(obj.getIdCliente())
                             .idBien(obj.getId())
                             .anio(String.valueOf(lastCalculatedAnio + 1))
                             .idTipo(tipo)
                             .activoSaldoInicial(costoInicial)
+                            .activoCompras(0.0)
+                            .activoRetiros(0.0)
                             .activoSaldoFinal(costoInicial)
-                            .inicial(0.0)
+                            .inicial(adAnterior.getInicial() + adAnterior.getTotal())
                             .ene(0.0).feb(0.0).mar(0.0).abr(0.0).may(0.0).jun(0.0)
                             .jul(0.0).ago(0.0).sep(0.0).oct(0.0).nov(0.0).dec(0.0)
                             .total(0.0)
                             .retiros(0.0)
-                            .saldoFinal(0.0)
-                            .activoFijo(0.0)
+                            .saldoFinal(adAnterior.getInicial() + adAnterior.getTotal())
+                            .activoFijo(adAnterior.getActivoFijo())
                             .build();
                     list.add(d);
                     lastCalculatedAnio++;

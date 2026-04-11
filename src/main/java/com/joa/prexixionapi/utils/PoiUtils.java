@@ -75,6 +75,25 @@ public class PoiUtils {
         return font;
     }
 
+    /** Fuente Aptos Narrow (sin negrita) para XSSF. */
+    public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano) {
+        XSSFFont font = wb.createFont();
+        font.setFontName("Aptos Narrow");
+        font.setFontHeightInPoints((short) tamano);
+        font.setColor(color);
+        return font;
+    }
+
+    /** Fuente Aptos Narrow con control de negrita para XSSF. */
+    public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano, Boolean neg) {
+        XSSFFont font = wb.createFont();
+        font.setFontName("Aptos Narrow");
+        font.setFontHeightInPoints((short) tamano);
+        font.setBold(neg);
+        font.setColor(color);
+        return font;
+    }
+
     public static XSSFCellStyle createCellStyle(XSSFWorkbook wb, HorizontalAlignment alignment, XSSFColor colorFondo, XSSFFont font) {
         XSSFCellStyle style = wb.createCellStyle();
         style.setAlignment(alignment);
