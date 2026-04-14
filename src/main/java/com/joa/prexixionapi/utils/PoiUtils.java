@@ -20,7 +20,7 @@ public class PoiUtils {
 
     public static Font fuente(Workbook wb, IndexedColors color, int tamano) {
         Font font = wb.createFont();
-        font.setFontName("Arial");
+        font.setFontName("Aptos Narrow");
         font.setFontHeightInPoints((short) tamano);
         font.setColor(color.getIndex());
         return font;
@@ -29,7 +29,7 @@ public class PoiUtils {
     public static Font fuente(Workbook wb, IndexedColors color, int tamano, Boolean neg) {
         Font font = wb.createFont();
         font.setBold(neg);
-        font.setFontName("Arial");
+        font.setFontName("Aptos Narrow");
         font.setFontHeightInPoints((short) tamano);
         font.setColor(color.getIndex());
         return font;
@@ -61,7 +61,7 @@ public class PoiUtils {
     public static XSSFFont fuente(XSSFWorkbook wb, XSSFColor color, int tamano, Boolean neg) {
         XSSFFont font = wb.createFont();
         font.setBold(neg);
-        font.setFontName("Arial");
+        font.setFontName("Aptos Narrow");
         font.setFontHeightInPoints((short) tamano);
         font.setColor(color);
         return font;
@@ -69,7 +69,7 @@ public class PoiUtils {
 
     public static XSSFFont fuente(XSSFWorkbook wb, XSSFColor color, int tamano) {
         XSSFFont font = wb.createFont();
-        font.setFontName("Arial");
+        font.setFontName("Aptos Narrow");
         font.setFontHeightInPoints((short) tamano);
         font.setColor(color);
         return font;
@@ -77,21 +77,12 @@ public class PoiUtils {
 
     /** Fuente Aptos Narrow (sin negrita) para XSSF. */
     public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano) {
-        XSSFFont font = wb.createFont();
-        font.setFontName("Aptos Narrow");
-        font.setFontHeightInPoints((short) tamano);
-        font.setColor(color);
-        return font;
+        return fuente(wb, color, tamano);
     }
 
     /** Fuente Aptos Narrow con control de negrita para XSSF. */
     public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano, Boolean neg) {
-        XSSFFont font = wb.createFont();
-        font.setFontName("Aptos Narrow");
-        font.setFontHeightInPoints((short) tamano);
-        font.setBold(neg);
-        font.setColor(color);
-        return font;
+        return fuente(wb, color, tamano, neg);
     }
 
     public static XSSFCellStyle createCellStyle(XSSFWorkbook wb, HorizontalAlignment alignment, XSSFColor colorFondo, XSSFFont font) {

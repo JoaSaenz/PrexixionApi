@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joa.prexixionapi.dto.XentraDataDTO;
 import com.joa.prexixionapi.services.XentraService;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/xentra")
+@Slf4j
 public class XentraController {
 
     @Autowired
@@ -27,28 +29,42 @@ public class XentraController {
     public List<XentraDataDTO> list(
             @PathVariable int idPuesto,
             @PathVariable int idArea) {
-        return xentraService.list(idPuesto, idArea);
+        try {
+            return xentraService.list(idPuesto, idArea);
+        } catch (Exception e) {
+            log.error("Error al listar datos Xentra - Puesto: {}, Area: {}", idPuesto, idArea, e);
+            throw e;
+        }
     }
 
     @PostMapping
     public int insert(@RequestBody XentraDataDTO xentraDTO) {
-        int rpta = 0;
-        rpta = xentraService.insertarXentra(xentraDTO);
-        return rpta;
+        try {
+            return xentraService.insertarXentra(xentraDTO);
+        } catch (Exception e) {
+            log.error("Error al insertar dato Xentra: {}", xentraDTO.getNombre(), e);
+            throw e;
+        }
     }
 
     @PutMapping("/{id}")
     public int edit(@PathVariable int id, @RequestParam String fechaFinFront) {
-        int rpta = 0;
-        System.out.println(id);
-        System.out.println(fechaFinFront);
-        rpta = xentraService.editarXentra(id, fechaFinFront);
-        return rpta;
+        try {
+            return xentraService.editarXentra(id, fechaFinFront);
+        } catch (Exception e) {
+            log.error("Error al editar Xentra id: {}, fechaFinFront: {}", id, fechaFinFront, e);
+            throw e;
+        }
     }
 
     @GetMapping("/{id}")
     public XentraDataDTO getOne(@PathVariable int id) {
-        return xentraService.getOne(id);
+        try {
+            return xentraService.getOne(id);
+        } catch (Exception e) {
+            log.error("Error al obtener dato Xentra id: {}", id, e);
+            throw e;
+        }
     }
 
     @GetMapping("/getListXentraFechas/{idPuesto}/{idArea}/{idSubArea}/{dni}")
@@ -57,14 +73,23 @@ public class XentraController {
             @PathVariable int idArea,
             @PathVariable int idSubArea,
             @PathVariable String dni) {
-        return xentraService.getListXentraFechas(idPuesto, idArea, idSubArea, dni);
+        try {
+            return xentraService.getListXentraFechas(idPuesto, idArea, idSubArea, dni);
+        } catch (Exception e) {
+            log.error("Error al obtener lista Xentra fechas - Puesto: {}, Area: {}, SubArea: {}, DNI: {}",
+                    idPuesto, idArea, idSubArea, dni, e);
+            throw e;
+        }
     }
 
     @DeleteMapping("/delete/{id}")
     public int delete(@PathVariable int id) {
-        System.out.println("id: " + id);
-
-        return xentraService.delete(id);
+        try {
+            return xentraService.delete(id);
+        } catch (Exception e) {
+            log.error("Error al eliminar Xentra id: {}", id, e);
+            throw e;
+        }
     }
 
 }

@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.joa.prexixionapi.entities.XentraReporte;
 import com.joa.prexixionapi.services.XentraReporteService;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/xentraReporte")
+@Slf4j
 public class XentraReporteController {
 
     @Autowired
@@ -25,6 +27,12 @@ public class XentraReporteController {
             @PathVariable String dni,
             @PathVariable String fechaInicial,
             @PathVariable String fechaFinal) {
-        return xentraReporteService.list(idPuesto, idArea, dni, fechaInicial, fechaFinal);
+        try {
+            return xentraReporteService.list(idPuesto, idArea, dni, fechaInicial, fechaFinal);
+        } catch (Exception e) {
+            log.error("Error al listar XentraReporte - Puesto: {}, Area: {}, DNI: {}, Inicio: {}, Fin: {}", 
+                    idPuesto, idArea, dni, fechaInicial, fechaFinal, e);
+            throw e;
+        }
     }
 }

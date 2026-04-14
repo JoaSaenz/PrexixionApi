@@ -2,13 +2,14 @@ package com.joa.prexixionapi.utils;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.*;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 public class ExcelStyleManager {
 
     private final XSSFWorkbook workbook;
-    private final Map<String, XSSFCellStyle> styleCache = new HashMap<>();
+    private final Map<String, XSSFCellStyle> styleCache = new ConcurrentHashMap<>();
+    private final Map<String, XSSFFont> fontCache = new ConcurrentHashMap<>();
 
     // --- COLORES ---
     public static final byte[] GERENCIA_BLUE_RGB = {(byte) 0, (byte) 51, (byte) 204};
@@ -48,199 +49,230 @@ public class ExcelStyleManager {
     }
 
     public XSSFCellStyle getHeaderStyle() {
-        return styleCache.computeIfAbsent("header", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 17, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(GERENCIA_BLUE_RGB), font);
-            return style;
-        });
+        return getHeaderStyle(17);
+    }
+
+    public XSSFCellStyle getHeaderStyle(int fontSize) {
+        return getCustomStyle(GERENCIA_BLUE_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getSubHeaderStyle() {
-        return styleCache.computeIfAbsent("subHeader", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(MATTE_BLACK_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getSubHeaderStyle(9);
+    }
+
+    public XSSFCellStyle getSubHeaderStyle(int fontSize) {
+        return getCustomStyle(MATTE_BLACK_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getSubHeaderStyleBlue() {
-        return styleCache.computeIfAbsent("subHeaderBlue", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(GERENCIA_BLUE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getSubHeaderStyleBlue(9);
+    }
+
+    public XSSFCellStyle getSubHeaderStyleBlue(int fontSize) {
+        return getCustomStyle(GERENCIA_BLUE_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getDataCenterStyle() {
-        return styleCache.computeIfAbsent("dataCenter", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, false);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(GERENCIA_GREY_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getDataCenterStyle(9);
+    }
+
+    public XSSFCellStyle getDataCenterStyle(int fontSize) {
+        return getCustomStyle(GERENCIA_GREY_RGB, MATTE_BLACK_RGB, fontSize, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getDataCenterBoldStyle() {
-        return styleCache.computeIfAbsent("dataCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(GERENCIA_GREY_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getDataCenterBoldStyle(9);
+    }
+
+    public XSSFCellStyle getDataCenterBoldStyle(int fontSize) {
+        return getCustomStyle(GERENCIA_GREY_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getDataLeftStyle() {
-        return styleCache.computeIfAbsent("dataLeft", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, false);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.LEFT, getColor(GERENCIA_GREY_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getDataLeftStyle(9);
+    }
+
+    public XSSFCellStyle getDataLeftStyle(int fontSize) {
+        return getCustomStyle(GERENCIA_GREY_RGB, MATTE_BLACK_RGB, fontSize, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getDataLeftBoldStyle() {
-        return styleCache.computeIfAbsent("dataLeftBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.LEFT, getColor(GERENCIA_GREY_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getDataLeftBoldStyle(9);
+    }
+
+    public XSSFCellStyle getDataLeftBoldStyle(int fontSize) {
+        return getCustomStyle(GERENCIA_GREY_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoWhiteStyleCenter() {
-        return styleCache.computeIfAbsent("whiteCenter", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, false);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(WHITE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            return style;
-        });
+        return getFondoWhiteStyleCenter(9);
+    }
+
+    public XSSFCellStyle getFondoWhiteStyleCenter(int fontSize) {
+        return getCustomStyle(WHITE_RGB, MATTE_BLACK_RGB, fontSize, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
     }
 
     public XSSFCellStyle getFondoWhiteStyleLeft() {
-        return styleCache.computeIfAbsent("whiteLeft", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, false);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.LEFT, getColor(WHITE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            return style;
-        });
+        return getFondoWhiteStyleLeft(9);
+    }
+
+    public XSSFCellStyle getFondoWhiteStyleLeft(int fontSize) {
+        return getCustomStyle(WHITE_RGB, MATTE_BLACK_RGB, fontSize, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
     }
 
     public XSSFCellStyle getFondoBlackStyle() {
-        return styleCache.computeIfAbsent("blackCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(BLACK_RGB), font);
-            return style;
-        });
+        return getFondoBlackStyle(9);
+    }
+
+    public XSSFCellStyle getFondoBlackStyle(int fontSize) {
+        return getCustomStyle(BLACK_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoGreenStyle() {
-        return styleCache.computeIfAbsent("greenCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(GREEN_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getFondoGreenStyle(9);
+    }
+
+    public XSSFCellStyle getFondoGreenStyle(int fontSize) {
+        return getCustomStyle(GREEN_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoRedStyle() {
-        return styleCache.computeIfAbsent("darkRedCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(ROJO_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getFondoRedStyle(9);
+    }
+
+    public XSSFCellStyle getFondoRedStyle(int fontSize) {
+        return getCustomStyle(ROJO_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoYellowStyle() {
-        return styleCache.computeIfAbsent("yellowLeftBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.LEFT, getColor(YELLOW_RGB), font);
-            return style;
-        });
+        return getFondoYellowStyle(9);
+    }
+
+    public XSSFCellStyle getFondoYellowStyle(int fontSize) {
+        return getCustomStyle(YELLOW_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoLightRedStyle() {
-        return styleCache.computeIfAbsent("lightRedCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(VERY_LIGHT_RED_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getFondoLightRedStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightRedStyle(int fontSize) {
+        return getCustomStyle(VERY_LIGHT_RED_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoLightBlueStyle() {
-        return styleCache.computeIfAbsent("lightBlueCenter", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, false);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(VERY_LIGHT_BLUE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getFondoLightBlueStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightBlueStyle(int fontSize) {
+        return getCustomStyle(VERY_LIGHT_BLUE_RGB, MATTE_BLACK_RGB, fontSize, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoLightOrangeStyle() {
-        return styleCache.computeIfAbsent("lightOrangeCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(VERY_LIGHT_ORANGE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            return style;
-        });
+        return getFondoLightOrangeStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightOrangeStyle(int fontSize) {
+        return getCustomStyle(VERY_LIGHT_ORANGE_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
     }
 
     public XSSFCellStyle getFondoLightYellowStyle() {
-        return styleCache.computeIfAbsent("lightYellowCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(VERY_LIGHT_YELLOW_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getFondoLightYellowStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightYellowStyle(int fontSize) {
+        return getCustomStyle(VERY_LIGHT_YELLOW_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getFondoLightGreenStyle() {
-        return styleCache.computeIfAbsent("lightGreenCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(VERY_LIGHT_GREEN_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            return style;
-        });
+        return getFondoLightGreenStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightGreenStyle(int fontSize) {
+        return getCustomStyle(VERY_LIGHT_GREEN_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
     }
 
     public XSSFCellStyle getFondoLightWhiteStyle() {
-        return styleCache.computeIfAbsent("lightWhiteCenterBold", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(MATTE_BLACK_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(WHITE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            return style;
-        });
+        return getFondoLightWhiteStyle(9);
+    }
+
+    public XSSFCellStyle getFondoLightWhiteStyle(int fontSize) {
+        return getCustomStyle(WHITE_RGB, MATTE_BLACK_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
     }
 
     public XSSFCellStyle getStatusBlueStyle() {
-        return styleCache.computeIfAbsent("statusBlue", k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(WHITE_RGB), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(DARK_BLUE_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getStatusBlueStyle(9);
+    }
+
+    public XSSFCellStyle getStatusBlueStyle(int fontSize) {
+        return getCustomStyle(DARK_BLUE_RGB, WHITE_RGB, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
     }
 
     public XSSFCellStyle getDataStatusStyle(byte[] fontColor) {
-        String key = "dataStatus_" + java.util.Arrays.toString(fontColor);
-        return styleCache.computeIfAbsent(key, k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(fontColor), 9, true);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(LIGHT_GREY_RGB), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getDataStatusStyle(fontColor, 9);
+    }
+
+    public XSSFCellStyle getDataStatusStyle(byte[] fontColor, int fontSize) {
+        return getCustomStyle(LIGHT_GREY_RGB, fontColor, fontSize, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.WHITE);
+    }
+
+    public XSSFCellStyle getMoneyStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold) {
+        return getMoneyStyle(bgColor, fontColor, fontSize, bold, IndexedColors.WHITE);
+    }
+
+    public XSSFCellStyle getMoneyStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, IndexedColors borderColor) {
+        String key = "money_" + java.util.Arrays.toString(bgColor) + "_" + java.util.Arrays.toString(fontColor) + "_" + fontSize + "_" + bold + "_" + borderColor.name();
+        
+        // Usamos una verificación manual antes del compute para evitar anidamiento y asegurar independencia
+        XSSFCellStyle style = styleCache.get(key);
+        if (style == null) {
+            style = createBaseStyle(bgColor, fontColor, fontSize, bold, HorizontalAlignment.RIGHT, BorderStyle.THIN, borderColor);
+            style.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("#,###.00"));
+            styleCache.put(key, style);
+        }
+        return style;
+    }
+
+    public XSSFCellStyle getDateStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold) {
+        return getDateStyle(bgColor, fontColor, fontSize, bold, IndexedColors.WHITE);
+    }
+
+    public XSSFCellStyle getDateStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, IndexedColors borderColor) {
+        String key = "date_" + java.util.Arrays.toString(bgColor) + "_" + java.util.Arrays.toString(fontColor) + "_" + fontSize + "_" + bold + "_" + borderColor.name();
+        
+        XSSFCellStyle style = styleCache.get(key);
+        if (style == null) {
+            style = createBaseStyle(bgColor, fontColor, fontSize, bold, HorizontalAlignment.CENTER, BorderStyle.THIN, borderColor);
+            style.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy"));
+            styleCache.put(key, style);
+        }
+        return style;
     }
 
     public XSSFCellStyle getGenericStyle(byte[] bgColor, byte[] fontColor, boolean bold) {
-        String key = "generic_" + java.util.Arrays.toString(bgColor) + "_" + java.util.Arrays.toString(fontColor) + "_" + bold;
-        return styleCache.computeIfAbsent(key, k -> {
-            XSSFFont font = PoiUtils.fuente(workbook, getColor(fontColor), 9, bold);
-            XSSFCellStyle style = PoiUtils.createCellStyle(workbook, HorizontalAlignment.CENTER, getColor(bgColor), font);
-            PoiUtils.addBorders(style, BorderStyle.THIN, IndexedColors.WHITE);
-            return style;
-        });
+        return getGenericStyle(bgColor, fontColor, 9, bold, HorizontalAlignment.CENTER);
+    }
+
+    public XSSFCellStyle getGenericStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, HorizontalAlignment alignment) {
+        return getCustomStyle(bgColor, fontColor, fontSize, bold, alignment, BorderStyle.THIN, IndexedColors.WHITE);
+    }
+
+    public XSSFCellStyle getCustomStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, HorizontalAlignment alignment, BorderStyle borderStyle, IndexedColors borderColor) {
+        String key = String.format("custom_%s_%s_%d_%b_%s_%s_%s", 
+            java.util.Arrays.toString(bgColor), 
+            java.util.Arrays.toString(fontColor), 
+            fontSize, bold, alignment.name(), 
+            borderStyle.name(), borderColor.name());
+        
+        return styleCache.computeIfAbsent(key, k -> createBaseStyle(bgColor, fontColor, fontSize, bold, alignment, borderStyle, borderColor));
+    }
+
+    private XSSFCellStyle createBaseStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, HorizontalAlignment alignment, BorderStyle borderStyle, IndexedColors borderColor) {
+        String fontKey = java.util.Arrays.toString(fontColor) + "_" + fontSize + "_" + bold;
+        XSSFFont font = fontCache.computeIfAbsent(fontKey, k -> PoiUtils.fuente(workbook, getColor(fontColor), fontSize, bold));
+        
+        XSSFCellStyle style = PoiUtils.createCellStyle(workbook, alignment, getColor(bgColor), font);
+        PoiUtils.addBorders(style, borderStyle, borderColor);
+        return style;
     }
 }

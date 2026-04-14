@@ -3,6 +3,7 @@ package com.joa.prexixionapi.services;
 import com.joa.prexixionapi.dto.ActivoDTO;
 import com.joa.prexixionapi.dto.ActivoDepreciacionDTO;
 import com.joa.prexixionapi.utils.DateUtils;
+import com.joa.prexixionapi.utils.ExcelStyleManager;
 import com.joa.prexixionapi.utils.PoiUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -21,56 +22,42 @@ public class ActivoExcelService {
 
     private final ActivoService activoService;
 
-    public byte[] generateActivosFijosExcel(String idCliente, String anio, String ruc, String razonSocial) throws Exception {
+    public byte[] generateActivosFijosExcel(String idCliente, String anio, String ruc, String razonSocial)
+            throws Exception {
         List<ActivoDTO> list = activoService.getActivosFijosExcelWithDepreciations(idCliente, anio);
         List<ActivoDTO> listRV = activoService.getActivosFijosRVExcel(idCliente);
 
         ClassPathResource resource = new ClassPathResource("templates/FormatoRegistroActivosFijos.xlsx");
         try (InputStream is = resource.getInputStream();
-             XSSFWorkbook wb = new XSSFWorkbook(is);
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                XSSFWorkbook wb = new XSSFWorkbook(is);
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-            // COLORS
-            XSSFColor MATTE_BLACK = new XSSFColor(new java.awt.Color(38, 38, 38), new DefaultIndexedColorMap());
-            XSSFColor WHITE = new XSSFColor(new java.awt.Color(255, 255, 255), new DefaultIndexedColorMap());
-            XSSFColor BLACK = new XSSFColor(new java.awt.Color(0, 0, 0), new DefaultIndexedColorMap());
-            XSSFColor LIGHT_GREY = new XSSFColor(new java.awt.Color(217, 217, 217), new DefaultIndexedColorMap());
-
-            // FONTS
-            XSSFFont fontWhite9b = PoiUtils.fuente(wb, WHITE, 9, true);
-            XSSFFont fontBlack9b = PoiUtils.fuente(wb, MATTE_BLACK, 9, true);
-            XSSFFont fontBlack9 = PoiUtils.fuente(wb, MATTE_BLACK, 9, false);
+            ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
             // STYLES
-            XSSFCellStyle styleCenter = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, null, fontBlack9);
-            PoiUtils.addBorders(styleCenter, BorderStyle.THIN, IndexedColors.BLACK);
+            XSSFCellStyle styleCenter = styleManager.getCustomStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                    HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.BLACK);
+            XSSFCellStyle styleLeft = styleManager.getCustomStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                    HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.BLACK);
+            XSSFCellStyle styleRight = styleManager.getCustomStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                    HorizontalAlignment.RIGHT, BorderStyle.THIN, IndexedColors.BLACK);
 
-            XSSFCellStyle styleLeft = PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, null, fontBlack9);
-            PoiUtils.addBorders(styleLeft, BorderStyle.THIN, IndexedColors.BLACK);
+            XSSFCellStyle styleLeft2 = styleManager.getCustomStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.BLACK);
+            XSSFCellStyle styleCenter2 = styleManager.getCustomStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.BLACK);
 
-            XSSFCellStyle styleRight = PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, null, fontBlack9);
-            PoiUtils.addBorders(styleRight, BorderStyle.THIN, IndexedColors.BLACK);
+            XSSFCellStyle styleMoney = styleManager.getMoneyStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                    IndexedColors.BLACK);
 
-            XSSFCellStyle styleLeft2 = PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, LIGHT_GREY, fontBlack9b);
-            PoiUtils.addBorders(styleLeft2, BorderStyle.THIN, IndexedColors.BLACK);
-
-            XSSFCellStyle styleCenter2 = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, LIGHT_GREY, fontBlack9b);
-            PoiUtils.addBorders(styleCenter2, BorderStyle.THIN, IndexedColors.BLACK);
-
-            XSSFCellStyle styleCenterHeader = PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, LIGHT_GREY, fontBlack9b);
-            PoiUtils.addBorders(styleCenterHeader, BorderStyle.THIN, IndexedColors.BLACK);
-
-            XSSFCellStyle styleMoney = PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, null, fontBlack9);
-            PoiUtils.addBorders(styleMoney, BorderStyle.THIN, IndexedColors.BLACK);
-            CreationHelper ch = wb.getCreationHelper();
-            styleMoney.setDataFormat(ch.createDataFormat().getFormat("#,###.00"));
-
-            XSSFCellStyle fondoGreyStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, LIGHT_GREY, fontBlack9b);
+            XSSFCellStyle fondoGreyStyle = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, HorizontalAlignment.RIGHT);
             PoiUtils.addBorders(fondoGreyStyle, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
 
-            XSSFCellStyle fondoGreyRightStyle = PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, LIGHT_GREY, fontBlack9b);
-            PoiUtils.addBorders(fondoGreyRightStyle, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            fondoGreyRightStyle.setDataFormat(ch.createDataFormat().getFormat("#,###.00"));
+            XSSFCellStyle fondoGreyRightStyle = styleManager.getMoneyStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, IndexedColors.GREY_25_PERCENT);
 
             // HOJA F71
             XSSFSheet hojaF71 = wb.getSheetAt(0);
@@ -132,7 +119,8 @@ public class ActivoExcelService {
 
             // TOTALES F71
             Row footF71 = hojaF71.createRow(rowNumF71);
-            for(int i=0; i<6; i++) footF71.createCell(i).setCellStyle(fondoGreyStyle);
+            for (int i = 0; i < 6; i++)
+                footF71.createCell(i).setCellStyle(fondoGreyStyle);
             footF71.getCell(2).setCellValue("TOTALES");
             createCell(footF71, 6, totalSaldoI, fondoGreyRightStyle);
             createCell(footF71, 7, totalAdq, fondoGreyRightStyle);
@@ -142,7 +130,8 @@ public class ActivoExcelService {
             createCell(footF71, 11, totalValorHist, fondoGreyRightStyle);
             footF71.createCell(12).setCellStyle(fondoGreyStyle);
             createCell(footF71, 13, totalValorAjust, fondoGreyRightStyle);
-            for(int i=14; i<19; i++) footF71.createCell(i).setCellStyle(fondoGreyStyle);
+            for (int i = 14; i < 19; i++)
+                footF71.createCell(i).setCellStyle(fondoGreyStyle);
             createCell(footF71, 19, totalAcumCier, fondoGreyRightStyle);
             createCell(footF71, 20, totalEjercicio, fondoGreyRightStyle);
             createCell(footF71, 21, totalRelactRt, fondoGreyRightStyle);
@@ -171,7 +160,8 @@ public class ActivoExcelService {
                 createCell(row, col++, activoRT.getMarca(), styleLeft);
                 createCell(row, col++, activoRT.getModelo(), styleLeft);
                 createCell(row, col++, activoRT.getSeriePlaca(), styleCenter);
-                for(int i=0; i<5; i++) createCell(row, col++, "", styleCenter);
+                for (int i = 0; i < 5; i++)
+                    createCell(row, col++, "", styleCenter);
                 createCell(row, col++, activoRT.getCostoInicial(), styleMoney);
                 totalVoluntariaRev += activoRT.getCostoInicial();
                 createCell(row, col++, "", styleCenter);
@@ -183,19 +173,22 @@ public class ActivoExcelService {
                 totalValorAjustRev += activoRT.getCostoInicial();
                 createCell(row, col++, DateUtils.formatChange(activoRT.getFechaCompra(), "dd/MM/yyyy"), styleCenter);
                 createCell(row, col++, DateUtils.formatChange(activoRT.getFechaInicio(), "dd/MM/yyyy"), styleCenter);
-                for(int i=0; i<13; i++) createCell(row, col++, "", styleCenter);
+                for (int i = 0; i < 13; i++)
+                    createCell(row, col++, "", styleCenter);
                 rowNumF72++;
             }
             Row footF72 = hojaF72.createRow(rowNumF72);
             createCell(footF72, 5, "TOTALES", styleCenter2);
-            for(int i=6; i<11; i++) createCell(footF72, i, "-", fondoGreyStyle);
+            for (int i = 6; i < 11; i++)
+                createCell(footF72, i, "-", fondoGreyStyle);
             createCell(footF72, 11, totalVoluntariaRev, fondoGreyRightStyle);
             createCell(footF72, 12, "-", fondoGreyStyle);
             createCell(footF72, 13, "-", fondoGreyStyle);
             createCell(footF72, 14, totalValorHistRev, fondoGreyRightStyle);
             createCell(footF72, 15, "-", fondoGreyStyle);
             createCell(footF72, 16, totalValorAjustRev, fondoGreyRightStyle);
-            for(int i=17; i<32; i++) createCell(footF72, i, i<22 ? "" : "-", fondoGreyStyle);
+            for (int i = 17; i < 32; i++)
+                createCell(footF72, i, i < 22 ? "" : "-", fondoGreyStyle);
             hojaF72.createFreezePane(0, 9);
 
             // HOJA F73

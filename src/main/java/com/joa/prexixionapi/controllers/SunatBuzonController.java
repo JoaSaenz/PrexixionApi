@@ -44,7 +44,12 @@ public class SunatBuzonController {
 
     @PostMapping("/server-side")
     public ResponseEntity<SunatBuzonDataTablesResponse> listServerSide(@RequestBody SunatBuzonDataTablesRequest req) {
-        return ResponseEntity.ok(sunatBuzonService.listServerSide(req));
+        try {
+            return ResponseEntity.ok(sunatBuzonService.listServerSide(req));
+        } catch (Exception e) {
+            log.error("Error en listServerSide para req: {}", req, e);
+            throw e;
+        }
     }
 
     @GetMapping("/server-side-proxy")
@@ -79,20 +84,30 @@ public class SunatBuzonController {
 
     @GetMapping("/excel-reporte-ejecucion")
     public ResponseEntity<byte[]> descargarExcelReporteEjecucion(@RequestParam Long jobStatusId) {
-        byte[] excel = sunatBuzonExcelService.exportarDetalleJobStatus(jobStatusId);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=SUNAT_JobStatus_" + jobStatusId + ".xlsx")
-                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(excel);
+        try {
+            byte[] excel = sunatBuzonExcelService.exportarDetalleJobStatus(jobStatusId);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=SUNAT_JobStatus_" + jobStatusId + ".xlsx")
+                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .body(excel);
+        } catch (Exception e) {
+            log.error("Error describiendo reporte de ejecución para id: {}", jobStatusId, e);
+            throw e;
+        }
     }
 
     @PostMapping("/sincronizar")
     public ResponseEntity<ApiResponse> sincronizarManualmente() {
-        ApiResponse response = jobLauncherService.lanzarSincronizacionSunat();
-        if ("ERROR".equals(response.getStatus())) {
-            return ResponseEntity.internalServerError().body(response);
+        try {
+            ApiResponse response = jobLauncherService.lanzarSincronizacionSunat();
+            if ("ERROR".equals(response.getStatus())) {
+                return ResponseEntity.internalServerError().body(response);
+            }
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error al sincronizar manualmente SUNAT Buzón", e);
+            throw e;
         }
-        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/notificacion/{id}/descargar")
@@ -214,21 +229,26 @@ public class SunatBuzonController {
 
     @GetMapping("/notificaciones/{ruc}")
     public ResponseEntity<List<com.joa.prexixionapi.dto.NotificacionResumenDTO>> getNotificacionesByRuc(@PathVariable String ruc) {
-        List<com.joa.prexixionapi.dto.NotificacionProjection> notificaciones = notificacionRepository.findResumenByRuc(ruc);
-        List<com.joa.prexixionapi.dto.NotificacionResumenDTO> resumen = new ArrayList<>();
+        try {
+            List<com.joa.prexixionapi.dto.NotificacionProjection> notificaciones = notificacionRepository.findResumenByRuc(ruc);
+            List<com.joa.prexixionapi.dto.NotificacionResumenDTO> resumen = new ArrayList<>();
 
-        for (com.joa.prexixionapi.dto.NotificacionProjection n : notificaciones) {
-            resumen.add(com.joa.prexixionapi.dto.NotificacionResumenDTO.builder()
-                    .id(n.getId())
-                    .ruc(n.getRuc())
-                    .idSunat(n.getIdSunat())
-                    .titulo(n.getTitulo())
-                    .fecha(n.getFecha())
-                    .revisado(n.getRevisado() != null ? n.getRevisado() : false)
-                    .tieneAdjuntos(n.getTieneAdjuntos() != null && n.getTieneAdjuntos() > 0)
-                    .build());
+            for (com.joa.prexixionapi.dto.NotificacionProjection n : notificaciones) {
+                resumen.add(com.joa.prexixionapi.dto.NotificacionResumenDTO.builder()
+                        .id(n.getId())
+                        .ruc(n.getRuc())
+                        .idSunat(n.getIdSunat())
+                        .titulo(n.getTitulo())
+                        .fecha(n.getFecha())
+                        .revisado(n.getRevisado() != null ? n.getRevisado() : false)
+                        .tieneAdjuntos(n.getTieneAdjuntos() != null && n.getTieneAdjuntos() > 0)
+                        .build());
+            }
+
+            return ResponseEntity.ok(resumen);
+        } catch (Exception e) {
+            log.error("Error al obtener notificaciones por RUC: {}", ruc, e);
+            throw e;
         }
-
-        return ResponseEntity.ok(resumen);
     }
 }

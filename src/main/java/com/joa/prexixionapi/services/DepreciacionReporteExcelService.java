@@ -3,7 +3,7 @@ package com.joa.prexixionapi.services;
 import com.joa.prexixionapi.dto.ActivoDTO;
 import com.joa.prexixionapi.dto.ActivoDepreciacionDTO;
 import com.joa.prexixionapi.dto.ActivoExcelDTO;
-import com.joa.prexixionapi.utils.DateUtils;
+import com.joa.prexixionapi.utils.ExcelStyleManager;
 import com.joa.prexixionapi.utils.PoiUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Date;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -48,167 +48,32 @@ public class DepreciacionReporteExcelService {
         }
 
         // 3. Generate POI Workbook
-        Workbook wb = new XSSFWorkbook();
+        XSSFWorkbook wb = new XSSFWorkbook();
+        ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
         // <editor-fold defaultstate="collapsed" desc=" E S T I L O S ">
-        // <editor-fold defaultstate="collapsed" desc="COLORES PERSONALIZADOS">
-        XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+        XSSFCellStyle styleHeader = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
+                ExcelStyleManager.WHITE_RGB, 17, true, HorizontalAlignment.CENTER);
 
-        XSSFColor VERY_LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 102 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 51, (byte) 51 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor DARK_RED = new XSSFColor(new byte[] { (byte) 204, (byte) 0, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor VERY_DARK_RED = new XSSFColor(new byte[] { (byte) 153, (byte) 0, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+        XSSFCellStyle styleSubHeader = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
+                ExcelStyleManager.WHITE_RGB, 8, true, HorizontalAlignment.CENTER);
+        XSSFCellStyle styleSubHeaderLeft = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
+                ExcelStyleManager.WHITE_RGB, 8, true, HorizontalAlignment.LEFT);
 
-        XSSFColor VERY_LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 204, (byte) 255 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 255 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 204 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor VERY_DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 153 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+        XSSFCellStyle styleCenter = styleManager.getGenericStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.CENTER);
+        XSSFCellStyle styleLeft = styleManager.getGenericStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.LEFT);
 
-        XSSFColor VERY_LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 102, (byte) 255, (byte) 102 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 255, (byte) 51 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 153, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor VERY_DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 102, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+        XSSFCellStyle styleDate = styleManager.getDateStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, false);
+        XSSFCellStyle styleCenter2 = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.CENTER);
 
-        XSSFColor VERY_LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 204 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 153 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor DARK_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor LIGHT_ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 153, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor GOLD = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 51 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 204, (byte) 204, (byte) 204 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor DARK_GREY = new XSSFColor(new byte[] { (byte) 102, (byte) 102, (byte) 102 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor VERY_DARK_GREY = new XSSFColor(new byte[] { (byte) 51, (byte) 51, (byte) 51 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor LIGHT_BROWN = new XSSFColor(new byte[] { (byte) 153, (byte) 102, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor BROWN = new XSSFColor(new byte[] { (byte) 102, (byte) 51, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        XSSFColor VERY_DARK_BROWN = new XSSFColor(new byte[] { (byte) 51, (byte) 0, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor PURPLE = new XSSFColor(new byte[] { (byte) 102, (byte) 0, (byte) 153 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor BLACK = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 0 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-
-        XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 },
-                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
-        // </editor-fold>
-
-        // <editor-fold defaultstate="collapsed" desc="FONTS">
-        Boolean negrita = true;
-        XSSFFont fontWhite17b = PoiUtils.fuenteAN((XSSFWorkbook) wb, WHITE, 17, negrita);
-        XSSFFont fontWhite8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, WHITE, 8, negrita);
-        XSSFFont fontBlack8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, MATTE_BLACK, 8, negrita);
-        XSSFFont fontBlack8 = PoiUtils.fuenteAN((XSSFWorkbook) wb, MATTE_BLACK, 8);
-
-        XSSFFont fontGreen8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, GREEN, 8, negrita);
-        XSSFFont fontRed8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, RED, 8, negrita);
-        XSSFFont fontGrey8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, GREY, 8, negrita);
-        XSSFFont fontYellow8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, ORANGE, 8, negrita);
-        XSSFFont fontLightBlue8b = PoiUtils.fuenteAN((XSSFWorkbook) wb, LIGHT_BLUE, 8, negrita);
-        // </editor-fold>
-
-        CreationHelper ch = ((XSSFWorkbook) wb).getCreationHelper();
-
-        // <editor-fold defaultstate="collapsed" desc="CELL STYLES">
-        XSSFCellStyle styleHeader = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                MATTE_BLACK, fontWhite17b);
-
-        XSSFCellStyle styleSubHeader = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                MATTE_BLACK, fontWhite8b);
-        PoiUtils.addBorders(styleSubHeader, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleSubHeaderLeft = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
-                MATTE_BLACK, fontWhite8b);
-        PoiUtils.addBorders(styleSubHeaderLeft, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleCenter = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontBlack8);
-        PoiUtils.addBorders(styleCenter, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleLeft = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
-                GERENCIA_GREY, fontBlack8);
-        PoiUtils.addBorders(styleLeft, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleDate = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontBlack8);
-        styleDate.setDataFormat(ch.createDataFormat().getFormat("dd/MM/yyyy"));
-        PoiUtils.addBorders(styleDate, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleCenter2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                LIGHT_GREY, fontBlack8);
-        PoiUtils.addBorders(styleCenter2, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleMoney = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.RIGHT,
-                GERENCIA_GREY, fontBlack8b);
-        PoiUtils.addBorders(styleMoney, BorderStyle.THIN, IndexedColors.WHITE);
-        styleMoney.setDataFormat(ch.createDataFormat().getFormat("#,###.00"));
-
-        XSSFCellStyle styleMoneyTotal = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.RIGHT,
-                LIGHT_GREY, fontBlack8b);
-        PoiUtils.addBorders(styleMoneyTotal, BorderStyle.THIN, IndexedColors.WHITE);
-        styleMoneyTotal.setDataFormat(ch.createDataFormat().getFormat("#,###.00"));
-
-        XSSFCellStyle styleGreen = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontGreen8b);
-        PoiUtils.addBorders(styleGreen, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleRed = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontRed8b);
-        PoiUtils.addBorders(styleRed, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleGrey = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontGrey8b);
-        PoiUtils.addBorders(styleGrey, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleYellow = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontYellow8b);
-        PoiUtils.addBorders(styleYellow, BorderStyle.THIN, IndexedColors.WHITE);
-
-        XSSFCellStyle styleBlue = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
-                GERENCIA_GREY, fontLightBlue8b);
-        PoiUtils.addBorders(styleBlue, BorderStyle.THIN, IndexedColors.WHITE);
+        XSSFCellStyle styleMoney = styleManager.getMoneyStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, true);
+        XSSFCellStyle styleMoneyTotal = styleManager.getMoneyStyle(ExcelStyleManager.LIGHT_GREY_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, true);
         // </editor-fold>
 
         // </editor-fold>
@@ -685,20 +550,20 @@ public class DepreciacionReporteExcelService {
         cColumnaDescripcionBT.setCellValue("Descripción");
         colNumBT++;
 
-        Cell cColumnaMarcaBT = rColumnasBT.createCell(colNum);
+        Cell cColumnaMarcaBT = rColumnasBT.createCell(colNumBT);
         cColumnaMarcaBT.setCellStyle(styleSubHeader);
         cColumnaMarcaBT.setCellValue("Marca");
-        colNum++;
+        colNumBT++;
 
-        Cell cColumnaModeloBT = rColumnasBT.createCell(colNum);
+        Cell cColumnaModeloBT = rColumnasBT.createCell(colNumBT);
         cColumnaModeloBT.setCellStyle(styleSubHeader);
         cColumnaModeloBT.setCellValue("Modelo");
-        colNum++;
+        colNumBT++;
 
-        Cell cColumnaSeriePlacaBT = rColumnasBT.createCell(colNum);
+        Cell cColumnaSeriePlacaBT = rColumnasBT.createCell(colNumBT);
         cColumnaSeriePlacaBT.setCellStyle(styleSubHeader);
         cColumnaSeriePlacaBT.setCellValue("Serie y/o placa");
-        colNum++;
+        colNumBT++;
 
         Cell cColumnasTipoBT = rColumnasBT.createCell(colNumBT);
         cColumnasTipoBT.setCellStyle(styleSubHeader);
@@ -1570,7 +1435,7 @@ public class DepreciacionReporteExcelService {
                     ActivoDepreciacionDTO dpCont = getDepContableByYear(activo, hojaAnioI);
                     ActivoDepreciacionDTO dpTrib = getDepTributariaByYear(activo, hojaAnioI);
 
-                    if (listResumen.stream().noneMatch(o -> o.getIdBienTipo().equals(activo.getIdTipo()))) {
+                    if (listResumen.stream().noneMatch(o -> Objects.equals(o.getIdBienTipo(), activo.getIdTipo()))) {
                         // <editor-fold defaultstate="collapsed" desc="SI EL TIPO DEL BIEN NO EXISTE EN
                         // EL ARREGLO DE RESÚMENES">
                         ActivoDepreciacionDTO objResumen = new ActivoDepreciacionDTO();
@@ -1649,7 +1514,7 @@ public class DepreciacionReporteExcelService {
                         // <editor-fold defaultstate="collapsed" desc="SI EL TIPO DEL BIEN SÍ EXISTE EN
                         // EL ARREGLO DE RESÚMENES">
                         ActivoDepreciacionDTO objResumen = listResumen.stream()
-                                .filter(o -> o.getIdBienTipo().equals(activo.getIdTipo()))
+                                .filter(o -> Objects.equals(o.getIdBienTipo(), activo.getIdTipo()))
                                 .findFirst().get();
                         int index = listResumen.indexOf(objResumen);
 

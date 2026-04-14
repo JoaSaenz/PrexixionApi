@@ -106,33 +106,14 @@ public class ClienteExcelService {
                         ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
                         // <editor-fold defaultstate="collapsed" desc="CELL STYLES">
-                        XSSFCellStyle estiloDatosDerechaBlanco = styleManager.getGenericStyle(
-                                        ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
-                        estiloDatosDerechaBlanco.setAlignment(HorizontalAlignment.RIGHT);
-
                         XSSFCellStyle estiloDatosCentroNegroNegrita = styleManager.getFondoBlackStyle();
-
-                        // FONDO BLANCO
-                        XSSFCellStyle estiloDatosIzquierdaBlancoAzulNegrita = styleManager
-                                        .getGenericStyle(ExcelStyleManager.WHITE_RGB, ExcelStyleManager.BLUE_RGB, true);
-                        estiloDatosIzquierdaBlancoAzulNegrita.setAlignment(HorizontalAlignment.LEFT);
 
                         // FONDO COLORES SUAVES
                         XSSFCellStyle estiloDatosCentroRojoClaroNegrita = styleManager.getFondoLightRedStyle();
                         XSSFCellStyle estiloDatosCentroAzulClaro = styleManager.getFondoLightBlueStyle();
-                        XSSFCellStyle estiloDatosDerechaBlancoNegrita = styleManager.getGenericStyle(
-                                        ExcelStyleManager.WHITE_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
-                        estiloDatosDerechaBlancoNegrita.setAlignment(HorizontalAlignment.RIGHT);
 
                         XSSFCellStyle estiloDatosCentroAmarilloClaroNegrita = styleManager.getFondoLightYellowStyle();
 
-                        XSSFCellStyle estiloDatosDerechaRojoClaroRojoNegrita = styleManager.getGenericStyle(
-                                        ExcelStyleManager.VERY_LIGHT_RED_RGB, ExcelStyleManager.RED_RGB, true);
-                        estiloDatosDerechaRojoClaroRojoNegrita.setAlignment(HorizontalAlignment.RIGHT);
-
-                        // FONDO AZUL
-                        XSSFCellStyle estiloCabeceraIzquierdaAzul = styleManager.getHeaderStyle();
-                        estiloCabeceraIzquierdaAzul.setAlignment(HorizontalAlignment.LEFT);
                         XSSFCellStyle estiloSubCabeceraCentroAzulNegrita = styleManager.getSubHeaderStyleBlue();
 
                         // FONDO PLOMO BAJO (DATA STATUS)
@@ -142,21 +123,14 @@ public class ClienteExcelService {
                                         .getDataStatusStyle(ExcelStyleManager.LIGHT_BLUE_RGB);
 
                         XSSFCellStyle estiloDatosCentroGrisNegrita = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, 9, true,
+                                        HorizontalAlignment.CENTER);
                         XSSFCellStyle estiloDatosCentroGris = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
-                        XSSFCellStyle estiloDatosDerechaGrisNegrita = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
-                        estiloDatosDerechaGrisNegrita.setAlignment(HorizontalAlignment.RIGHT);
-                        XSSFCellStyle estiloDatosDerechaGris = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
-                        estiloDatosDerechaGris.setAlignment(HorizontalAlignment.RIGHT);
-                        XSSFCellStyle estiloDatosIzquierdaGrisNegrita = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, true);
-                        estiloDatosIzquierdaGrisNegrita.setAlignment(HorizontalAlignment.LEFT);
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                                        HorizontalAlignment.CENTER);
                         XSSFCellStyle estiloDatosIzquierdaGris = styleManager.getGenericStyle(
-                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, false);
-                        estiloDatosIzquierdaGris.setAlignment(HorizontalAlignment.LEFT);
+                                        ExcelStyleManager.LIGHT_GREY_RGB, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
+                                        HorizontalAlignment.LEFT);
                         // </editor-fold>
 
                         // </editor-fold>
