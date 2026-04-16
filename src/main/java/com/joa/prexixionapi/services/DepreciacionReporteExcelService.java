@@ -498,8 +498,13 @@ public class DepreciacionReporteExcelService {
         sheet.createFreezePane(4, 5, 4, 5);
 
         // <editor-fold defaultstate="collapsed" desc=" A N C H O D E C O L U M N A S ">
+        // Optimización: Autosize solo para columnas de texto/proveedor, anchos fijos para el resto
         for (int contCol = 0; contCol < colNum; contCol++) {
-            sheet.autoSizeColumn(contCol);
+            if (contCol <= 11 || contCol == 19) {
+                sheet.autoSizeColumn(contCol);
+            } else {
+                sheet.setColumnWidth(contCol, 3500); // ~13 caracteres
+            }
         }
         // Col Descripción = doble de la col Id (col 0)
         sheet.setColumnWidth(3, sheet.getColumnWidth(0) * 2);
@@ -931,8 +936,13 @@ public class DepreciacionReporteExcelService {
         sheetBT.createFreezePane(4, 5, 4, 5);
 
         // <editor-fold defaultstate="collapsed" desc=" A N C H O D E C O L U M N A S ">
+        // Optimización: Autosize solo para columnas críticas
         for (int contCol = 0; contCol < colNumBT; contCol++) {
-            sheetBT.autoSizeColumn(contCol);
+            if (contCol <= 11 || contCol == 19) {
+                sheetBT.autoSizeColumn(contCol);
+            } else {
+                sheetBT.setColumnWidth(contCol, 3500);
+            }
         }
         // Col Descripción = doble de la col Id (col 0)
         sheetBT.setColumnWidth(3, sheetBT.getColumnWidth(0) * 2);
@@ -2937,8 +2947,13 @@ public class DepreciacionReporteExcelService {
             sheetDp.createFreezePane(9, 5, 9, 5);
 
             // <editor-fold defaultstate="collapsed" desc=" A N C H O D E C O L U M N A S ">
+            // Optimización: Evitar autosize en todas las columnas dentro del bucle de años
             for (int contCol = 0; contCol < colNumDp; contCol++) {
-                sheetDp.autoSizeColumn(contCol);
+                if (contCol <= 6 || contCol == 14 || contCol == 20 || contCol == 38 || contCol == 56) {
+                    sheetDp.autoSizeColumn(contCol);
+                } else {
+                    sheetDp.setColumnWidth(contCol, 3200);
+                }
             }
             // Col Descripción = doble de la col Id (col 0)
             sheetDp.setColumnWidth(3, sheetDp.getColumnWidth(0) * 2);
