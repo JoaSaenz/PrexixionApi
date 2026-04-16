@@ -97,10 +97,10 @@ public class SunatBuzonController {
     }
 
     @PostMapping("/sincronizar")
-    public ResponseEntity<ApiResponse> sincronizarManualmente() {
+    public ResponseEntity<ApiResponse<?>> sincronizarManualmente() {
         try {
-            ApiResponse response = jobLauncherService.lanzarSincronizacionSunat();
-            if ("ERROR".equals(response.getStatus())) {
+            ApiResponse<?> response = jobLauncherService.lanzarSincronizacionSunat();
+            if (!response.isSuccess()) {
                 return ResponseEntity.internalServerError().body(response);
             }
             return ResponseEntity.ok(response);

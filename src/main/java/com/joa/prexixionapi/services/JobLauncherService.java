@@ -17,13 +17,12 @@ public class JobLauncherService {
     @Value("${jobs.api.url}")
     private String jobsApiUrl;
 
-    public ApiResponse lanzarSincronizacionSunat() {
+    public ApiResponse<?> lanzarSincronizacionSunat() {
         String url = jobsApiUrl + "/api/sunat/sincronizar";
         try {
             return restTemplate.postForObject(url, null, ApiResponse.class);
         } catch (Exception e) {
-            return new ApiResponse("ERROR", "No se pudo conectar con el servicio de jobs: " + e.getMessage(),
-                    java.time.LocalDateTime.now());
+            return new ApiResponse<>(false, "No se pudo conectar con el servicio de jobs: " + e.getMessage(), null);
         }
     }
 }
