@@ -33,4 +33,9 @@ public class ApiResponse<T> {
     public String getStatus() {
         return success ? "OK" : "ERROR";
     }
+
+    // Método para que Jackson pueda mapear "status" desde JSON antiguos
+    public void setStatus(String status) {
+        this.success = "OK".equals(status);
+    }
 }
