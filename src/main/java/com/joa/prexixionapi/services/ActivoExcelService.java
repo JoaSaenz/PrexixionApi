@@ -42,12 +42,12 @@ public class ActivoExcelService {
             XSSFCellStyle styleRight = styleManager.getCustomStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
                     HorizontalAlignment.RIGHT, BorderStyle.THIN, IndexedColors.BLACK);
 
-            XSSFCellStyle styleLeft2 = styleManager.getCustomStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
-                    IndexedColors.BLACK);
-            XSSFCellStyle styleCenter2 = styleManager.getCustomStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                    ExcelStyleManager.MATTE_BLACK_RGB, 9, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
-                    IndexedColors.BLACK);
+            XSSFCellStyle styleLeft2 = styleManager.getCustomStyle(ExcelStyleManager.GERENCIA_BLUE_RGB,
+                    ExcelStyleManager.WHITE_RGB, 9, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.WHITE);
+            XSSFCellStyle styleCenter2 = styleManager.getCustomStyle(ExcelStyleManager.GERENCIA_BLUE_RGB,
+                    ExcelStyleManager.WHITE_RGB, 9, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.WHITE);
 
             XSSFCellStyle styleMoney = styleManager.getMoneyStyle(null, ExcelStyleManager.MATTE_BLACK_RGB, 9, false,
                     IndexedColors.BLACK);

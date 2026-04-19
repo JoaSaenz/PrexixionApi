@@ -24,6 +24,8 @@ public class AttendanceDTO {
     private String ts; // Tarde Salida
     private String tarde; // Marcaciones en horario no definido
     private int minutosTardanza;
+    private int minutosTrabajados;
     private String estado; // Activo, Baja, etc.
     private Integer idEstado;
+    private Integer idTipo;
 }

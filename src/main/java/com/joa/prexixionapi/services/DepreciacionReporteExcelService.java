@@ -52,28 +52,23 @@ public class DepreciacionReporteExcelService {
         ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
         // <editor-fold defaultstate="collapsed" desc=" E S T I L O S ">
-        XSSFCellStyle styleHeader = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
-                ExcelStyleManager.WHITE_RGB, 17, true, HorizontalAlignment.CENTER);
+        XSSFCellStyle styleHeader = styleManager.getHeaderStyle(17);
 
-        XSSFCellStyle styleSubHeader = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
-                ExcelStyleManager.WHITE_RGB, 8, true, HorizontalAlignment.CENTER);
-        XSSFCellStyle styleSubHeaderLeft = styleManager.getGenericStyle(ExcelStyleManager.MATTE_BLACK_RGB,
-                ExcelStyleManager.WHITE_RGB, 8, true, HorizontalAlignment.LEFT);
+        XSSFCellStyle styleSubHeader = styleManager.getSubHeaderStyleBlue(8);
+        XSSFCellStyle styleSubHeaderLeft = styleManager.getCustomStyle(ExcelStyleManager.GERENCIA_BLUE_RGB,
+                ExcelStyleManager.WHITE_RGB, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.WHITE);
 
-        XSSFCellStyle styleCenter = styleManager.getGenericStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.CENTER);
-        XSSFCellStyle styleLeft = styleManager.getGenericStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.LEFT);
+        XSSFCellStyle styleCenter = styleManager.getFondoWhiteStyleCenter(8);
+        XSSFCellStyle styleLeft = styleManager.getFondoWhiteStyleLeft(8);
 
-        XSSFCellStyle styleDate = styleManager.getDateStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, false);
-        XSSFCellStyle styleCenter2 = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, HorizontalAlignment.CENTER);
+        XSSFCellStyle styleDate = styleManager.getDateStyle(ExcelStyleManager.WHITE_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, false, IndexedColors.GREY_25_PERCENT);
+        XSSFCellStyle styleCenter2 = styleManager.getFondoWhiteStyleCenter(8);
 
-        XSSFCellStyle styleMoney = styleManager.getMoneyStyle(ExcelStyleManager.GERENCIA_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, true);
+        XSSFCellStyle styleMoney = styleManager.getMoneyStyle(ExcelStyleManager.WHITE_RGB,
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, true, IndexedColors.GREY_25_PERCENT);
         XSSFCellStyle styleMoneyTotal = styleManager.getMoneyStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                ExcelStyleManager.MATTE_BLACK_RGB, 8, true);
+                ExcelStyleManager.MATTE_BLACK_RGB, 8, true, IndexedColors.GREY_25_PERCENT);
         // </editor-fold>
 
         // </editor-fold>

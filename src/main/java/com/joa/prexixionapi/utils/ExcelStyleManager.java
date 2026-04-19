@@ -31,8 +31,8 @@ public class ExcelStyleManager {
     public static final byte[] GREY_RGB = {(byte) 128, (byte) 128, (byte) 128};
     public static final byte[] ORANGE_RGB = {(byte) 255, (byte) 102, (byte) 0};
     public static final byte[] LIGHT_BLUE_RGB = {(byte) 51, (byte) 153, (byte) 255};
-    public static final byte[] DARK_BLUE_RGB = {(byte) 0, (byte) 51, (byte) 204};
-    public static final byte[] BLUE_RGB = {(byte) 0, (byte) 0, (byte) 255};
+    public static final byte[] DARK_BLUE_RGB = GERENCIA_BLUE_RGB;
+    public static final byte[] BLUE_RGB = GERENCIA_BLUE_RGB;
 
     public static final byte[] VERY_LIGHT_RED_RGB = {(byte) 253, (byte) 237, (byte) 236};
     public static final byte[] VERY_LIGHT_BLUE_RGB = {(byte) 235, (byte) 245, (byte) 251};

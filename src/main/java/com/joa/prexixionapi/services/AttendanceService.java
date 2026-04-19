@@ -68,7 +68,7 @@ public class AttendanceService {
         // 2. Obtener personal activo enriquecido con filtros
         StringBuilder queryPersonal = new StringBuilder("""
             SELECT p.dni, p.nombres, p.apellidos, e.descripcion as empresa, pu.descripcion as puesto, a.descripcion as area, tp.descripcion as tipo,
-                   p.idEstado, est.descripcion as estado
+                   p.idEstado, est.descripcion as estado, p.idTipo
             FROM bty.dbo.personal p
             LEFT JOIN bty.dbo.empresas e ON p.idEmpresa = e.id
             LEFT JOIN bty.dbo.personalPuestos pu ON p.idPuesto = pu.id
@@ -98,15 +98,20 @@ public class AttendanceService {
                 .tipo(rs.getString("tipo"))
                 .idEstado(rs.getInt("idEstado"))
                 .estado(rs.getString("estado"))
+                .idTipo(rs.getInt("idTipo"))
                 .mi("").ms("").ti("").ts("").tarde("")
                 .build());
 
         // 3. Cruzar datos (Optimizado con Map)
         Map<String, AttendanceDTO> marcacionesMap = marcaciones.stream()
-                .collect(Collectors.toMap(AttendanceDTO::getDni, m -> m, (m1, m2) -> m1));
+                .filter(m -> m.getDni() != null)
+                .collect(Collectors.toMap(m -> m.getDni().trim(), m -> m, (m1, m2) -> m1));
+
+        log.info("Matching markings for {} personnel. Total markings found: {}", personalActivo.size(), marcaciones.size());
 
         for (AttendanceDTO p : personalActivo) {
-            AttendanceDTO m = marcacionesMap.get(p.getDni());
+            String dniKey = p.getDni() != null ? p.getDni().trim() : "";
+            AttendanceDTO m = marcacionesMap.get(dniKey);
             if (m != null) {
                 p.setMi(m.getMi());
                 p.setMs(m.getMs());
@@ -117,7 +122,7 @@ public class AttendanceService {
             } else {
                 p.setFecha(fecha);
             }
-            // Calcular tardanza básica (se puede profundizar después)
+            // Calcular tardanza básica
             p.setMinutosTardanza(calcularTardanza(p, fecha));
         }
 
@@ -146,6 +151,48 @@ public class AttendanceService {
             log.warn("Error calculando tardanza para {}: {}", a.getDni(), e.getMessage());
         }
         return total;
+    }
+
+    private int calcularMinutosTrabajados(String mi, String ms, String ti, String ts) {
+        try {
+            if (mi == null || mi.isEmpty()) {
+                if (ti == null || ti.isEmpty()) return 0;
+                mi = ti; // Si no hay entrada de mañana, usamos la de tarde como inicio
+            }
+            if (ts == null || ts.isEmpty()) {
+                if (ms == null || ms.isEmpty()) return 0;
+                ts = ms; // Si no hay salida de tarde, usamos la de mañana como fin
+            }
+
+            java.time.LocalTime start = java.time.LocalTime.parse(mi);
+            java.time.LocalTime end = java.time.LocalTime.parse(ts);
+
+            if (end.isBefore(start)) return 0;
+
+            // Caso 1: Tiene marcaciones de almuerzo (4 marcas)
+            if (ms != null && !ms.isEmpty() && ti != null && !ti.isEmpty()) {
+                java.time.LocalTime msTime = java.time.LocalTime.parse(ms);
+                java.time.LocalTime tiTime = java.time.LocalTime.parse(ti);
+                
+                if (msTime.isAfter(start) && tiTime.isAfter(msTime) && end.isAfter(tiTime)) {
+                    long mañana = java.time.Duration.between(start, msTime).toMinutes();
+                    long tarde = java.time.Duration.between(tiTime, end).toMinutes();
+                    return (int) (mañana + tarde);
+                }
+            }
+
+            // Caso 2: Solo entrada y salida (o 3 marcas)
+            long total = java.time.Duration.between(start, end).toMinutes();
+            
+            // Regla heurística: Si el turno es >= 6 horas (360 min), descontar 1 hora de almuerzo
+            if (total >= 360) {
+                total -= 60;
+            }
+            
+            return (int) total;
+        } catch (Exception e) {
+            return 0;
+        }
     }
     public List<AttendanceDTO> getMonthlyAttendance(String dni, String fechaI, String fechaF) {
         log.info("Requesting monthly attendance for DNI: {} from {} to {}", dni, fechaI, fechaF);
@@ -179,15 +226,19 @@ public class AttendanceService {
 
         return jdbcTemplate.query(query, (rs, rowNum) -> {
             AttendanceDTO dto = AttendanceDTO.builder()
-                .dni(rs.getString("dni"))
-                .fecha(rs.getString("fecha"))
-                .mi(rs.getString("mi") != null ? rs.getString("mi") : "")
-                .ms(rs.getString("ms") != null ? rs.getString("ms") : "")
-                .ti(rs.getString("ti") != null ? rs.getString("ti") : "")
-                .ts(rs.getString("ts") != null ? rs.getString("ts") : "")
-                .tarde(rs.getString("tarde") != null ? rs.getString("tarde") : "")
-                .build();
+                    .dni(rs.getString("dni"))
+                    .fecha(rs.getString("fecha"))
+                    .mi(rs.getString("mi") != null ? rs.getString("mi") : "")
+                    .ms(rs.getString("ms") != null ? rs.getString("ms") : "")
+                    .ti(rs.getString("ti") != null ? rs.getString("ti") : "")
+                    .ts(rs.getString("ts") != null ? rs.getString("ts") : "")
+                    .tarde(rs.getString("tarde") != null ? rs.getString("tarde") : "")
+                    .build();
+            
+            // Cálculos
             dto.setMinutosTardanza(calcularTardanza(dto, dto.getFecha()));
+            dto.setMinutosTrabajados(calcularMinutosTrabajados(dto.getMi(), dto.getMs(), dto.getTi(), dto.getTs()));
+            
             return dto;
         }, fechaI, fechaF, dni);
     }
