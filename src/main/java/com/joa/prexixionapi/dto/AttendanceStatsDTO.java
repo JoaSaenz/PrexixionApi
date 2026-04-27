@@ -11,10 +11,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendanceStatsDTO {
+    // Campos para el Dashboard Moderno
+    private int presentCount;
+    private int lateCount;
+    private List<AttendanceDetailDTO> lateDetails;
+
+    // Campos requeridos por AttendanceService (Originales)
     private List<PersonLatenessDTO> topTardones;
     private List<AreaLatenessDTO> areasTardonas;
-    private int totalAsistencias;
-    private int totalFaltas;
     private int totalTardanzas;
 
     @Data
