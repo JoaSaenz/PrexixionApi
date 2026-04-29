@@ -17,6 +17,9 @@ public class Bf3800Registro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(name = "nro_registro")
+    private Integer nroRegistro;
+
     private String idCliente;
     private String anio;
     private String mes;

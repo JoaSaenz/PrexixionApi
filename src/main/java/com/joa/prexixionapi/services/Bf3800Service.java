@@ -48,7 +48,7 @@ public class Bf3800Service {
                     c.rtMypeTributario, c.rtRus, c.rtEspecial, c.rtGeneral, c.rtAmazonico, c.rtAgrario,
                     c.rt1ra, c.rt2da, c.rt3ra, c.rt4ta, c.rt5ta,
                     ts.id as idTipoServicio, ts.abreviatura as tipoServicioAbr, ts.descripcion as tipoServicio,
-                    pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro,
+                    pR.id as idRegistroTecnico, pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, pR.nro_registro as nroRegistroLogico,
                     CASE 
                         WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 
                         WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 
@@ -112,6 +112,8 @@ public class Bf3800Service {
                 // Ultimo Registro
                 if (t.get("idTipoRegistro") != null) {
                     Bf3800RegistroDTO reg = Bf3800RegistroDTO.builder()
+                            .id(t.get("idRegistroTecnico", Integer.class)) // ID Técnico
+                            .nroRegistro(t.get("nroRegistroLogico", Integer.class)) // ID Lógico
                             .tipo(new Gclass(t.get("idTipoRegistro", Integer.class), ""))
                             .fecha(t.get("fechaRegistro", String.class))
                             .nroOrden(t.get("nroOrdenRegistro", String.class))
@@ -226,7 +228,7 @@ public class Bf3800Service {
 
         // Fetch nested lists
         List<Beneficiario> beneficiariosList = beneficiarioRepository.findByIdClienteAndAnioAndMes(ruc, anio, mes);
-        List<Bf3800Registro> registrosList = registroRepository.findByIdClienteAndAnioAndMesOrderByIdDesc(ruc, anio, mes);
+        List<Bf3800Registro> registrosList = registroRepository.findByIdClienteAndAnioAndMesOrderByNroRegistroAsc(ruc, anio, mes);
         
         dto.setBeneficiarios(mapBeneficiarios(beneficiariosList));
         dto.setRegistros(mapRegistros(registrosList));
@@ -242,6 +244,9 @@ public class Bf3800Service {
 
     @Transactional
     public void save(Bf3800DTO dto) {
+        log.info("Saving BF3800 for Client: {} - Period: {}-{}", dto.getIdCliente(), dto.getAnio(), dto.getMes());
+        log.info("Number of registries to process: {}", dto.getRegistros() != null ? dto.getRegistros().size() : 0);
+        
         // Save Master Data
         Bf3800Data data = Bf3800Data.builder()
                 .idCliente(dto.getIdCliente())
@@ -262,19 +267,23 @@ public class Bf3800Service {
             beneficiarioRepository.saveAll(entities);
         }
 
-        // Save Registro if any
+        // Save Registros (all of them)
         if (dto.getRegistros() != null && !dto.getRegistros().isEmpty()) {
-            Bf3800RegistroDTO regDto = dto.getRegistros().get(0);
-            Bf3800Registro reg = Bf3800Registro.builder()
-                    .idCliente(dto.getIdCliente())
-                    .anio(dto.getAnio())
-                    .mes(dto.getMes())
-                    .idTipo(regDto.getTipo().getId())
-                    .fecha(regDto.getFecha())
-                    .nroOrden(regDto.getNroOrden())
-                    .nroRectificacion(regDto.getNroRectificacion())
-                    .build();
-            registroRepository.save(reg);
+            for (Bf3800RegistroDTO regDto : dto.getRegistros()) {
+                log.info("Processing Registry - Technical ID: {}, Logical Nro: {}", regDto.getId(), regDto.getNroRegistro());
+                Bf3800Registro reg = Bf3800Registro.builder()
+                        .id(regDto.getId())
+                        .idCliente(dto.getIdCliente())
+                        .anio(dto.getAnio())
+                        .mes(dto.getMes())
+                        .idTipo(regDto.getTipo().getId())
+                        .fecha(regDto.getFecha())
+                        .nroOrden(regDto.getNroOrden())
+                        .nroRectificacion(regDto.getNroRectificacion())
+                        .nroRegistro(regDto.getNroRegistro())
+                        .build();
+                registroRepository.save(reg);
+            }
         }
     }
 
@@ -365,7 +374,8 @@ public class Bf3800Service {
 
     private List<Bf3800RegistroDTO> mapRegistros(List<Bf3800Registro> entities) {
         return entities.stream().map(e -> Bf3800RegistroDTO.builder()
-                .id(e.getId())
+                .id(e.getId()) // ID Técnico PK
+                .nroRegistro(e.getNroRegistro()) // ID Lógico correlativo
                 .tipo(new Gclass(e.getIdTipo(), ""))
                 .fecha(e.getFecha())
                 .nroOrden(e.getNroOrden())

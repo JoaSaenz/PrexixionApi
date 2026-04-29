@@ -22,10 +22,12 @@ public class ClienteClavesExcelService {
     }
 
     public byte[] exportarExcelClaves(String estados, String grupos) {
-        List<Integer> listEstados = Arrays.stream(estados.split(","))
-                .map(String::trim).map(Integer::valueOf).toList();
-        List<Integer> listGrupos = Arrays.stream(grupos.split(","))
-                .map(String::trim).map(Integer::valueOf).toList();
+        List<Integer> listEstados = (estados == null || estados.isBlank()) ? List.of()
+                : Arrays.stream(estados.split(",")).map(String::trim).filter(s -> !s.isBlank())
+                .map(Integer::valueOf).toList();
+        List<Integer> listGrupos = (grupos == null || grupos.isBlank()) ? List.of()
+                : Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isBlank())
+                .map(Integer::valueOf).toList();
 
         List<ClienteClavesProjection> list = repository.getClavesData(listEstados, listGrupos);
         return generateExcel(list);

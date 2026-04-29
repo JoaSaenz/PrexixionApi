@@ -25,10 +25,12 @@ public class ClienteExcelService {
         }
 
         public byte[] exportarExcelCliente(String estados, String grupos) {
-                java.util.List<Integer> listEstados = java.util.Arrays.stream(estados.split(","))
-                                .map(String::trim).map(Integer::valueOf).toList();
-                java.util.List<Integer> listGrupos = java.util.Arrays.stream(grupos.split(","))
-                                .map(String::trim).map(Integer::valueOf).toList();
+                java.util.List<Integer> listEstados = (estados == null || estados.isBlank()) ? java.util.List.of()
+                                : java.util.Arrays.stream(estados.split(",")).map(String::trim).filter(s -> !s.isBlank())
+                                                .map(Integer::valueOf).toList();
+                java.util.List<Integer> listGrupos = (grupos == null || grupos.isBlank()) ? java.util.List.of()
+                                : java.util.Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isBlank())
+                                                .map(Integer::valueOf).toList();
 
                 List<ClienteExcelProjection> data = repository.getExcelData(listEstados, listGrupos);
                 return exportDataToExcel(data);
