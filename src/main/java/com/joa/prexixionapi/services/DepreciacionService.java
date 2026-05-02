@@ -207,10 +207,15 @@ public class DepreciacionService {
                 for (LocalDate fecha : meses) {
                     if (fecha.getYear() == Integer.parseInt(ad.getAnio())) {
                         double val;
-                        if (fecha.isEqual(fechaInicio)) {
+                        // El mes de baja/fin tiene prioridad: si fechaInicio == fechaCalculoFin
+                        // (compra y baja en el mismo mes), se evalúa como mes de baja.
+                        if (fecha.isEqual(fechaCalculoFin)) {
+                            // Mes de baja: solo la depreciación parcial proporcional a los días.
+                            // El saldo restante va al campo 'retiros' en el ajuste final.
                             val = calcDpParcial(fechaInicio, costoInicial, porcentajeDepreciacion, fecha);
-                        } else if (fecha.isEqual(fechaCalculoFin)) {
-                            val = round(costoInicial - acumuladoTotal);
+                        } else if (fecha.isEqual(fechaInicio)) {
+                            // Primer mes: depreciación proporcional a los días transcurridos
+                            val = calcDpParcial(fechaInicio, costoInicial, porcentajeDepreciacion, fecha);
                         } else {
                             val = depreciacionMensual;
                             if (round(acumuladoTotal + val) > costoInicial) {
@@ -225,10 +230,11 @@ public class DepreciacionService {
             }
 
             // --- AJUSTE FINAL PARA EL AÑO DE BAJA (Retirar Depreciación y Saldo Final) ---
+            // El campo 'retiros' lleva NEGATIVO el saldo acumulado hasta ese año (inicial + total del año)
+            // Esto retira contablemente el activo: saldoFinal y activoFijo quedan en 0
             if (!list.isEmpty()) {
                 ActivoDepreciacionDTO adUltimo = list.get(list.size() - 1);
-                // Si es el año de baja, retiramos el saldo acumulado
-                adUltimo.setRetiros(round(adUltimo.getInicial() + adUltimo.getTotal()));
+                adUltimo.setRetiros(round((adUltimo.getInicial() + adUltimo.getTotal()) * -1));
                 adUltimo.setSaldoFinal(0.0);
                 adUltimo.setActivoFijo(0.0);
             }
@@ -324,6 +330,7 @@ public class DepreciacionService {
         double mensual = (costoInicial / tiempoContable) / 12;
         
         if (fechaInicio.isEqual(fechaActual)) {
+            // Primer mes del activo
             if (fechaInicio.getDayOfMonth() == 1) {
                 return round(mensual);
             } else {
@@ -331,9 +338,17 @@ public class DepreciacionService {
                 return round((mensual / 30.0) * daysRemaining);
             }
         } else {
-            if (fechaActual.getDayOfMonth() == fechaActual.lengthOfMonth()) {
+            // Mes de cierre anual/baja: si el día del mes coincide con el del inicio (aniversario)
+            // el monto es el complemento de la depreciación parcial inicial
+            if (fechaActual.getMonthValue() == fechaInicio.getMonthValue()
+                    && fechaActual.getDayOfMonth() == fechaInicio.getDayOfMonth()) {
+                double parcialInicial = calcDpParcial(fechaInicio, costoInicial, porcentaje, fechaInicio);
+                return round(mensual - parcialInicial);
+            } else if (fechaActual.getDayOfMonth() == fechaActual.lengthOfMonth()) {
+                // Último día del mes
                 return round(mensual - (mensual / 30.0));
             } else if (fechaActual.getDayOfMonth() == 1) {
+                // Primer día del mes (no es el mes de inicio)
                 return 0.0;
             } else {
                 return round((mensual / 30.0) * (fechaActual.getDayOfMonth() - 1));
@@ -384,6 +399,11 @@ public class DepreciacionService {
             current = current.plusMonths(1);
         }
         
+        // Siempre añadir el mes final si es diferente al mes de inicio.
+        // Si inicio y fin caen en el mismo mes (same month/year), 'end' ya está
+        // representado por 'start' como primer elemento; NO duplicar.
+        // Si son meses distintos, añadir 'end' para que el loop lo identifique
+        // como fechaCalculoFin y aplique la depreciación parcial correcta.
         if (!endFirst.isEqual(start.withDayOfMonth(1))) {
             list.add(end);
         }
