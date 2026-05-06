@@ -298,4 +298,33 @@ public class Cliente {
         this.periodoInicioCom = periodoInicioCom;
     }
 
+    // --- SignerRus fields ---
+    private String regimenTributario;
+    private String periodoIEnvoyRus;
+    private String periodoFEnvoyRus;
+
+    public String getRegimenTributario() {
+        return regimenTributario;
+    }
+
+    public void setRegimenTributario(String regimenTributario) {
+        this.regimenTributario = regimenTributario;
+    }
+
+    public String getPeriodoIEnvoyRus() {
+        return periodoIEnvoyRus;
+    }
+
+    public void setPeriodoIEnvoyRus(String periodoIEnvoyRus) {
+        this.periodoIEnvoyRus = periodoIEnvoyRus;
+    }
+
+    public String getPeriodoFEnvoyRus() {
+        return periodoFEnvoyRus;
+    }
+
+    public void setPeriodoFEnvoyRus(String periodoFEnvoyRus) {
+        this.periodoFEnvoyRus = periodoFEnvoyRus;
+    }
+
 }
