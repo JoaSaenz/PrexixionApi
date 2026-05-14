@@ -23,6 +23,7 @@ public class CalendarEventDTO {
     private Integer stateTramitesSunat;
     private String stateDescripcion;
     private String color;
+    private String hexColor;
     private String flagReunion;
     private String flagFiscalizacion;
     private String type;
