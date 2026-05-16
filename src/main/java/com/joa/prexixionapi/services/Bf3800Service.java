@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,17 +29,16 @@ public class Bf3800Service {
     private final Bf3800DataRepository dataRepository;
     private final BeneficiarioRepository beneficiarioRepository;
     private final Bf3800RegistroRepository registroRepository;
-    private final CronogramaService cronogramaService;
 
     public List<Bf3800DTO> list(String periods, String estados, String grupos) {
         List<Bf3800DTO> allResults = new ArrayList<>();
-        
+
         for (String period : periods.split(",")) {
             String anio = period.substring(0, 4);
             String mes = period.substring(4, 6);
-            
+
             String sql = """
-                    SELECT c.idEstado, ce.descripcion as estado, c.y, c.ruc, c.razonSocial, 
+                    SELECT c.idEstado, ce.descripcion as estado, c.y, c.ruc, c.razonSocial,
                     CAST(ct.stAnioDesde + ct.stMesDesde + '01' as date) as fechaI,
                     CAST(ct.stAnioHasta + ct.stMesHasta + '01' as date) as fechaF,
                     pd.observacion, pd.mail,
@@ -49,11 +47,11 @@ public class Bf3800Service {
                     c.rt1ra, c.rt2da, c.rt3ra, c.rt4ta, c.rt5ta,
                     ts.id as idTipoServicio, ts.abreviatura as tipoServicioAbr, ts.descripcion as tipoServicio,
                     pR.id as idRegistroTecnico, pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, pR.nro_registro as nroRegistroLogico,
-                    CASE 
-                        WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 
-                        WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 
-                        WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 
-                        WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab 
+                    CASE
+                        WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2
+                        WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5
+                        WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8
+                        WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab
                     END as vencimiento
                     FROM cliente c
                     INNER JOIN clienteServiciosTributarios ct ON c.ruc = ct.idCliente AND ct.stIdServicioTributario = 10
@@ -67,7 +65,8 @@ public class Bf3800Service {
                     AND (CAST(ct.stAnioHasta + ct.stMesHasta + '01' as date) >= :periodoDate OR ct.stAnioHasta IS NULL)
                     AND c.idEstado IN (%s) AND c.y IN (%s)
                     ORDER BY c.y
-                    """.formatted(estados, grupos);
+                    """
+                    .formatted(estados, grupos);
 
             log.debug("Executing native query for period: {}", period);
             var query = em.createNativeQuery(sql, Tuple.class);
@@ -83,7 +82,7 @@ public class Bf3800Service {
                 String ruc = t.get("ruc", String.class);
                 String y = String.valueOf(t.get("y"));
                 String venc = t.get("vencimiento") != null ? t.get("vencimiento").toString() : null;
-                
+
                 Bf3800DTO dto = Bf3800DTO.builder()
                         .idEstado(String.valueOf(t.get("idEstado")))
                         .estado(t.get("estado", String.class))
@@ -138,17 +137,27 @@ public class Bf3800Service {
     private String calculateRegimenTributario(Tuple t) {
         List<String> rTs = new ArrayList<>();
         if (t.get("rt3ra", Integer.class) != null && t.get("rt3ra", Integer.class) != 0) {
-            if (t.get("rtMypeTributario", Integer.class) != null && t.get("rtMypeTributario", Integer.class) != 0) rTs.add("MYPE Tributario");
-            if (t.get("rtRus", Integer.class) != null && t.get("rtRus", Integer.class) != 0) rTs.add("RUS");
-            if (t.get("rtEspecial", Integer.class) != null && t.get("rtEspecial", Integer.class) != 0) rTs.add("Especial");
-            if (t.get("rtGeneral", Integer.class) != null && t.get("rtGeneral", Integer.class) != 0) rTs.add("General");
-            if (t.get("rtAmazonico", Integer.class) != null && t.get("rtAmazonico", Integer.class) != 0) rTs.add("Amazónico");
-            if (t.get("rtAgrario", Integer.class) != null && t.get("rtAgrario", Integer.class) != 0) rTs.add("Agrario");
+            if (t.get("rtMypeTributario", Integer.class) != null && t.get("rtMypeTributario", Integer.class) != 0)
+                rTs.add("MYPE Tributario");
+            if (t.get("rtRus", Integer.class) != null && t.get("rtRus", Integer.class) != 0)
+                rTs.add("RUS");
+            if (t.get("rtEspecial", Integer.class) != null && t.get("rtEspecial", Integer.class) != 0)
+                rTs.add("Especial");
+            if (t.get("rtGeneral", Integer.class) != null && t.get("rtGeneral", Integer.class) != 0)
+                rTs.add("General");
+            if (t.get("rtAmazonico", Integer.class) != null && t.get("rtAmazonico", Integer.class) != 0)
+                rTs.add("Amazónico");
+            if (t.get("rtAgrario", Integer.class) != null && t.get("rtAgrario", Integer.class) != 0)
+                rTs.add("Agrario");
         } else {
-            if (t.get("rt1ra", Integer.class) != null && t.get("rt1ra", Integer.class) != 0) rTs.add("1ra");
-            else if (t.get("rt2da", Integer.class) != null && t.get("rt2da", Integer.class) != 0) rTs.add("2da");
-            else if (t.get("rt4ta", Integer.class) != null && t.get("rt4ta", Integer.class) != 0) rTs.add("4ta");
-            else if (t.get("rt5ta", Integer.class) != null && t.get("rt5ta", Integer.class) != 0) rTs.add("5ta");
+            if (t.get("rt1ra", Integer.class) != null && t.get("rt1ra", Integer.class) != 0)
+                rTs.add("1ra");
+            else if (t.get("rt2da", Integer.class) != null && t.get("rt2da", Integer.class) != 0)
+                rTs.add("2da");
+            else if (t.get("rt4ta", Integer.class) != null && t.get("rt4ta", Integer.class) != 0)
+                rTs.add("4ta");
+            else if (t.get("rt5ta", Integer.class) != null && t.get("rt5ta", Integer.class) != 0)
+                rTs.add("5ta");
         }
         return String.join(", ", rTs);
     }
@@ -162,11 +171,11 @@ public class Bf3800Service {
                 CAST(ct.stAnioDesde + ct.stMesDesde + '01' as date) as fechaI,
                 CAST(ct.stAnioHasta + ct.stMesHasta + '01' as date) as fechaF,
                 pd.observacion, pd.mail,
-                CASE 
-                    WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 
-                    WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 
-                    WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 
-                    WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab 
+                CASE
+                    WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2
+                    WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5
+                    WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8
+                    WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab
                 END as vencimiento
                 FROM cliente c
                 INNER JOIN clienteServiciosTributarios ct ON c.ruc = ct.idCliente AND ct.stIdServicioTributario = 10
@@ -228,8 +237,9 @@ public class Bf3800Service {
 
         // Fetch nested lists
         List<Beneficiario> beneficiariosList = beneficiarioRepository.findByIdClienteAndAnioAndMes(ruc, anio, mes);
-        List<Bf3800Registro> registrosList = registroRepository.findByIdClienteAndAnioAndMesOrderByNroRegistroAsc(ruc, anio, mes);
-        
+        List<Bf3800Registro> registrosList = registroRepository.findByIdClienteAndAnioAndMesOrderByNroRegistroAsc(ruc,
+                anio, mes);
+
         dto.setBeneficiarios(mapBeneficiarios(beneficiariosList));
         dto.setRegistros(mapRegistros(registrosList));
 
@@ -246,7 +256,7 @@ public class Bf3800Service {
     public void save(Bf3800DTO dto) {
         log.info("Saving BF3800 for Client: {} - Period: {}-{}", dto.getIdCliente(), dto.getAnio(), dto.getMes());
         log.info("Number of registries to process: {}", dto.getRegistros() != null ? dto.getRegistros().size() : 0);
-        
+
         // Save Master Data
         Bf3800Data data = Bf3800Data.builder()
                 .idCliente(dto.getIdCliente())
@@ -258,19 +268,23 @@ public class Bf3800Service {
         dataRepository.save(data);
 
         // Save Beneficiarios (Cascades to nested lists)
-        // First delete old ones for this period to avoid duplicates (standard in this legacy app)
-        List<Beneficiario> old = beneficiarioRepository.findByIdClienteAndAnioAndMes(dto.getIdCliente(), dto.getAnio(), dto.getMes());
+        // First delete old ones for this period to avoid duplicates (standard in this
+        // legacy app)
+        List<Beneficiario> old = beneficiarioRepository.findByIdClienteAndAnioAndMes(dto.getIdCliente(), dto.getAnio(),
+                dto.getMes());
         beneficiarioRepository.deleteAll(old);
 
         if (dto.getBeneficiarios() != null) {
-            List<Beneficiario> entities = dto.getBeneficiarios().stream().map(this::mapToEntity).collect(Collectors.toList());
+            List<Beneficiario> entities = dto.getBeneficiarios().stream().map(this::mapToEntity)
+                    .collect(Collectors.toList());
             beneficiarioRepository.saveAll(entities);
         }
 
         // Save Registros (all of them)
         if (dto.getRegistros() != null && !dto.getRegistros().isEmpty()) {
             for (Bf3800RegistroDTO regDto : dto.getRegistros()) {
-                log.info("Processing Registry - Technical ID: {}, Logical Nro: {}", regDto.getId(), regDto.getNroRegistro());
+                log.info("Processing Registry - Technical ID: {}, Logical Nro: {}", regDto.getId(),
+                        regDto.getNroRegistro());
                 Bf3800Registro reg = Bf3800Registro.builder()
                         .id(regDto.getId())
                         .idCliente(dto.getIdCliente())
@@ -336,7 +350,7 @@ public class Bf3800Service {
             dto.setTextoEnteJuridico(e.getTextoEnteJuridico());
             dto.setCalidadEnteJuridico(e.getCalidadEnteJuridico());
             dto.setFechaBeneficiarioEnteJuridico(e.getFechaBeneficiarioEnteJuridico());
-            
+
             if (e.getPersonaCapitalPPJJ() != null) {
                 dto.setPersonaCapitalPPJJ(e.getPersonaCapitalPPJJ().stream().map(c -> {
                     PersonaCapitalPPJJDTO cDto = new PersonaCapitalPPJJDTO();
@@ -351,7 +365,7 @@ public class Bf3800Service {
                     return cDto;
                 }).collect(Collectors.toList()));
             }
-            
+
             if (e.getPersonaCadenaTitularidad() != null) {
                 dto.setPersonaCadenaTitularidad(e.getPersonaCadenaTitularidad().stream().map(t -> {
                     PersonaCadenaTitularidadDTO tDto = new PersonaCadenaTitularidadDTO();

@@ -2,7 +2,6 @@ package com.joa.prexixionapi.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
@@ -41,14 +40,14 @@ public class ReunionRepository {
     public List<ReunionDTO> listServerSide(ReunionDataTablesRequest req) {
         StringBuilder sql = new StringBuilder(getBaseSelect());
         appendFilters(sql, req);
-        
+
         sql.append(" ORDER BY r.fecha DESC, r.horaI DESC ");
         sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
         query.setParameter("offset", req.getStart());
         query.setParameter("limit", req.getLength());
-        
+
         setFilterParameters(query, req);
 
         return mapTuples((List<Tuple>) query.getResultList());
@@ -61,7 +60,7 @@ public class ReunionRepository {
         setFilterParameters(query, req);
         return ((Number) query.getSingleResult()).longValue();
     }
-    
+
     public long countTotal() {
         return ((Number) em.createNativeQuery("SELECT COUNT(*) FROM reuniones").getSingleResult()).longValue();
     }
@@ -105,7 +104,8 @@ public class ReunionRepository {
 
     @SuppressWarnings("unchecked")
     public List<ReunionTemaDTO> fetchTemas(List<Integer> ids) {
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (ids.isEmpty())
+            return new ArrayList<>();
         String sql = "SELECT idReunion, idTema, tema, acuerdoTema FROM reunionesTemas WHERE idReunion IN (:ids)";
         return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
                 .setParameter("ids", ids)
@@ -121,7 +121,8 @@ public class ReunionRepository {
 
     @SuppressWarnings("unchecked")
     public List<ReunionParticipanteExternoDTO> fetchParticipantesExternos(List<Integer> ids) {
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (ids.isEmpty())
+            return new ArrayList<>();
         String sql = "SELECT idReunion, nombres, cargo FROM reunionesParticipantesExternos WHERE idReunion IN (:ids)";
         return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
                 .setParameter("ids", ids)
@@ -136,7 +137,8 @@ public class ReunionRepository {
 
     @SuppressWarnings("unchecked")
     public List<ReunionParticipanteInternoDTO> fetchParticipantesInternos(List<Integer> ids) {
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (ids.isEmpty())
+            return new ArrayList<>();
         String sql = """
                     SELECT rpi.idReunion, p.dni, p.apellidos, p.nombres, pu.descripcion as puesto
                     FROM reunionesParticipantesInternos rpi
@@ -159,7 +161,8 @@ public class ReunionRepository {
 
     @SuppressWarnings("unchecked")
     public List<ReunionAreaDTO> fetchAreas(List<Integer> ids) {
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (ids.isEmpty())
+            return new ArrayList<>();
         String sql = """
                     SELECT ra.idReunion, a.id, a.descripcion
                     FROM reunionesAreas ra
@@ -179,7 +182,8 @@ public class ReunionRepository {
 
     @SuppressWarnings("unchecked")
     public List<ReunionAcuerdoDTO> fetchAcuerdos(List<Integer> ids) {
-        if (ids.isEmpty()) return new ArrayList<>();
+        if (ids.isEmpty())
+            return new ArrayList<>();
         String sql = "SELECT idReunion, idAcuerdo, acuerdo FROM reunionesAcuerdos WHERE idReunion IN (:ids)";
         return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
                 .setParameter("ids", ids)
