@@ -185,17 +185,18 @@ public class CalendarRepository {
                 "WHEN r.idInstitucion = 6 THEN 'SUNAF' " +
                 "WHEN r.idInstitucion = 7 THEN 'SUNAT' " +
                 "WHEN r.idInstitucion = 1002 THEN 'TRIB F.' END, ' | ', " +
-                "CASE WHEN ISNULL(cli.nombreCorto, '') <> '' THEN cli.nombreCorto ELSE cli.razonSocial END) AS titulo, " +
+                "CASE WHEN ISNULL(cli.nombreCorto, '') <> '' THEN cli.nombreCorto ELSE cli.razonSocial END) AS titulo, "
+                +
                 "r.fTentativa, rm.descripcion as descMotivo, r.idEstadoGeneral " +
                 "FROM reclamos r " +
                 "LEFT JOIN cliente cli ON r.ruc = cli.ruc " +
                 "LEFT JOIN reclamosMotivos rm ON r.idMotivo = rm.id " +
                 "WHERE r.fTentativa is not null";
-        
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> CalendarEventDTO.builder()
                 .title(rs.getString("titulo"))
                 .start(rs.getString("fTentativa"))
-                .color("#782219")
+                .color("#935DDF")
                 .topic(rs.getString("descMotivo"))
                 .stateTramitesSunat(rs.getInt("idEstadoGeneral"))
                 .type("tramitesSunat")
@@ -206,7 +207,7 @@ public class CalendarRepository {
         Map<String, Object> personalInfo;
         try {
             personalInfo = jdbcTemplate.queryForMap(
-                "SELECT idPuesto, idSubarea FROM personal WHERE dni = ?", dni);
+                    "SELECT idPuesto, idSubarea FROM personal WHERE dni = ?", dni);
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -216,26 +217,32 @@ public class CalendarRepository {
         String sql;
         if ((subArea == 1 && puesto == 2) || (subArea == 10 && puesto == 5)) {
             sql = "SELECT dni, nombre, apellido, fNacimiento, " +
-                  "CASE WHEN SUM(CASE WHEN flag = 'G' THEN 1 ELSE 0 END) > 0 THEN 'G' ELSE 'S' END AS flag " +
-                  "FROM ( " +
-                  "SELECT dni, SUBSTRING(p.apellidos, 1, CASE WHEN CHARINDEX(' ', p.apellidos)-1 < 0 THEN LEN(p.apellidos) ELSE CHARINDEX(' ', p.apellidos)-1 END) as apellido, " +
-                  "SUBSTRING(p.nombres, 1, CASE WHEN CHARINDEX(' ', p.nombres)-1 < 0 THEN LEN(p.nombres) ELSE CHARINDEX(' ', p.nombres)-1 END) as nombre, " +
-                  "fNacimiento, 'G' as flag FROM personal p WHERE idEstado = 2 AND fNacimiento != '' " +
-                  "UNION " +
-                  "SELECT cp.plDni as dni, " +
-                  "SUBSTRING(cp.plApellido, 1, CASE WHEN CHARINDEX(' ', cp.plApellido)-1 < 0 THEN LEN(cp.plApellido) ELSE CHARINDEX(' ', cp.plApellido)-1 END) as apellido, " +
-                  "SUBSTRING(cp.plNombre, 1, CASE WHEN CHARINDEX(' ', cp.plNombre)-1 < 0 THEN LEN(cp.plNombre) ELSE CHARINDEX(' ', cp.plNombre)-1 END) as nombre, " +
-                  "cp.plFNacimiento as fNacimiento, 'S' as flag " +
-                  "FROM clientePersonal cp " +
-                  "LEFT JOIN cliente c on cp.idCliente = c.ruc " +
-                  "WHERE c.idEstado in (1,3,5,6,7) AND cp.plFNacimiento != '' " +
-                  ") Z GROUP BY dni, apellido, nombre, fNacimiento ORDER BY dni ";
+                    "CASE WHEN SUM(CASE WHEN flag = 'G' THEN 1 ELSE 0 END) > 0 THEN 'G' ELSE 'S' END AS flag " +
+                    "FROM ( " +
+                    "SELECT dni, SUBSTRING(p.apellidos, 1, CASE WHEN CHARINDEX(' ', p.apellidos)-1 < 0 THEN LEN(p.apellidos) ELSE CHARINDEX(' ', p.apellidos)-1 END) as apellido, "
+                    +
+                    "SUBSTRING(p.nombres, 1, CASE WHEN CHARINDEX(' ', p.nombres)-1 < 0 THEN LEN(p.nombres) ELSE CHARINDEX(' ', p.nombres)-1 END) as nombre, "
+                    +
+                    "fNacimiento, 'G' as flag FROM personal p WHERE idEstado = 2 AND fNacimiento != '' " +
+                    "UNION " +
+                    "SELECT cp.plDni as dni, " +
+                    "SUBSTRING(cp.plApellido, 1, CASE WHEN CHARINDEX(' ', cp.plApellido)-1 < 0 THEN LEN(cp.plApellido) ELSE CHARINDEX(' ', cp.plApellido)-1 END) as apellido, "
+                    +
+                    "SUBSTRING(cp.plNombre, 1, CASE WHEN CHARINDEX(' ', cp.plNombre)-1 < 0 THEN LEN(cp.plNombre) ELSE CHARINDEX(' ', cp.plNombre)-1 END) as nombre, "
+                    +
+                    "cp.plFNacimiento as fNacimiento, 'S' as flag " +
+                    "FROM clientePersonal cp " +
+                    "LEFT JOIN cliente c on cp.idCliente = c.ruc " +
+                    "WHERE c.idEstado in (1,3,5,6,7) AND cp.plFNacimiento != '' " +
+                    ") Z GROUP BY dni, apellido, nombre, fNacimiento ORDER BY dni ";
         } else {
             sql = "SELECT dni, " +
-                  "SUBSTRING(p.apellidos, 1, CASE WHEN CHARINDEX(' ', p.apellidos)-1 < 0 THEN LEN(p.apellidos) ELSE CHARINDEX(' ', p.apellidos)-1 END) as apellido, " +
-                  "SUBSTRING(p.nombres, 1, CASE WHEN CHARINDEX(' ', p.nombres)-1 < 0 THEN LEN(p.nombres) ELSE CHARINDEX(' ', p.nombres)-1 END) as nombre, " +
-                  "fNacimiento, 'G' as flag " +
-                  "FROM personal p WHERE idEstado = 2 AND fNacimiento != '' ORDER BY dni ";
+                    "SUBSTRING(p.apellidos, 1, CASE WHEN CHARINDEX(' ', p.apellidos)-1 < 0 THEN LEN(p.apellidos) ELSE CHARINDEX(' ', p.apellidos)-1 END) as apellido, "
+                    +
+                    "SUBSTRING(p.nombres, 1, CASE WHEN CHARINDEX(' ', p.nombres)-1 < 0 THEN LEN(p.nombres) ELSE CHARINDEX(' ', p.nombres)-1 END) as nombre, "
+                    +
+                    "fNacimiento, 'G' as flag " +
+                    "FROM personal p WHERE idEstado = 2 AND fNacimiento != '' ORDER BY dni ";
         }
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> CalendarEventDTO.builder()
@@ -251,7 +258,7 @@ public class CalendarRepository {
         Map<String, Object> personalInfo;
         try {
             personalInfo = jdbcTemplate.queryForMap(
-                "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
+                    "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -259,23 +266,40 @@ public class CalendarRepository {
         int idArea = (Integer) personalInfo.get("idArea");
 
         String sql = "SELECT titulo, fecha, color, area FROM ( " +
-                "SELECT titulos.titulo, titulos.fecha, '#041562' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ PDT RUC 0', fecha0), ('DJ PDT RUC 1', fecha1), ('DJ PDT RUC 2 - 3', fecha2), ('DJ PDT RUC 4 - 5', fecha4), ('DJ PDT RUC 6 - 7', fecha6), ('DJ PDT RUC 8 - 9', fecha8), ('DJ PDT BUCS', fechab) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#11468F' AS color, 8 AS area FROM cronogramaSire CROSS APPLY ( VALUES ('DJ SIRE RUC 0', fecha0), ('DJ SIRE RUC 1', fecha1), ('DJ SIRE RUC 2 - 3', fecha2), ('DJ SIRE RUC 4 - 5', fecha4), ('DJ SIRE RUC 6 - 7', fecha6), ('DJ SIRE RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT 'DJ PRICO ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#1230AE' AS color, 8 AS area FROM cronogramaPLE_Diario UNION ALL " +
-                "SELECT 'DJ AFP ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#e355e1' AS color, 4 AS area FROM cronogramaAfp UNION ALL " +
-                "SELECT 'CTS ' + CASE mes WHEN '05' THEN 'MAY' WHEN '11' THEN 'NOV' END AS titulo, fecha, '#725CAD' AS color, 4 AS area FROM cronogramaCts UNION ALL " +
-                "SELECT 'GRATIFICACION ' + CASE mes WHEN '07' THEN 'JUL' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#7E8EF1' AS color, 4 AS area FROM cronogramaGratificacion UNION ALL " +
-                "SELECT 'DJ DETRAC ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#800080' AS color, 8 AS area FROM cronogramaDetracciones UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#33b2ff' AS color, 8 AS area FROM cronogramaAnual CROSS APPLY ( VALUES ('DJ ANUAL RUC 0', fecha0), ('DJ ANUAL RUC 1', fecha1), ('DJ ANUAL RUC 2', fecha2), ('DJ ANUAL RUC 3', fecha3), ('DJ ANUAL RUC 4', fecha4), ('DJ ANUAL RUC 5', fecha5), ('DJ ANUAL RUC 6', fecha6), ('DJ ANUAL RUC 7', fecha7), ('DJ ANUAL RUC 8', fecha8), ('DJ ANUAL RUC 9', fecha9) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#F49BAB' AS color, 8 AS area FROM cronogramaReporteLocal CROSS APPLY ( VALUES ('DJ REP LOCAL RUC 0', fecha0), ('DJ REP LOCAL RUC 1', fecha1), ('DJ REP LOCAL RUC 2 - 3', fecha2), ('DJ REP LOCAL RUC 4 - 5', fecha4), ('DJ REP LOCAL RUC 6 - 7', fecha6), ('DJ REP LOCAL RUC 8 - 9', fecha8), ('DJ REP LOCAL BUCS', fechab) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#483AA0' AS color, 8 AS area FROM cronogramaDaot CROSS APPLY ( VALUES ('DJ DAOT RUC 0', fecha0), ('DJ DAOT RUC 1', fecha1), ('DJ DAOT RUC 2 - 3', fecha2), ('DJ DAOT RUC 4 - 5', fecha4), ('DJ DAOT RUC 6 - 7', fecha6), ('DJ DAOT RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#129990' AS color, 8 AS area FROM cronogramaDonaciones CROSS APPLY ( VALUES ('DJ DONAC RUC 0', fecha0), ('DJ DONAC RUC 1', fecha1), ('DJ DONAC RUC 2 - 3', fecha2), ('DJ DONAC RUC 4 - 5', fecha4), ('DJ DONAC RUC 6 - 7', fecha6), ('DJ DONAC RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#4A102A' AS color, 8 AS area FROM cronogramaRfEcr CROSS APPLY ( VALUES ('DJ RF ECR RUC 0', fecha0), ('DJ RF ECR RUC 1', fecha1), ('DJ RF ECR RUC 2 - 3', fecha2), ('DJ RF ECR RUC 4 - 5', fecha4), ('DJ RF ECR RUC 6 - 7', fecha6), ('DJ RF ECR RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#C95792' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ PDT 648 0', fecha0), ('DJ PDT 648 1', fecha1), ('DJ PDT 648 2 - 3', fecha2), ('DJ PDT 648 4 - 5', fecha4), ('DJ PDT 648 6 - 7', fecha6), ('DJ PDT 648 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes = '03' AND titulos.fecha IS NOT NULL UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#88304E' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ B. FINAL 0', fecha0), ('DJ B. FINAL 1', fecha1), ('DJ B. FINAL 2 - 3', fecha2), ('DJ B. FINAL 4 - 5', fecha4), ('DJ B. FINAL 6 - 7', fecha6), ('DJ B. FINAL 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes IN ('10','12') AND titulos.fecha IS NOT NULL UNION ALL " +
-                "SELECT titulos.titulo, titulos.fecha, '#5F8B4C' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ IF SSERIF 0', fecha0), ('DJ IF SSERIF 1', fecha1), ('DJ IF SSERIF 2 - 3', fecha2), ('DJ IF SSERIF 4 - 5', fecha4), ('DJ IF SSERIF 6 - 7', fecha6), ('DJ IF SSERIF 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes IN ('06','12') AND titulos.fecha IS NOT NULL UNION ALL " +
-                "SELECT 'DEV ISC ' + CASE mes WHEN '03' THEN 'MAR' WHEN '06' THEN 'JUN' WHEN '09' THEN 'SEP' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#640D5F' AS color, 8 AS area FROM cronogramaDevolucionesISC UNION ALL " +
-                "SELECT 'DEV LIB. DEO ' + CASE mes WHEN '01' THEN 'ENE' WHEN '04' THEN 'ABR' WHEN '07' THEN 'JUL' WHEN '10' THEN 'OCT' END AS titulo, fecha, '#493D9E' AS color, 8 AS area FROM cronogramaDevolucionesLiberacionDEO " +
+                "SELECT titulos.titulo, titulos.fecha, '#041562' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ PDT RUC 0', fecha0), ('DJ PDT RUC 1', fecha1), ('DJ PDT RUC 2 - 3', fecha2), ('DJ PDT RUC 4 - 5', fecha4), ('DJ PDT RUC 6 - 7', fecha6), ('DJ PDT RUC 8 - 9', fecha8), ('DJ PDT BUCS', fechab) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#11468F' AS color, 8 AS area FROM cronogramaSire CROSS APPLY ( VALUES ('DJ SIRE RUC 0', fecha0), ('DJ SIRE RUC 1', fecha1), ('DJ SIRE RUC 2 - 3', fecha2), ('DJ SIRE RUC 4 - 5', fecha4), ('DJ SIRE RUC 6 - 7', fecha6), ('DJ SIRE RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT 'DJ PRICO ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#1230AE' AS color, 8 AS area FROM cronogramaPLE_Diario UNION ALL "
+                +
+                "SELECT 'DJ AFP ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#e355e1' AS color, 4 AS area FROM cronogramaAfp UNION ALL "
+                +
+                "SELECT 'CTS ' + CASE mes WHEN '05' THEN 'MAY' WHEN '11' THEN 'NOV' END AS titulo, fecha, '#725CAD' AS color, 4 AS area FROM cronogramaCts UNION ALL "
+                +
+                "SELECT 'GRATIFICACION ' + CASE mes WHEN '07' THEN 'JUL' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#7E8EF1' AS color, 4 AS area FROM cronogramaGratificacion UNION ALL "
+                +
+                "SELECT 'DJ DETRAC ' + CASE mes WHEN '01' THEN 'ENE' WHEN '02' THEN 'FEB' WHEN '03' THEN 'MAR' WHEN '04' THEN 'ABR' WHEN '05' THEN 'MAY' WHEN '06' THEN 'JUN' WHEN '07' THEN 'JUL' WHEN '08' THEN 'AGO' WHEN '09' THEN 'SEP' WHEN '10' THEN 'OCT' WHEN '11' THEN 'NOV' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#800080' AS color, 8 AS area FROM cronogramaDetracciones UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#33b2ff' AS color, 8 AS area FROM cronogramaAnual CROSS APPLY ( VALUES ('DJ ANUAL RUC 0', fecha0), ('DJ ANUAL RUC 1', fecha1), ('DJ ANUAL RUC 2', fecha2), ('DJ ANUAL RUC 3', fecha3), ('DJ ANUAL RUC 4', fecha4), ('DJ ANUAL RUC 5', fecha5), ('DJ ANUAL RUC 6', fecha6), ('DJ ANUAL RUC 7', fecha7), ('DJ ANUAL RUC 8', fecha8), ('DJ ANUAL RUC 9', fecha9) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#F49BAB' AS color, 8 AS area FROM cronogramaReporteLocal CROSS APPLY ( VALUES ('DJ REP LOCAL RUC 0', fecha0), ('DJ REP LOCAL RUC 1', fecha1), ('DJ REP LOCAL RUC 2 - 3', fecha2), ('DJ REP LOCAL RUC 4 - 5', fecha4), ('DJ REP LOCAL RUC 6 - 7', fecha6), ('DJ REP LOCAL RUC 8 - 9', fecha8), ('DJ REP LOCAL BUCS', fechab) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#483AA0' AS color, 8 AS area FROM cronogramaDaot CROSS APPLY ( VALUES ('DJ DAOT RUC 0', fecha0), ('DJ DAOT RUC 1', fecha1), ('DJ DAOT RUC 2 - 3', fecha2), ('DJ DAOT RUC 4 - 5', fecha4), ('DJ DAOT RUC 6 - 7', fecha6), ('DJ DAOT RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#129990' AS color, 8 AS area FROM cronogramaDonaciones CROSS APPLY ( VALUES ('DJ DONAC RUC 0', fecha0), ('DJ DONAC RUC 1', fecha1), ('DJ DONAC RUC 2 - 3', fecha2), ('DJ DONAC RUC 4 - 5', fecha4), ('DJ DONAC RUC 6 - 7', fecha6), ('DJ DONAC RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#4A102A' AS color, 8 AS area FROM cronogramaRfEcr CROSS APPLY ( VALUES ('DJ RF ECR RUC 0', fecha0), ('DJ RF ECR RUC 1', fecha1), ('DJ RF ECR RUC 2 - 3', fecha2), ('DJ RF ECR RUC 4 - 5', fecha4), ('DJ RF ECR RUC 6 - 7', fecha6), ('DJ RF ECR RUC 8 - 9', fecha8) ) AS titulos(titulo, fecha) UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#C95792' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ PDT 648 0', fecha0), ('DJ PDT 648 1', fecha1), ('DJ PDT 648 2 - 3', fecha2), ('DJ PDT 648 4 - 5', fecha4), ('DJ PDT 648 6 - 7', fecha6), ('DJ PDT 648 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes = '03' AND titulos.fecha IS NOT NULL UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#88304E' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ B. FINAL 0', fecha0), ('DJ B. FINAL 1', fecha1), ('DJ B. FINAL 2 - 3', fecha2), ('DJ B. FINAL 4 - 5', fecha4), ('DJ B. FINAL 6 - 7', fecha6), ('DJ B. FINAL 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes IN ('10','12') AND titulos.fecha IS NOT NULL UNION ALL "
+                +
+                "SELECT titulos.titulo, titulos.fecha, '#5F8B4C' AS color, 8 AS area FROM cronogramaPDT CROSS APPLY ( VALUES ('DJ IF SSERIF 0', fecha0), ('DJ IF SSERIF 1', fecha1), ('DJ IF SSERIF 2 - 3', fecha2), ('DJ IF SSERIF 4 - 5', fecha4), ('DJ IF SSERIF 6 - 7', fecha6), ('DJ IF SSERIF 8 - 9', fecha8) ) AS titulos(titulo, fecha) WHERE mes IN ('06','12') AND titulos.fecha IS NOT NULL UNION ALL "
+                +
+                "SELECT 'DEV ISC ' + CASE mes WHEN '03' THEN 'MAR' WHEN '06' THEN 'JUN' WHEN '09' THEN 'SEP' WHEN '12' THEN 'DIC' END AS titulo, fecha, '#640D5F' AS color, 8 AS area FROM cronogramaDevolucionesISC UNION ALL "
+                +
+                "SELECT 'DEV LIB. DEO ' + CASE mes WHEN '01' THEN 'ENE' WHEN '04' THEN 'ABR' WHEN '07' THEN 'JUL' WHEN '10' THEN 'OCT' END AS titulo, fecha, '#493D9E' AS color, 8 AS area FROM cronogramaDevolucionesLiberacionDEO "
+                +
                 ") AS calendario WHERE fecha IS NOT NULL ";
 
         if (idPuesto == 3) {
@@ -286,7 +310,8 @@ public class CalendarRepository {
             } else {
                 sql += "AND area = " + idArea + " ";
             }
-        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8 || idPuesto == 9 || idPuesto == 10) {
+        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8
+                || idPuesto == 9 || idPuesto == 10) {
             if (idArea == 4) {
                 sql += "AND (area = " + idArea + " OR color = '#041562') ";
             } else {
@@ -299,6 +324,7 @@ public class CalendarRepository {
                 .title(rs.getString("titulo"))
                 .start(rs.getString("fecha"))
                 .color(rs.getString("color"))
+                .hexColor(rs.getString("color"))
                 .type("obligaciones")
                 .build());
     }
@@ -307,23 +333,33 @@ public class CalendarRepository {
         Map<String, Object> personalInfo;
         try {
             personalInfo = jdbcTemplate.queryForMap(
-                "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
+                    "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
         } catch (Exception e) {
             return Collections.emptyList();
         }
         int idPuesto = (Integer) personalInfo.get("idPuesto");
         int idArea = (Integer) personalInfo.get("idArea");
 
-        String sql = "WITH base AS ( SELECT fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta, 4 as area, " +
-                "CASE WHEN ISNULL(cli.nombreCorto, '') <> '' THEN cli.nombreCorto ELSE cli.razonSocial END AS nombreEmpresa, " +
-                "ROW_NUMBER() OVER ( PARTITION BY fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta ORDER BY cli.nombreCorto ) AS rn, " +
-                "COUNT(*) OVER ( PARTITION BY fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta ) AS totalEmpresas " +
-                "FROM fiscalizacionesLaborales fl INNER JOIN cliente cli ON fl.idCliente = cli.ruc WHERE fl.idFLEstado IN (2, 5, 10) ), " +
-                "eventosPrincipales AS ( SELECT idFLEntidad, idFLDocumento, idFLEstado, fLimiteRespuesta, area, nombreEmpresa, rn, totalEmpresas FROM base WHERE rn <= 5 ), " +
-                "eventosExtras AS ( SELECT idFLEntidad, idFLDocumento, idFLEstado, fLimiteRespuesta, area, NULL AS nombreEmpresa, 6 AS rn, totalEmpresas FROM base WHERE rn = 1 AND totalEmpresas > 5 ) " +
-                "SELECT CONCAT( 'FP ', CASE WHEN e.idFLEntidad = 1 THEN 'SUNAF' WHEN e.idFLEntidad = 2 THEN 'SUNAT' WHEN e.idFLEntidad = 3 THEN 'MINTRA' WHEN e.idFLEntidad = 4 THEN 'CONAF' END, ' | ', " +
-                "CASE WHEN e.idFLDocumento = 1 THEN 'REQ. INF.' WHEN e.idFLDocumento = 2 THEN 'COMUNI.' WHEN e.idFLDocumento = 3 THEN 'COMPAR.' WHEN e.idFLDocumento = 4 THEN 'CARTA IND.' WHEN e.idFLDocumento = 5 THEN 'ESQUELA' WHEN e.idFLDocumento = 6 THEN 'CARTA DIS.' WHEN e.idFLDocumento = 7 THEN 'ORD. INSP.' WHEN e.idFLDocumento = 8 THEN 'FORMAL.' END, '   ', " +
-                "CASE WHEN e.rn <= 5 THEN e.nombreEmpresa ELSE CONCAT('+ ', e.totalEmpresas - 5, ' más') END ) AS titulo, " +
+        String sql = "WITH base AS ( SELECT fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta, 4 as area, "
+                +
+                "CASE WHEN ISNULL(cli.nombreCorto, '') <> '' THEN cli.nombreCorto ELSE cli.razonSocial END AS nombreEmpresa, "
+                +
+                "ROW_NUMBER() OVER ( PARTITION BY fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta ORDER BY cli.nombreCorto ) AS rn, "
+                +
+                "COUNT(*) OVER ( PARTITION BY fl.idFLEntidad, fl.idFLDocumento, fl.idFLEstado, fl.fLimiteRespuesta ) AS totalEmpresas "
+                +
+                "FROM fiscalizacionesLaborales fl INNER JOIN cliente cli ON fl.idCliente = cli.ruc WHERE fl.idFLEstado IN (2, 5, 10) ), "
+                +
+                "eventosPrincipales AS ( SELECT idFLEntidad, idFLDocumento, idFLEstado, fLimiteRespuesta, area, nombreEmpresa, rn, totalEmpresas FROM base WHERE rn <= 5 ), "
+                +
+                "eventosExtras AS ( SELECT idFLEntidad, idFLDocumento, idFLEstado, fLimiteRespuesta, area, NULL AS nombreEmpresa, 6 AS rn, totalEmpresas FROM base WHERE rn = 1 AND totalEmpresas > 5 ) "
+                +
+                "SELECT CONCAT( 'FP ', CASE WHEN e.idFLEntidad = 1 THEN 'SUNAF' WHEN e.idFLEntidad = 2 THEN 'SUNAT' WHEN e.idFLEntidad = 3 THEN 'MINTRA' WHEN e.idFLEntidad = 4 THEN 'CONAF' END, ' | ', "
+                +
+                "CASE WHEN e.idFLDocumento = 1 THEN 'REQ. INF.' WHEN e.idFLDocumento = 2 THEN 'COMUNI.' WHEN e.idFLDocumento = 3 THEN 'COMPAR.' WHEN e.idFLDocumento = 4 THEN 'CARTA IND.' WHEN e.idFLDocumento = 5 THEN 'ESQUELA' WHEN e.idFLDocumento = 6 THEN 'CARTA DIS.' WHEN e.idFLDocumento = 7 THEN 'ORD. INSP.' WHEN e.idFLDocumento = 8 THEN 'FORMAL.' END, '   ', "
+                +
+                "CASE WHEN e.rn <= 5 THEN e.nombreEmpresa ELSE CONCAT('+ ', e.totalEmpresas - 5, ' más') END ) AS titulo, "
+                +
                 "fLimiteRespuesta, '08:00' AS hora, area, idFLEstado FROM ( SELECT * FROM eventosPrincipales UNION ALL SELECT * FROM eventosExtras ) AS e ";
 
         if (idPuesto == 3) {
@@ -332,14 +368,18 @@ public class CalendarRepository {
             } else {
                 sql += "WHERE e.area = " + idArea + " ";
             }
-        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8 || idPuesto == 9 || idPuesto == 10) {
+        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8
+                || idPuesto == 9 || idPuesto == 10) {
             sql += "WHERE e.area = " + idArea + " ";
         }
         sql += "ORDER BY fLimiteRespuesta, titulo; ";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> CalendarEventDTO.builder()
                 .title(rs.getString("titulo"))
-                .start(rs.getString("fLimiteRespuesta") + "T" + rs.getString("hora") + ":00")
+                // .start(rs.getString("fLimiteRespuesta") + "T" + rs.getString("hora") + ":00")
+                .start(rs.getString("fLimiteRespuesta"))
+                .color("#5075C3")
+                .hexColor("#5075C3")
                 .stateFiscalizacionPay(rs.getInt("idFLEstado"))
                 .type("fiscalizacionPay")
                 .build());
@@ -420,14 +460,15 @@ public class CalendarRepository {
         Map<String, Object> personalInfo;
         try {
             personalInfo = jdbcTemplate.queryForMap(
-                "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
+                    "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
         } catch (Exception e) {
             return Collections.emptyList();
         }
         int idPuesto = (Integer) personalInfo.get("idPuesto");
         int idArea = (Integer) personalInfo.get("idArea");
 
-        String sql = "SELECT x.ruc, x.razonSocial, x.idModo, x.modo, x.fPresentacion, x.hora, x.idEstado, x.estadoDescripcion, x.gear, x.area " +
+        String sql = "SELECT x.ruc, x.razonSocial, x.idModo, x.modo, x.fPresentacion, x.hora, x.idEstado, x.estadoDescripcion, x.gear, x.area "
+                +
                 "FROM " +
                 "( SELECT f.ruc, " +
                 "CASE WHEN (SELECT aux.nombreCorto FROM cliente aux WHERE f.ruc = aux.ruc) != '' " +
@@ -477,7 +518,8 @@ public class CalendarRepository {
             } else {
                 sql += "WHERE x.area = " + idArea + " ";
             }
-        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8 || idPuesto == 9 || idPuesto == 10) {
+        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8
+                || idPuesto == 9 || idPuesto == 10) {
             sql += "WHERE x.area = " + idArea + " ";
         }
         sql += "ORDER BY x.fPresentacion, x.hora ";
@@ -486,10 +528,12 @@ public class CalendarRepository {
             String fecha = rs.getString("fPresentacion");
             String horaI = rs.getString("hora");
             String start = fecha + "T" + horaI + ":00";
-            
+
             return CalendarEventDTO.builder()
                     .title(rs.getString("razonSocial"))
                     .start(start)
+                    .color("#50AEC3")
+                    .hexColor("#50AEC3")
                     .attendee(rs.getString("gear"))
                     .topic("FISCALIZACIÓN")
                     .stateFiscalizacion(rs.getInt("idEstado"))
