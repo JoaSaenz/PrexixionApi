@@ -57,7 +57,8 @@ public class SignerRusRepository {
                 """;
     }
 
-    // ─── Listado sin paginación (uso original) ────────────────────────────────────
+    // ─── Listado sin paginación (uso original)
+    // ────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     public List<Cliente> list() {
@@ -65,7 +66,8 @@ public class SignerRusRepository {
         return mapTuples((List<Tuple>) query.getResultList());
     }
 
-    // ─── Server-side paginado ─────────────────────────────────────────────────────
+    // ─── Server-side paginado
+    // ─────────────────────────────────────────────────────
 
     @SuppressWarnings("unchecked")
     public List<Cliente> listServerSide(SignerRusRequest req) {
@@ -129,7 +131,8 @@ public class SignerRusRepository {
         return result;
     }
 
-    // ─── Filtros dinámicos ────────────────────────────────────────────────────────
+    // ─── Filtros dinámicos
+    // ────────────────────────────────────────────────────────
 
     private void appendFilters(StringBuilder sql, SignerRusRequest req) {
         if (req.getSearch() != null && !req.getSearch().trim().isEmpty()) {
@@ -166,22 +169,28 @@ public class SignerRusRepository {
      * Si el CSV incluye 0 también filtra NULL o 0 (para IDs opcionales).
      */
     private void appendIntCsvFilter(StringBuilder sql, String col, String csv, String param) {
-        if (csv == null || csv.trim().isEmpty()) return;
+        if (csv == null || csv.trim().isEmpty())
+            return;
         List<Integer> nonZero = new ArrayList<>();
         boolean includeZero = false;
         for (String part : csv.split(",")) {
             String t = part.trim();
-            if (t.isEmpty()) continue;
+            if (t.isEmpty())
+                continue;
             int v = Integer.parseInt(t);
-            if (v == 0) includeZero = true;
-            else nonZero.add(v);
+            if (v == 0)
+                includeZero = true;
+            else
+                nonZero.add(v);
         }
-        if (!includeZero && nonZero.isEmpty()) return;
+        if (!includeZero && nonZero.isEmpty())
+            return;
 
         sql.append(" AND (");
         if (!nonZero.isEmpty()) {
             sql.append(col).append(" IN (:").append(param).append(")");
-            if (includeZero) sql.append(" OR ");
+            if (includeZero)
+                sql.append(" OR ");
         }
         if (includeZero) {
             sql.append("(").append(col).append(" IS NULL OR ").append(col).append(" = 0)");
@@ -190,31 +199,35 @@ public class SignerRusRepository {
     }
 
     private void bindIntCsv(Query query, String csv, String param) {
-        if (csv == null || csv.trim().isEmpty()) return;
+        if (csv == null || csv.trim().isEmpty())
+            return;
         List<Integer> nonZero = new ArrayList<>();
         for (String part : csv.split(",")) {
             String t = part.trim();
-            if (t.isEmpty()) continue;
+            if (t.isEmpty())
+                continue;
             int v = Integer.parseInt(t);
-            if (v != 0) nonZero.add(v);
+            if (v != 0)
+                nonZero.add(v);
         }
         if (!nonZero.isEmpty()) {
             query.setParameter(param, nonZero);
         }
     }
 
-    // ─── Ordenamiento ─────────────────────────────────────────────────────────────
+    // ─── Ordenamiento
+    // ─────────────────────────────────────────────────────────────
 
     private static final Map<String, String> ORDER_BY_MAP = new HashMap<>();
     static {
-        ORDER_BY_MAP.put("abrNivelFijo",     "sf.abreviatura");
-        ORDER_BY_MAP.put("abrNivelX3",       "st.abreviatura");
-        ORDER_BY_MAP.put("descGrupoEconomico","ge.descripcion");
-        ORDER_BY_MAP.put("estado",           "ce.descripcion");
-        ORDER_BY_MAP.put("servicio",         "cts.abreviatura");
-        ORDER_BY_MAP.put("ruc",              "cl.ruc");
-        ORDER_BY_MAP.put("y",                "cl.y");
-        ORDER_BY_MAP.put("razonSocial",      "cl.razonSocial");
+        // ORDER_BY_MAP.put("abrNivelFijo", "sf.abreviatura");
+        // ORDER_BY_MAP.put("abrNivelX3", "st.abreviatura");
+        ORDER_BY_MAP.put("descGrupoEconomico", "ge.descripcion");
+        // ORDER_BY_MAP.put("estado", "ce.descripcion");
+        ORDER_BY_MAP.put("servicio", "cts.abreviatura");
+        ORDER_BY_MAP.put("ruc", "cl.ruc");
+        ORDER_BY_MAP.put("y", "cl.y");
+        ORDER_BY_MAP.put("razonSocial", "cl.razonSocial");
         ORDER_BY_MAP.put("periodoIEnvoyRus", "periodoIEnvoyRus");
         ORDER_BY_MAP.put("periodoFEnvoyRus", "periodoFEnvoyRus");
     }
@@ -225,12 +238,15 @@ public class SignerRusRepository {
             return " ORDER BY cl.ruc " + dir;
         }
         String expr = ORDER_BY_MAP.get(sortKey.trim());
-        if (expr == null) return " ORDER BY cl.ruc ASC";
-        if ("cl.ruc".equals(expr)) return " ORDER BY cl.ruc " + dir;
+        if (expr == null)
+            return " ORDER BY cl.ruc ASC";
+        if ("cl.ruc".equals(expr))
+            return " ORDER BY cl.ruc " + dir;
         return " ORDER BY " + expr + " " + dir + ", cl.ruc ASC";
     }
 
-    // ─── Mapeo Tuple → Cliente ────────────────────────────────────────────────────
+    // ─── Mapeo Tuple → Cliente
+    // ────────────────────────────────────────────────────
 
     private List<Cliente> mapTuples(List<Tuple> tuples) {
         List<Cliente> list = new ArrayList<>();
@@ -279,23 +295,34 @@ public class SignerRusRepository {
 
     private String buildRegimenTributario(Tuple t) {
         List<String> rTs = new ArrayList<>();
-        int rT3ra      = nvl(t, "rT3ra");
-        int rT1ra      = nvl(t, "rT1ra");
-        int rT2da      = nvl(t, "rT2da");
-        int rT4ta      = nvl(t, "rT4ta");
-        int rT5ta      = nvl(t, "rT5ta");
+        int rT3ra = nvl(t, "rT3ra");
+        int rT1ra = nvl(t, "rT1ra");
+        int rT2da = nvl(t, "rT2da");
+        int rT4ta = nvl(t, "rT4ta");
+        int rT5ta = nvl(t, "rT5ta");
 
         if (rT3ra != 0) {
-            if (nvl(t, "rTMypeTributario") != 0) rTs.add("MYPE Tributario");
-            if (nvl(t, "rTRus")            != 0) rTs.add("RUS");
-            if (nvl(t, "rTEspecial")       != 0) rTs.add("Especial");
-            if (nvl(t, "rTGeneral")        != 0) rTs.add("General");
-            if (nvl(t, "rTAmazonico")      != 0) rTs.add("Amazónico");
-            if (nvl(t, "rTAgrario")        != 0) rTs.add("Agrario");
-        } else if (rT1ra != 0) { rTs.add("1ra");
-        } else if (rT2da != 0) { rTs.add("2da");
-        } else if (rT4ta != 0) { rTs.add("4ta");
-        } else if (rT5ta != 0) { rTs.add("5ta"); }
+            if (nvl(t, "rTMypeTributario") != 0)
+                rTs.add("MYPE Tributario");
+            if (nvl(t, "rTRus") != 0)
+                rTs.add("RUS");
+            if (nvl(t, "rTEspecial") != 0)
+                rTs.add("Especial");
+            if (nvl(t, "rTGeneral") != 0)
+                rTs.add("General");
+            if (nvl(t, "rTAmazonico") != 0)
+                rTs.add("Amazónico");
+            if (nvl(t, "rTAgrario") != 0)
+                rTs.add("Agrario");
+        } else if (rT1ra != 0) {
+            rTs.add("1ra");
+        } else if (rT2da != 0) {
+            rTs.add("2da");
+        } else if (rT4ta != 0) {
+            rTs.add("4ta");
+        } else if (rT5ta != 0) {
+            rTs.add("5ta");
+        }
 
         return String.join(", ", rTs);
     }
