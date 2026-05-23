@@ -95,12 +95,9 @@ public class ClienteRepository {
         StringBuilder sql = new StringBuilder(getBaseSelect());
         appendFilters(sql, req);
         sql.append(buildClienteServerSideOrderClause(req.getSortKey(), req.getSortDir()));
-        sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
         setFilterParams(query, req);
-        query.setParameter("offset", req.getStart());
-        query.setParameter("limit", req.getLength());
 
         return mapTuples((List<Tuple>) query.getResultList());
     }
@@ -335,8 +332,8 @@ public class ClienteRepository {
                     tuple.get("abrContribuyente", String.class),
                     tuple.get("descContribuyente", String.class)));
             String rs = tuple.get("razonSocial", String.class);
-            if (rs != null && rs.length() > 50) {
-                rs = rs.substring(0, 50) + "...";
+            if (rs != null && rs.length() > 40) {
+                rs = rs.substring(0, 40) + "...";
             }
             obj.setRazonSocial(rs);
             obj.setNombreCorto(tuple.get("nombreCorto", String.class));
