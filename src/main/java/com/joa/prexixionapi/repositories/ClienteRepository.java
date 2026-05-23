@@ -334,7 +334,11 @@ public class ClienteRepository {
                             : tuple.get("idContribuyente", Integer.class),
                     tuple.get("abrContribuyente", String.class),
                     tuple.get("descContribuyente", String.class)));
-            obj.setRazonSocial(tuple.get("razonSocial", String.class));
+            String rs = tuple.get("razonSocial", String.class);
+            if (rs != null && rs.length() > 50) {
+                rs = rs.substring(0, 50) + "...";
+            }
+            obj.setRazonSocial(rs);
             obj.setNombreCorto(tuple.get("nombreCorto", String.class));
             obj.setPeriodoInicioCom(tuple.get("periodoInicioCom", String.class));
             obj.setPeriodoI621(tuple.get("periodoI", String.class));
