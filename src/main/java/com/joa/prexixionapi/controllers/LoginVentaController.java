@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import com.joa.prexixionapi.entities.Cliente;
 import com.joa.prexixionapi.services.LoginVentaService;
 import com.joa.prexixionapi.services.LoginVentaExcelService;
+import com.joa.prexixionapi.dto.LoginVentaDataTablesRequest;
+import com.joa.prexixionapi.dto.LoginVentaDataTablesResponse;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +33,16 @@ public class LoginVentaController {
 
     @Autowired
     private LoginVentaExcelService loginVentaExcelService;
+
+    @GetMapping("/server-side")
+    public LoginVentaDataTablesResponse listServerSide(LoginVentaDataTablesRequest req) {
+        try {
+            return loginVentaService.listServerSide(req);
+        } catch (Exception e) {
+            log.error("Error en listServerSide login-ventas para req: {}", req, e);
+            throw e;
+        }
+    }
 
     @GetMapping
     public List<Cliente> list(
