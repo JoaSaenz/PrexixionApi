@@ -42,6 +42,15 @@ public class Cliente {
 
     private String periodoInicioCom;
 
+    // Login Ventas
+    private LoginVenta loginVenta;
+    private Integer sunatSire;
+    private Integer externoSire;
+    private Integer gerenciaSire;
+
+    @jakarta.persistence.Transient
+    private String sire;
+
     public String getRuc() {
         return ruc;
     }
@@ -296,6 +305,46 @@ public class Cliente {
 
     public void setPeriodoInicioCom(String periodoInicioCom) {
         this.periodoInicioCom = periodoInicioCom;
+    }
+
+    public LoginVenta getLoginVenta() {
+        return loginVenta;
+    }
+
+    public void setLoginVenta(LoginVenta loginVenta) {
+        this.loginVenta = loginVenta;
+    }
+
+    public Integer getSunatSire() {
+        return sunatSire;
+    }
+
+    public void setSunatSire(Integer sunatSire) {
+        this.sunatSire = sunatSire;
+    }
+
+    public Integer getExternoSire() {
+        return externoSire;
+    }
+
+    public void setExternoSire(Integer externoSire) {
+        this.externoSire = externoSire;
+    }
+
+    public Integer getGerenciaSire() {
+        return gerenciaSire;
+    }
+
+    public void setGerenciaSire(Integer gerenciaSire) {
+        this.gerenciaSire = gerenciaSire;
+    }
+
+    public String getSire() {
+        return sire;
+    }
+
+    public void setSire(String sire) {
+        this.sire = sire;
     }
 
     // --- SignerRus fields ---
