@@ -26,13 +26,14 @@ public class LoginVentaRepository {
     private String getBaseSelect(String anio, String mes) {
         String lastAnio = String.valueOf(Integer.parseInt(anio) - 1);
         int anioMesInt = Integer.parseInt(anio + mes);
-        
+
         String queryComprasFilasColumna = "";
         String queryComprasFilasJoin = "";
-        
+
         if (anioMesInt < 202310) {
             queryComprasFilasColumna = " ple.comprasFilas, ";
-            // Asumiendo anioAux y mesAux corresponden a reducir 1 mes. Lo calcularemos en Java y lo pasaremos o lo calcularemos en BD. 
+            // Asumiendo anioAux y mesAux corresponden a reducir 1 mes. Lo calcularemos en
+            // Java y lo pasaremos o lo calcularemos en BD.
             // Para mantener fidelidad con el query original:
             queryComprasFilasJoin = " LEFT JOIN pleComprasVentasData ple ON ple.idCliente = c.ruc AND ple.anio = :anioAux AND ple.mes = :mesAux ";
         } else {
@@ -57,9 +58,11 @@ public class LoginVentaRepository {
                 + "                                  WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab END END "
                 + "	 ELSE CASE WHEN c.fPle IS NOT NULL THEN "
                 + "     	   CASE WHEN c.fPle != '' THEN "
-                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes + " <= 202008) THEN "
+                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes
+                + " <= 202008) THEN "
                 + "     	                    CASE WHEN (" + anio + mes + " = 202002) THEN "
-                + "     	                                CASE WHEN (c.y IN ('0','1')) OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = " + lastAnio + ") >= (u.valor * 2300)) THEN "
+                + "     	                                CASE WHEN (c.y IN ('0','1')) OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
+                + lastAnio + ") >= (u.valor * 2300)) THEN "
                 + "     	                                        CASE WHEN c.y = '0' THEN crPle.fecha0 WHEN c.y = '1' THEN crPle.fecha1 WHEN c.y = '2' THEN crPle.fecha2 "
                 + "     	                                             WHEN c.y = '3' THEN crPle.fecha3 WHEN c.y = '4' THEN crPle.fecha4 WHEN c.y = '5' THEN crPle.fecha5 "
                 + "     	                                             WHEN c.y = '6' THEN crPle.fecha6 WHEN c.y = '7' THEN crPle.fecha7 WHEN c.y = '8' THEN crPle.fecha8 "
@@ -78,7 +81,8 @@ public class LoginVentaRepository {
                 + "     	                                        END "
                 + "     	                                END "
                 + "     	                         WHEN (" + anio + mes + " > 202002) THEN "
-                + "     	                             CASE WHEN ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = " + lastAnio + ") >= (u.valor * 5000)) THEN "
+                + "     	                             CASE WHEN ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
+                + lastAnio + ") >= (u.valor * 5000)) THEN "
                 + "     	                                     CASE WHEN c.y = '0' THEN crPle.fecha0 WHEN c.y = '1' THEN crPle.fecha1 WHEN c.y = '2' THEN crPle.fecha2 "
                 + "     	                                          WHEN c.y = '3' THEN crPle.fecha3 WHEN c.y = '4' THEN crPle.fecha4 WHEN c.y = '5' THEN crPle.fecha5 "
                 + "     	                                          WHEN c.y = '6' THEN crPle.fecha6 WHEN c.y = '7' THEN crPle.fecha7 WHEN c.y = '8' THEN crPle.fecha8 "
@@ -104,9 +108,11 @@ public class LoginVentaRepository {
                 + "     	                         WHEN c.y = '9' THEN crPle.fecha9 END "
                 + "     	            END "
                 + "     	        ELSE "
-                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes + " <= 202008) THEN "
+                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes
+                + " <= 202008) THEN "
                 + "     	                   CASE WHEN (" + anio + mes + " = 202002) THEN "
-                + "     	                               CASE WHEN (c.y = '0') OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = " + lastAnio + ") >= (u.valor * 2300)) THEN "
+                + "     	                               CASE WHEN (c.y = '0') OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
+                + lastAnio + ") >= (u.valor * 2300)) THEN "
                 + "     	                                       CASE WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 "
                 + "     	                                            WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 "
                 + "     	                                            WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 "
@@ -125,7 +131,8 @@ public class LoginVentaRepository {
                 + "     	                                       END "
                 + "     	                               END "
                 + "     	                        WHEN (" + anio + mes + " > 202002) THEN "
-                + "     	                            CASE WHEN ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = " + lastAnio + ") >= (u.valor * 5000)) THEN "
+                + "     	                            CASE WHEN ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
+                + lastAnio + ") >= (u.valor * 5000)) THEN "
                 + "     	                                    CASE WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 "
                 + "     	                                         WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 "
                 + "     	                                         WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 "
@@ -156,7 +163,8 @@ public class LoginVentaRepository {
                 + " lp.movimiento, "
                 + " c.sunatSire, c.externoSire, c.gerenciaSire, "
                 + " CASE WHEN EXISTS (SELECT idModalidad FROM clienteProcesos cp WHERE cp.idCliente = c.ruc  AND cp.idProceso = 2 ) "
-                + "	  THEN  (SELECT TOP 1 idModalidad FROM clienteProcesos cp WHERE cp.idCliente = c.ruc  AND cp.idProceso = 2 AND CAST(cp.anioPeriodo + cp.mesPeriodo + '01' as date) <= '" + anio + "-" + mes + "-01' ORDER BY cp.anioPeriodo DESC, cp.mesPeriodo DESC )  "
+                + "	  THEN  (SELECT TOP 1 idModalidad FROM clienteProcesos cp WHERE cp.idCliente = c.ruc  AND cp.idProceso = 2 AND CAST(cp.anioPeriodo + cp.mesPeriodo + '01' as date) <= '"
+                + anio + "-" + mes + "-01' ORDER BY cp.anioPeriodo DESC, cp.mesPeriodo DESC )  "
                 + "	  ELSE '' "
                 + " END AS modalidad, "
                 + " lv.responsable, "
@@ -169,11 +177,11 @@ public class LoginVentaRepository {
                 + "    END "
                 + ") AS descResponsable, "
                 + queryComprasFilasColumna
-                + " lv.registro, lv.registroUsuario, lv.registroFecha, "
-                + " lv.revisionSunat, lv.revisionSunatUsuario, lv.revisionSunatFecha, "
+                + " lv.registro, lv.registroUsuario, lv.registroFecha, lv.registroHora,"
+                + " lv.revisionSunat, lv.revisionSunatUsuario, lv.revisionSunatFecha,"
                 + " lv.seeVentas, lv.extVentas, "
-                + " lv.validacion, lv.validacionUsuario, lv.validacionFecha, "
-                + " lv.confirmacion, lv.confirmacionUsuario, lv.confirmacionFecha, "
+                + " lv.validacion, lv.validacionUsuario, lv.validacionFecha, lv.validacionHora,"
+                + " lv.confirmacion, lv.confirmacionUsuario, lv.confirmacionFecha, lv.confirmacionHora,"
                 + " lv.observacion, lv.version "
                 + " FROM cliente c "
                 + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
@@ -182,21 +190,27 @@ public class LoginVentaRepository {
                 + " INNER JOIN clienteServiciosTributarios p ON c.ruc = p.idCliente AND p.stIdServicioTributario = 4 "
                 + " LEFT JOIN clienteServiciosTributarios si ON c.ruc = si.idCliente AND si.stIdServicioTributario = 15 "
                 + " AND CAST(si.stAnioDesde + si.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
-                + " ( CAST(si.stAnioHasta + si.stMesHasta + '01' as date) >= '" + anio + "-" + mes + "-01' OR si.stAnioHasta IS NULL ) "
+                + " ( CAST(si.stAnioHasta + si.stMesHasta + '01' as date) >= '" + anio + "-" + mes
+                + "-01' OR si.stAnioHasta IS NULL ) "
                 + " LEFT JOIN cronogramaPDT cr ON '" + anio + "' = cr.anio AND '" + mes + "' = cr.mes "
                 + " LEFT JOIN cronogramaCovidPDT crC ON '" + anio + "' = crC.anio AND '" + mes + "' = crC.mes "
                 + " LEFT JOIN cronogramaPricoPDT crP ON '" + anio + "' = crP.anio AND '" + mes + "' = crP.mes "
                 + " LEFT JOIN CRONOGRAMAPLE_A crPle ON crPle.anio = '" + anio + "' AND crPle.mes = '" + mes + "' "
-                + " LEFT JOIN CRONOGRAMACOVIDPLE_A crPleC ON crPleC.anio = '" + anio + "' AND crPleC.mes = '" + mes + "' "
-                + " LEFT JOIN cronogramaPricoPLE_A crPleP ON crPleP.anio = '" + anio + "' AND crPleP.mes = '" + mes + "'  "
+                + " LEFT JOIN CRONOGRAMACOVIDPLE_A crPleC ON crPleC.anio = '" + anio + "' AND crPleC.mes = '" + mes
+                + "' "
+                + " LEFT JOIN cronogramaPricoPLE_A crPleP ON crPleP.anio = '" + anio + "' AND crPleP.mes = '" + mes
+                + "'  "
                 + " LEFT JOIN cronogramaSire crS ON '" + anio + "' = crS.anio AND '" + mes + "' = crS.mes "
                 + " LEFT JOIN uit u ON u.anio = '" + lastAnio + "' "
-                + " LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = '" + anio + "'  AND lp.mes = '" + mes + "' "
-                + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = '" + anio + "'  AND lv.mes = '" + mes + "' "
+                + " LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = '" + anio + "'  AND lp.mes = '" + mes
+                + "' "
+                + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = '" + anio + "'  AND lv.mes = '" + mes
+                + "' "
                 + " LEFT JOIN personal per ON lv.responsable = per.dni "
                 + queryComprasFilasJoin
                 + " WHERE CAST(p.stAnioDesde + p.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
-                + " ( CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= '" + anio + "-" + mes + "-01' OR p.stAnioHasta IS NULL ) ";
+                + " ( CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= '" + anio + "-" + mes
+                + "-01' OR p.stAnioHasta IS NULL ) ";
     }
 
     @SuppressWarnings("unchecked")
@@ -214,7 +228,7 @@ public class LoginVentaRepository {
         sql.append(" ORDER BY c.y ");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
-        
+
         // Calculate anioAux and mesAux
         int m = Integer.parseInt(mes);
         int a = Integer.parseInt(anio);
@@ -248,7 +262,7 @@ public class LoginVentaRepository {
         sql.append(" AND c.ruc = :ruc ");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
-        
+
         int m = Integer.parseInt(mes);
         int a = Integer.parseInt(anio);
         if (m == 1) {
@@ -270,12 +284,14 @@ public class LoginVentaRepository {
     }
 
     private List<Integer> parseCsvToIntList(String csv) {
-        return Arrays.stream(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty()).map(Integer::parseInt).collect(Collectors.toList());
+        return Arrays.stream(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty()).map(Integer::parseInt)
+                .collect(Collectors.toList());
     }
 
     private List<String> parseCsvToStringList(String csv) {
         return Arrays.stream(csv.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
     }
+
     private String getStringSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
@@ -288,8 +304,10 @@ public class LoginVentaRepository {
     private Character getCharacterSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
-            if (obj == null) return null;
-            if (obj instanceof Character) return (Character) obj;
+            if (obj == null)
+                return null;
+            if (obj instanceof Character)
+                return (Character) obj;
             String s = obj.toString();
             return s.isEmpty() ? null : s.charAt(0);
         } catch (IllegalArgumentException e) {
@@ -300,7 +318,8 @@ public class LoginVentaRepository {
     private Integer getIntegerSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
-            if (obj == null) return 0;
+            if (obj == null)
+                return 0;
             if (obj instanceof Number) {
                 return ((Number) obj).intValue();
             }
@@ -314,21 +333,22 @@ public class LoginVentaRepository {
         }
     }
 
-
     private List<Cliente> mapTuples(List<Tuple> tuples, String anio, String mes) {
         List<Cliente> list = new ArrayList<>();
         for (Tuple tuple : tuples) {
             Cliente clie = new Cliente();
             clie.setRuc(getStringSafely(tuple, "ruc"));
-            
+
             Character yChar = getCharacterSafely(tuple, "y");
             clie.setY(yChar != null ? yChar.toString() : null);
 
             clie.setRazonSocial(getStringSafely(tuple, "razonSocial"));
             clie.setNombreCorto(getStringSafely(tuple, "nombreCorto"));
             clie.setEstado(new Gclass(getIntegerSafely(tuple, "idEstado"), getStringSafely(tuple, "estado")));
-            clie.setServicio(new Gclass(getIntegerSafely(tuple, "idTipoServicio"), getStringSafely(tuple, "tipoServicioAbr"), getStringSafely(tuple, "tipoServicio")));
-            clie.setGrupoEconomico(new Gclass(getIntegerSafely(tuple, "idGrupoEconomico"), getStringSafely(tuple, "descGrupoEconomico")));
+            clie.setServicio(new Gclass(getIntegerSafely(tuple, "idTipoServicio"),
+                    getStringSafely(tuple, "tipoServicioAbr"), getStringSafely(tuple, "tipoServicio")));
+            clie.setGrupoEconomico(new Gclass(getIntegerSafely(tuple, "idGrupoEconomico"),
+                    getStringSafely(tuple, "descGrupoEconomico")));
 
             SignerNivel sn = new SignerNivel();
             sn.setCategoriaStore(getIntegerSafely(tuple, "categoriaStore"));
@@ -337,12 +357,18 @@ public class LoginVentaRepository {
             // Regimen Tributario
             List<String> rTs = new ArrayList<>();
             if (getIntegerSafely(tuple, "rT3ra") != 0) {
-                if (getIntegerSafely(tuple, "rTMypeTributario") != 0) rTs.add("RM");
-                if (getIntegerSafely(tuple, "rTRus") != 0) rTs.add("RUS");
-                if (getIntegerSafely(tuple, "rTEspecial") != 0) rTs.add("RE");
-                if (getIntegerSafely(tuple, "rTGeneral") != 0) rTs.add("RG");
-                if (getIntegerSafely(tuple, "rTAmazonico") != 0) rTs.add("RAM");
-                if (getIntegerSafely(tuple, "rTAgrario") != 0) rTs.add("RAG");
+                if (getIntegerSafely(tuple, "rTMypeTributario") != 0)
+                    rTs.add("RM");
+                if (getIntegerSafely(tuple, "rTRus") != 0)
+                    rTs.add("RUS");
+                if (getIntegerSafely(tuple, "rTEspecial") != 0)
+                    rTs.add("RE");
+                if (getIntegerSafely(tuple, "rTGeneral") != 0)
+                    rTs.add("RG");
+                if (getIntegerSafely(tuple, "rTAmazonico") != 0)
+                    rTs.add("RAM");
+                if (getIntegerSafely(tuple, "rTAgrario") != 0)
+                    rTs.add("RAG");
             } else if (getIntegerSafely(tuple, "rT1ra") != 0) {
                 rTs.add("1ra");
             } else if (getIntegerSafely(tuple, "rT2da") != 0) {
@@ -360,28 +386,31 @@ public class LoginVentaRepository {
             lv.setRegistro(getIntegerSafely(tuple, "registro"));
             lv.setRegistroUsuario(getStringSafely(tuple, "registroUsuario"));
             lv.setRegistroFecha(getStringSafely(tuple, "registroFecha"));
+            lv.setRegistroHora(getStringSafely(tuple, "registroHora"));
             lv.setRevisionSunat(getIntegerSafely(tuple, "revisionSunat"));
             lv.setRevisionSunatUsuario(getStringSafely(tuple, "revisionSunatUsuario"));
             lv.setRevisionSunatFecha(getStringSafely(tuple, "revisionSunatFecha"));
             lv.setValidacion(getIntegerSafely(tuple, "validacion"));
             lv.setValidacionUsuario(getStringSafely(tuple, "validacionUsuario"));
             lv.setValidacionFecha(getStringSafely(tuple, "validacionFecha"));
+            lv.setValidacionHora(getStringSafely(tuple, "validacionHora"));
             lv.setConfirmacion(getIntegerSafely(tuple, "confirmacion"));
             lv.setConfirmacionUsuario(getStringSafely(tuple, "confirmacionUsuario"));
             lv.setConfirmacionFecha(getStringSafely(tuple, "confirmacionFecha"));
+            lv.setConfirmacionHora(getStringSafely(tuple, "confirmacionHora"));
             lv.setSeeVentas(getIntegerSafely(tuple, "seeVentas"));
             lv.setExtVentas(getIntegerSafely(tuple, "extVentas"));
             lv.setObservacion(getStringSafely(tuple, "observacion"));
             lv.setVersion(getIntegerSafely(tuple, "version"));
             // lv.setSire(getIntegerSafely(tuple, "sire"));
-            
+
             Object fVencimientoObj = tuple.get("fVencimiento");
             lv.setfVencimiento(fVencimientoObj != null ? fVencimientoObj.toString() : null);
             if (lv.getfVencimiento() != null && !lv.getfVencimiento().isEmpty()) {
                 String[] parts = lv.getfVencimiento().split("-");
                 if (parts.length >= 3) {
                     lv.setDiaVencimiento(parts[2]);
-                    lv.setMesVencimiento(parts[1]); 
+                    lv.setMesVencimiento(parts[1]);
                 }
                 try {
                     java.time.LocalDate fVenc = java.time.LocalDate.parse(lv.getfVencimiento());
@@ -412,9 +441,12 @@ public class LoginVentaRepository {
 
             List<String> sireList = new ArrayList<>();
             String sire = "";
-            if (clie.getSunatSire() != 0) sireList.add("SEE");
-            if (clie.getExternoSire() != 0) sireList.add("EXT");
-            if (clie.getGerenciaSire() != 0) sireList.add("GCOM");
+            if (clie.getSunatSire() != 0)
+                sireList.add("SEE");
+            if (clie.getExternoSire() != 0)
+                sireList.add("EXT");
+            if (clie.getGerenciaSire() != 0)
+                sireList.add("GCOM");
             for (String s : sireList) {
                 sire += s + ", ";
             }
@@ -422,7 +454,6 @@ public class LoginVentaRepository {
                 sire = sire.substring(0, sire.length() - 2);
             }
             clie.setSire(sire);
-
 
             clie.setLoginVenta(lv);
             list.add(clie);
@@ -439,7 +470,7 @@ public class LoginVentaRepository {
                 + " ( CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= :startDate OR p.stAnioHasta IS NULL ) ";
 
         String startDateStr = anio + "-" + mes + "-01";
-        
+
         Number count = (Number) em.createNativeQuery(query)
                 .setParameter("startDate", startDateStr)
                 .getSingleResult();
@@ -447,7 +478,8 @@ public class LoginVentaRepository {
     }
 
     public int countAcumulado(String proceso, String fecha, String anio, String mes) {
-        // Obtenemos el inicio de mes de la fecha indicada (ej. 2026-05-15 -> 2026-05-01)
+        // Obtenemos el inicio de mes de la fecha indicada (ej. 2026-05-15 ->
+        // 2026-05-01)
         java.time.LocalDate date = java.time.LocalDate.parse(fecha);
         String fechaI = date.withDayOfMonth(1).toString();
         // fechaF = fecha menos 1 dia
@@ -511,12 +543,15 @@ public class LoginVentaRepository {
                 // Additional fields required by mapTuples but not selected in legacy:
                 + " lv.version, lv.responsable, lv.seeVentas, lv.extVentas, lv.observacion, \n"
                 + " c.sunatSire, c.externoSire, c.gerenciaSire, \n"
-                // Fill missing columns required by mapTuples with NULLs (since we only need the specific proceso fields and base fields)
+                // Fill missing columns required by mapTuples with NULLs (since we only need the
+                // specific proceso fields and base fields)
                 + " NULL as revisionSunat, NULL as revisionSunatUsuario, NULL as revisionSunatFecha, NULL as validacionHora, NULL as confirmacionHora, NULL as registroHora, NULL as fVencimiento, NULL as sire, NULL as modalidad, \n"
                 // Fill the other 2 procesos with NULLs since we do not select them dynamically
-                + (proceso.equals("registro") ? "NULL as validacion, NULL as validacionUsuario, NULL as validacionFecha, NULL as confirmacion, NULL as confirmacionUsuario, NULL as confirmacionFecha \n" :
-                   proceso.equals("validacion") ? "NULL as registro, NULL as registroUsuario, NULL as registroFecha, NULL as confirmacion, NULL as confirmacionUsuario, NULL as confirmacionFecha \n" :
-                   "NULL as registro, NULL as registroUsuario, NULL as registroFecha, NULL as validacion, NULL as validacionUsuario, NULL as validacionFecha \n")
+                + (proceso.equals("registro")
+                        ? "NULL as validacion, NULL as validacionUsuario, NULL as validacionFecha, NULL as confirmacion, NULL as confirmacionUsuario, NULL as confirmacionFecha \n"
+                        : proceso.equals("validacion")
+                                ? "NULL as registro, NULL as registroUsuario, NULL as registroFecha, NULL as confirmacion, NULL as confirmacionUsuario, NULL as confirmacionFecha \n"
+                                : "NULL as registro, NULL as registroUsuario, NULL as registroFecha, NULL as validacion, NULL as validacionUsuario, NULL as validacionFecha \n")
                 + " FROM cliente c \n"
                 + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id \n"
                 + " LEFT JOIN clientsTipoServicio tS ON c.idTipoServicio = tS.id \n"
