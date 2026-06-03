@@ -196,35 +196,35 @@ public class LoginVentaService {
         // 6. Responsable
         if (req.getResponsableString() != null && !req.getResponsableString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getResponsableString());
-            String val = (c.getLoginVenta() != null && c.getLoginVenta().getResponsable() != null) ? c.getLoginVenta().getResponsable() : "0";
+            String val = (c.getLoginVenta() != null && c.getLoginVenta().getResponsable() != null && !c.getLoginVenta().getResponsable().trim().isEmpty()) ? c.getLoginVenta().getResponsable() : "0";
             if (!list.contains(val)) return false;
         }
 
         // 7. Registro
         if (req.getRegistroString() != null && !req.getRegistroString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getRegistroString());
-            String val = c.getLoginVenta() != null ? String.valueOf(c.getLoginVenta().getRegistro()) : "0";
+            String val = (c.getLoginVenta() != null && c.getLoginVenta().getRegistro() != null) ? String.valueOf(c.getLoginVenta().getRegistro()) : "0";
             if (!list.contains(val)) return false;
         }
 
         // 8. RevisionSunat
         if (req.getRevisionSunatString() != null && !req.getRevisionSunatString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getRevisionSunatString());
-            String val = c.getLoginVenta() != null ? String.valueOf(c.getLoginVenta().getRevisionSunat()) : "0";
+            String val = (c.getLoginVenta() != null && c.getLoginVenta().getRevisionSunat() != null) ? String.valueOf(c.getLoginVenta().getRevisionSunat()) : "0";
             if (!list.contains(val)) return false;
         }
 
         // 9. Validacion
         if (req.getValidacionString() != null && !req.getValidacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getValidacionString());
-            String val = c.getLoginVenta() != null ? String.valueOf(c.getLoginVenta().getValidacion()) : "0";
+            String val = (c.getLoginVenta() != null && c.getLoginVenta().getValidacion() != null) ? String.valueOf(c.getLoginVenta().getValidacion()) : "0";
             if (!list.contains(val)) return false;
         }
 
         // 10. Confirmacion
         if (req.getConfirmacionString() != null && !req.getConfirmacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionString());
-            String val = c.getLoginVenta() != null ? String.valueOf(c.getLoginVenta().getConfirmacion()) : "0";
+            String val = (c.getLoginVenta() != null && c.getLoginVenta().getConfirmacion() != null) ? String.valueOf(c.getLoginVenta().getConfirmacion()) : "0";
             if (!list.contains(val)) return false;
         }
 
