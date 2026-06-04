@@ -44,6 +44,9 @@ public class Cliente {
 
     // Login Ventas
     private LoginVenta loginVenta;
+
+    // Login Compras
+    private LoginCompra loginCompra;
     private Integer sunatSire;
     private Integer externoSire;
     private Integer gerenciaSire;
@@ -313,6 +316,14 @@ public class Cliente {
 
     public void setLoginVenta(LoginVenta loginVenta) {
         this.loginVenta = loginVenta;
+    }
+
+    public LoginCompra getLoginCompra() {
+        return loginCompra;
+    }
+
+    public void setLoginCompra(LoginCompra loginCompra) {
+        this.loginCompra = loginCompra;
     }
 
     public Integer getSunatSire() {
