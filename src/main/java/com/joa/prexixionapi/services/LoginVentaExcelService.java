@@ -48,110 +48,464 @@ public class LoginVentaExcelService {
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             XSSFWorkbook wb = new XSSFWorkbook();
-            ExcelStyleManager styleManager = new ExcelStyleManager(wb);
+            Sheet sheet = wb.createSheet("Ventas");
 
-            XSSFCellStyle cabeceraStyle = styleManager.getSubHeaderStyleBlue();
-            XSSFCellStyle subHeaderStyle = styleManager.getSubHeaderStyleBlue();
-            XSSFCellStyle dataStyle = styleManager.getFondoBlackStyle();
-            XSSFCellStyle dataStyle2 = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                    ExcelStyleManager.MATTE_BLACK_RGB, 9, false, HorizontalAlignment.CENTER);
-            XSSFCellStyle dataGreenStyle = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                    ExcelStyleManager.GREEN_RGB, 9, true, HorizontalAlignment.CENTER);
-            XSSFCellStyle dataRedStyle = styleManager.getGenericStyle(ExcelStyleManager.LIGHT_GREY_RGB,
-                    ExcelStyleManager.RED_RGB, 9, true, HorizontalAlignment.CENTER);
+            int contRegistroSi = 0;
+            int contRegistroNo = 0;
+            int contRegistroNa = 0;
+            int contRevisionSunatSi = 0;
+            int contRevisionSunatNo = 0;
+            int contRevisionSunatNa = 0;
+            int contValidacionVal = 0;
+            int contValidacionSi = 0;
+            int contValidacionNo = 0;
+            int contValidacionNa = 0;
+            int contConfirmacionSi = 0;
+            int contConfirmacionNo = 0;
 
-            String sheetName = "Ventas_" + anio + mes;
-            XSSFSheet sheet = wb.createSheet(sheetName);
+            // <editor-fold defaultstate="collapsed" desc=" COLORES Y FUENTES ">
+            XSSFColor ROYAL_BLUE_MOD = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204});
+            XSSFColor DATA_BG_COLOR = new XSSFColor(new byte[]{(byte) 242, (byte) 242, (byte) 242});
+            XSSFColor CLIENTE_BG_COLOR = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228});
+            XSSFColor GRIS_CABECERA_COLOR = new XSSFColor(new byte[]{(byte) 128, (byte) 128, (byte) 128});
+            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[]{(byte) 138, (byte) 193, (byte) 255});
+            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[]{(byte) 81, (byte) 198, (byte) 218});
+            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[]{(byte) 254, (byte) 255, (byte) 155});
+            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[]{(byte) 252, (byte) 184, (byte) 72});
+            XSSFColor ROJO_COLOR = new XSSFColor(new byte[]{(byte) 169, (byte) 0, (byte) 54});
+            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255});
+            XSSFColor BLACK = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 0});
+            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 128, (byte) 0});
+            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0});
+            XSSFColor BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 255});
+            XSSFColor SKY_BLUE = new XSSFColor(new byte[]{(byte) 135, (byte) 206, (byte) 235});
+            XSSFColor ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 165, (byte) 0});
+
+            Boolean negrita = true;
+            XSSFFont cabeceraFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, WHITE, 18, negrita);
+            XSSFFont subHeaderFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, WHITE, 9, negrita);
+            XSSFFont dataFontRes = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, BLACK, 9, negrita);
+            XSSFFont dataFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, BLACK, 9, false);
+            XSSFFont dataFontNeg = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, BLACK, 9, negrita);
+            XSSFFont dataGreenFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, GREEN, 9, negrita);
+            XSSFFont dataRedFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, RED, 9, negrita);
+            XSSFFont dataOrangeFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, ORANGE, 9, negrita);
+            XSSFFont dataBlueFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, BLUE, 9, negrita);
+            XSSFFont dataSkyBlueFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, SKY_BLUE, 9, negrita);
+            XSSFFont resStyleFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, ROYAL_BLUE_MOD, 10, negrita);
+            // </editor-fold>
+
+            // <editor-fold defaultstate="collapsed" desc=" ESTILOS ">
+            CellStyle cabeceraStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, cabeceraFont);
+            CellStyle cabeceraStyleRes = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, subHeaderFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(cabeceraStyleRes, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+            CellStyle subHeaderStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, GRIS_CABECERA_COLOR, subHeaderFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, CLIENTE_BG_COLOR, dataFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, CLIENTE_BG_COLOR, dataFontNeg);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataLeftStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, CLIENTE_BG_COLOR, dataFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyle2Neg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataFontNeg);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle2Neg, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyleLeft2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, DATA_BG_COLOR, dataFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleLeft2, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataGreenStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataGreenFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataRedFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataOrangeStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataOrangeFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataOrangeStyle, BorderStyle.THIN, IndexedColors.WHITE);
+            CellStyle dataStyleCellNegro = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, BLACK, subHeaderFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleCellNegro, BorderStyle.THIN, IndexedColors.WHITE);
+            
+            CellStyle dataRightStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, DATA_BG_COLOR, dataFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRightStyle2, BorderStyle.THIN, IndexedColors.WHITE);
+            // </editor-fold>
 
             int rowNum = 0;
-
-            // CABECERA
-            Row cabecera = sheet.createRow(rowNum);
-            cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
-            Cell cellCabecera = cabecera.createCell(0);
-            cellCabecera.setCellStyle(cabeceraStyle);
-            cellCabecera.setCellValue("REPORTE MENSUAL - LOGIN VENTAS");
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A1:K1"));
-            rowNum++;
-
-            // Titulos
-            Row title = sheet.createRow(rowNum);
-            Cell cellTitle1 = title.createCell(0);
-            cellTitle1.setCellStyle(subHeaderStyle);
-            cellTitle1.setCellValue("CONTRIBUYENTE");
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A2:F2"));
-
-            Cell cellTitle2 = title.createCell(6);
-            cellTitle2.setCellStyle(subHeaderStyle);
-            cellTitle2.setCellValue("DATOS");
-            sheet.addMergedRegion(CellRangeAddress.valueOf("G2:K2"));
-            rowNum++;
-
-            // Sub Titulos
-            Row subheader2 = sheet.createRow(rowNum);
             int colNum = 0;
-            String[] headers = { "N°", "ESTADO", "Y", "RUC", "RAZÓN SOCIAL", "RESPONSABLE", "REG", "REV S", "VAL",
-                    "CON", "OBSERVACION" };
-            for (String h : headers) {
+
+            // <editor-fold defaultstate="collapsed" desc="CABECERA RESUMEN">
+            Row cabeceraResumen = sheet.createRow(rowNum);
+            colNum = 16;
+
+            Cell cellHeadResumen = cabeceraResumen.createCell(colNum);
+            cellHeadResumen.setCellStyle(cabeceraStyleRes);
+            cellHeadResumen.setCellValue("RESUMEN");
+            colNum++;
+            Cell cellHeadResumenRegistro = cabeceraResumen.createCell(colNum);
+            cellHeadResumenRegistro.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenRegistro.setCellValue("REG");
+            colNum++;
+            Cell cellHeadResumenRevisionSunat = cabeceraResumen.createCell(colNum);
+            cellHeadResumenRevisionSunat.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenRevisionSunat.setCellValue("REV S");
+            colNum++;
+            Cell cellHeadResumenValidacion = cabeceraResumen.createCell(colNum);
+            cellHeadResumenValidacion.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenValidacion.setCellValue("VAL");
+            colNum++;
+            Cell cellHeadResumenConfirmacion = cabeceraResumen.createCell(colNum);
+            cellHeadResumenConfirmacion.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenConfirmacion.setCellValue("CON");
+            colNum++;
+            rowNum++;
+
+            Row rowOtr = sheet.createRow(rowNum);
+            colNum = 16;
+            Cell cellOtr = rowOtr.createCell(colNum++);
+            cellOtr.setCellStyle(cabeceraStyleRes);
+            cellOtr.setCellValue("OTR");
+            Cell cellOtrRegistro = rowOtr.createCell(colNum++);
+            cellOtrRegistro.setCellStyle(dataOrangeStyle);
+            cellOtrRegistro.setCellValue("-");
+            Cell cellOtrRevisionSunat = rowOtr.createCell(colNum++);
+            cellOtrRevisionSunat.setCellStyle(dataOrangeStyle);
+            cellOtrRevisionSunat.setCellValue("-");
+            Cell cellOtrValidacion = rowOtr.createCell(colNum++);
+            cellOtrValidacion.setCellStyle(dataOrangeStyle);
+            Cell cellOtrConfirmacion = rowOtr.createCell(colNum++);
+            cellOtrConfirmacion.setCellStyle(dataOrangeStyle);
+            cellOtrConfirmacion.setCellValue("-");
+            rowNum++;
+
+            Row rowTerminado = sheet.createRow(rowNum);
+            colNum = 16;
+            Cell cellTerminado = rowTerminado.createCell(colNum++);
+            cellTerminado.setCellStyle(cabeceraStyleRes);
+            cellTerminado.setCellValue("TERMINADO");
+            Cell cellTerminadoRegistro = rowTerminado.createCell(colNum++);
+            cellTerminadoRegistro.setCellStyle(dataGreenStyle);
+            Cell cellTerminadoRevisionSunat = rowTerminado.createCell(colNum++);
+            cellTerminadoRevisionSunat.setCellStyle(dataGreenStyle);
+            Cell cellTerminadoValidacion = rowTerminado.createCell(colNum++);
+            cellTerminadoValidacion.setCellStyle(dataGreenStyle);
+            Cell cellTerminadoConfirmacion = rowTerminado.createCell(colNum++);
+            cellTerminadoConfirmacion.setCellStyle(dataGreenStyle);
+            rowNum++;
+
+            Row rowPendiente = sheet.createRow(rowNum);
+            colNum = 16;
+            Cell cellPendiente = rowPendiente.createCell(colNum++);
+            cellPendiente.setCellStyle(cabeceraStyleRes);
+            cellPendiente.setCellValue("PENDIENTE");
+            Cell cellPendienteRegistro = rowPendiente.createCell(colNum++);
+            cellPendienteRegistro.setCellStyle(dataRedStyle);
+            Cell cellPendienteRevisionSunat = rowPendiente.createCell(colNum++);
+            cellPendienteRevisionSunat.setCellStyle(dataRedStyle);
+            Cell cellPendienteValidacion = rowPendiente.createCell(colNum++);
+            cellPendienteValidacion.setCellStyle(dataRedStyle);
+            Cell cellPendienteConfirmacion = rowPendiente.createCell(colNum++);
+            cellPendienteConfirmacion.setCellStyle(dataRedStyle);
+            rowNum++;
+
+            Row rowNoAplica = sheet.createRow(rowNum);
+            colNum = 16;
+            Cell cellNoAplica = rowNoAplica.createCell(colNum++);
+            cellNoAplica.setCellStyle(cabeceraStyleRes);
+            cellNoAplica.setCellValue("NO APLICA");
+            Cell cellNoAplicaRegistro = rowNoAplica.createCell(colNum++);
+            cellNoAplicaRegistro.setCellStyle(dataStyle2Neg);
+            Cell cellNoAplicaRevisionSunat = rowNoAplica.createCell(colNum++);
+            cellNoAplicaRevisionSunat.setCellStyle(dataStyle2Neg);
+            Cell cellNoAplicaValidacion = rowNoAplica.createCell(colNum++);
+            cellNoAplicaValidacion.setCellStyle(dataStyle2Neg);
+            Cell cellNoAplicaConfirmacion = rowNoAplica.createCell(colNum++);
+            cellNoAplicaConfirmacion.setCellStyle(dataStyle2Neg);
+            cellNoAplicaConfirmacion.setCellValue("-");
+            rowNum++;
+
+            Row rowTotal = sheet.createRow(rowNum);
+            colNum = 16;
+            Cell cellTotal = rowTotal.createCell(colNum++);
+            cellTotal.setCellStyle(cabeceraStyleRes);
+            cellTotal.setCellValue("TOTAL");
+            Cell cellTotalRegistro = rowTotal.createCell(colNum++);
+            cellTotalRegistro.setCellStyle(dataStyleNeg);
+            Cell cellTotalRevisionSunat = rowTotal.createCell(colNum++);
+            cellTotalRevisionSunat.setCellStyle(dataStyleNeg);
+            Cell cellTotalValidacion = rowTotal.createCell(colNum++);
+            cellTotalValidacion.setCellStyle(dataStyleNeg);
+            Cell cellTotalConfirmacion = rowTotal.createCell(colNum++);
+            cellTotalConfirmacion.setCellStyle(dataStyleNeg);
+            rowNum++;
+            rowNum++;
+            // </editor-fold>
+
+            colNum = 0;
+
+            // <editor-fold defaultstate="collapsed" desc="CABECERA TABLA">
+            Row header = sheet.createRow(rowNum);
+            header.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
+            Cell header0 = header.createCell(colNum);
+            header0.setCellStyle(cabeceraStyle);
+            header0.setCellValue("L O G I N   V E N T A S :   " + anio + "-" + mes);
+            CellRangeAddress region = CellRangeAddress.valueOf("A8:V8");
+            sheet.addMergedRegion(region);
+            rowNum++;
+            
+            Row subheader1 = sheet.createRow(rowNum);
+            colNum = 0;
+            Cell sub1Contribuyente = subheader1.createCell(colNum);
+            sub1Contribuyente.setCellStyle(subHeaderStyle);
+            sub1Contribuyente.setCellValue("CONTRIBUYENTE");
+            region = CellRangeAddress.valueOf("A9:M9");
+            sheet.addMergedRegion(region);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            
+            colNum = 13;
+            Cell sub1ProcesoRegistro = subheader1.createCell(colNum);
+            sub1ProcesoRegistro.setCellStyle(subHeaderStyle);
+            sub1ProcesoRegistro.setCellValue("PROCESO REGISTRO");
+            region = CellRangeAddress.valueOf("N9:S9");
+            sheet.addMergedRegion(region);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            
+            colNum = 19;
+            Cell sub1ProcesoValidacion = subheader1.createCell(colNum);
+            sub1ProcesoValidacion.setCellStyle(subHeaderStyle);
+            sub1ProcesoValidacion.setCellValue("PROCESO VALIDACIÓN");
+            region = CellRangeAddress.valueOf("T9:U9");
+            sheet.addMergedRegion(region);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            
+            colNum = 21;
+            Cell sub1Observacion = subheader1.createCell(colNum);
+            sub1Observacion.setCellStyle(subHeaderStyle);
+            sub1Observacion.setCellValue("OBSERVACION");
+            region = CellRangeAddress.valueOf("V9:V10");
+            sheet.addMergedRegion(region);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            rowNum++;
+
+            Row subheader2 = sheet.createRow(rowNum);
+            colNum = 0;
+            String[] hdrs = {"N°", "ESTADO", "STO", "GE", "Y", "SIGNER", "RT", "PERIODO", "V DJ", "MOV", "S", "E", "G", "RESPONSABLE", "C-FIL", "REG", "REV S", "SEE V", "EXT V", "VAL", "CON", "OBSERVACION"};
+            for(String h : hdrs) {
                 Cell c = subheader2.createCell(colNum++);
                 c.setCellStyle(subHeaderStyle);
-                c.setCellValue(h);
+                if (!h.equals("OBSERVACION")) {
+                    c.setCellValue(h);
+                }
             }
             rowNum++;
+            int inicioFilt = rowNum;
+            // </editor-fold>
 
             int i = 1;
             for (Cliente clie : list) {
                 Row data = sheet.createRow(rowNum);
                 colNum = 0;
-                LoginVenta lv = clie.getLoginVenta();
 
                 Cell dataN = data.createCell(colNum++);
-                dataN.setCellStyle(dataStyle);
-                dataN.setCellValue(i++);
+                dataN.setCellStyle(dataStyleCellNegro);
+                dataN.setCellValue(i);
 
                 Cell dataEstado = data.createCell(colNum++);
                 dataEstado.setCellStyle(dataStyle2);
                 dataEstado.setCellValue(clie.getEstado() != null ? clie.getEstado().getDescripcion() : "");
 
+                Cell dataCategoriaStore = data.createCell(colNum++);
+                dataCategoriaStore.setCellStyle(dataStyle2);
+                if (clie.getSignerNivel() != null) {
+                    if (clie.getSignerNivel().getCategoriaStore() == 1) {
+                        dataCategoriaStore.setCellStyle(dataRedStyle);
+                        dataCategoriaStore.setCellValue("SI");
+                    }
+                }
+
+                Cell dataGrupoEconomico = data.createCell(colNum++);
+                dataGrupoEconomico.setCellStyle(dataStyle2);
+                dataGrupoEconomico.setCellValue(clie.getGrupoEconomico() != null ? clie.getGrupoEconomico().getDescripcion() : "");
+
                 Cell dataY = data.createCell(colNum++);
-                dataY.setCellStyle(dataStyle2);
+                dataY.setCellStyle(dataStyle);
                 dataY.setCellValue(clie.getY());
 
-                Cell dataRuc = data.createCell(colNum++);
-                dataRuc.setCellStyle(dataStyle2);
-                dataRuc.setCellValue(clie.getRuc());
+                Cell dataSigner = data.createCell(colNum++);
+                dataSigner.setCellStyle(dataLeftStyle);
+                dataSigner.setCellValue(clie.getNombreCorto());
 
-                Cell dataRs = data.createCell(colNum++);
-                dataRs.setCellStyle(dataStyle2);
-                dataRs.setCellValue(clie.getRazonSocial());
+                Cell dataRegimenTributario = data.createCell(colNum++);
+                dataRegimenTributario.setCellStyle(dataStyle2);
+                dataRegimenTributario.setCellValue(clie.getRegimenTributario());
 
-                Cell dataResp = data.createCell(colNum++);
-                dataResp.setCellStyle(dataStyle2);
-                dataResp.setCellValue(lv != null ? lv.getDescResponsable() : "");
+                Cell dataPeriodo = data.createCell(colNum++);
+                dataPeriodo.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null) {
+                    dataPeriodo.setCellValue(clie.getLoginVenta().getAnio() + "-" + clie.getLoginVenta().getMes());
+                }
 
-                Cell dataReg = data.createCell(colNum++);
-                setIndicatorCell(dataReg, lv != null ? lv.getRegistro() : 0, dataGreenStyle, dataRedStyle, dataStyle2);
+                Cell dataVencimientoDJ = data.createCell(colNum++);
+                dataVencimientoDJ.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getfVencimiento() != null) {
+                    dataVencimientoDJ.setCellValue(clie.getLoginVenta().getfVencimiento());
+                }
 
-                Cell dataRev = data.createCell(colNum++);
-                setIndicatorCell(dataRev, lv != null ? lv.getRevisionSunat() : 0, dataGreenStyle, dataRedStyle,
-                        dataStyle2);
+                Cell dataMovimiento = data.createCell(colNum++);
+                dataMovimiento.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getMovimiento() != null) {
+                    dataMovimiento.setCellValue(clie.getLoginVenta().getMovimiento());
+                }
 
-                Cell dataVal = data.createCell(colNum++);
-                setIndicatorCell(dataVal, lv != null ? lv.getValidacion() : 0, dataGreenStyle, dataRedStyle,
-                        dataStyle2);
+                Cell dataSee = data.createCell(colNum++);
+                dataSee.setCellStyle(dataStyle2);
+                if (clie.getSunatSire() != null) {
+                    if (clie.getSunatSire() == 0) {
+                        dataSee.setCellStyle(dataRedStyle);
+                        dataSee.setCellValue("-");
+                    } else if (clie.getSunatSire() == 1) {
+                        dataSee.setCellStyle(dataGreenStyle);
+                        dataSee.setCellValue("SI");
+                    }
+                }
 
-                Cell dataCon = data.createCell(colNum++);
-                setIndicatorCell(dataCon, lv != null ? lv.getConfirmacion() : 0, dataGreenStyle, dataRedStyle,
-                        dataStyle2);
+                Cell dataExt = data.createCell(colNum++);
+                dataExt.setCellStyle(dataStyle2);
+                if (clie.getExternoSire() != null) {
+                    if (clie.getExternoSire() == 0) {
+                        dataExt.setCellStyle(dataRedStyle);
+                        dataExt.setCellValue("-");
+                    } else if (clie.getExternoSire() == 1) {
+                        dataExt.setCellStyle(dataGreenStyle);
+                        dataExt.setCellValue("SI");
+                    }
+                }
 
-                Cell dataObs = data.createCell(colNum++);
-                dataObs.setCellStyle(dataStyle2);
-                dataObs.setCellValue(lv != null ? lv.getObservacion() : "");
+                Cell dataGcom = data.createCell(colNum++);
+                dataGcom.setCellStyle(dataStyle2);
+                if (clie.getGerenciaSire() != null) {
+                    if (clie.getGerenciaSire() == 0) {
+                        dataGcom.setCellStyle(dataRedStyle);
+                        dataGcom.setCellValue("-");
+                    } else if (clie.getGerenciaSire() == 1) {
+                        dataGcom.setCellStyle(dataGreenStyle);
+                        dataGcom.setCellValue("SI");
+                    }
+                }
 
+                Cell dataResponsable = data.createCell(colNum++);
+                dataResponsable.setCellStyle(dataStyleLeft2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getDescResponsable() != null) {
+                    dataResponsable.setCellValue(clie.getLoginVenta().getDescResponsable());
+                }
+
+                Cell dataComprasFilas = data.createCell(colNum++);
+                dataComprasFilas.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getComprasFilas() != null) {
+                    dataComprasFilas.setCellValue(clie.getLoginVenta().getComprasFilas());
+                }
+
+                Cell dataRegistro = data.createCell(colNum++);
+                dataRegistro.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getRegistro() != null) {
+                    switch (clie.getLoginVenta().getRegistro()) {
+                        case 0: dataRegistro.setCellStyle(dataRedStyle); dataRegistro.setCellValue("X"); contRegistroNo++; break;
+                        case 1: dataRegistro.setCellStyle(dataGreenStyle); dataRegistro.setCellValue("✓"); contRegistroSi++; break;
+                        case 2: dataRegistro.setCellStyle(dataStyle2Neg); dataRegistro.setCellValue("N/A"); contRegistroNa++; break;
+                    }
+                }
+
+                Cell dataRevisionSunat = data.createCell(colNum++);
+                dataRevisionSunat.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getRevisionSunat() != null) {
+                    switch (clie.getLoginVenta().getRevisionSunat()) {
+                        case 0: dataRevisionSunat.setCellStyle(dataRedStyle); dataRevisionSunat.setCellValue("X"); contRevisionSunatNo++; break;
+                        case 1: dataRevisionSunat.setCellStyle(dataGreenStyle); dataRevisionSunat.setCellValue("✓"); contRevisionSunatSi++; break;
+                        case 2: dataRevisionSunat.setCellStyle(dataStyle2Neg); dataRevisionSunat.setCellValue("N/A"); contRevisionSunatNa++; break;
+                    }
+                }
+                
+                Cell dataSeeVentas = data.createCell(colNum++);
+                dataSeeVentas.setCellStyle(dataRightStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getSeeVentas() != null) {
+                    dataSeeVentas.setCellValue(clie.getLoginVenta().getSeeVentas());
+                }
+
+                Cell dataExtVentas = data.createCell(colNum++);
+                dataExtVentas.setCellStyle(dataRightStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getExtVentas() != null) {
+                    dataExtVentas.setCellValue(clie.getLoginVenta().getExtVentas());
+                }
+
+                Cell dataValidacion = data.createCell(colNum++);
+                dataValidacion.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getValidacion() != null) {
+                    switch (clie.getLoginVenta().getValidacion()) {
+                        case 0: dataValidacion.setCellStyle(dataRedStyle); dataValidacion.setCellValue("X"); contValidacionNo++; break;
+                        case 1: dataValidacion.setCellStyle(dataGreenStyle); dataValidacion.setCellValue("✓"); contValidacionSi++; break;
+                        case 2: dataValidacion.setCellStyle(dataStyle2Neg); dataValidacion.setCellValue("N/A"); contValidacionNa++; break;
+                        case 3: dataValidacion.setCellStyle(dataOrangeStyle); dataValidacion.setCellValue("VAL"); contValidacionVal++; break;
+                    }
+                }
+
+                Cell dataConfirmacion = data.createCell(colNum++);
+                dataConfirmacion.setCellStyle(dataStyle2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getConfirmacion() != null) {
+                    switch (clie.getLoginVenta().getConfirmacion()) {
+                        case 0: dataConfirmacion.setCellStyle(dataRedStyle); dataConfirmacion.setCellValue("X"); contConfirmacionNo++; break;
+                        case 1: dataConfirmacion.setCellStyle(dataGreenStyle); dataConfirmacion.setCellValue("✓"); contConfirmacionSi++; break;
+                    }
+                }
+
+                Cell dataObservacion = data.createCell(colNum++);
+                dataObservacion.setCellStyle(dataStyleLeft2);
+                if (clie.getLoginVenta() != null && clie.getLoginVenta().getObservacion() != null) {
+                    dataObservacion.setCellValue(clie.getLoginVenta().getObservacion());
+                }
+
+                i++;
                 rowNum++;
             }
 
-            for (int contCol = 0; contCol < headers.length; contCol++) {
+            // <editor-fold defaultstate="collapsed" desc="DATA RESUMEN">
+            Row rowOtrValue = sheet.getRow(1);
+            if (rowOtrValue != null) {
+                Cell cellVal = rowOtrValue.getCell(19);
+                if (cellVal != null) cellVal.setCellValue(contValidacionVal);
+            }
+
+            Row rowTerminadoValue = sheet.getRow(2);
+            if (rowTerminadoValue != null) {
+                if (rowTerminadoValue.getCell(17) != null) rowTerminadoValue.getCell(17).setCellValue(contRegistroSi);
+                if (rowTerminadoValue.getCell(18) != null) rowTerminadoValue.getCell(18).setCellValue(contRevisionSunatSi);
+                if (rowTerminadoValue.getCell(19) != null) rowTerminadoValue.getCell(19).setCellValue(contValidacionSi);
+                if (rowTerminadoValue.getCell(20) != null) rowTerminadoValue.getCell(20).setCellValue(contConfirmacionSi);
+            }
+
+            Row rowPendienteValue = sheet.getRow(3);
+            if (rowPendienteValue != null) {
+                if (rowPendienteValue.getCell(17) != null) rowPendienteValue.getCell(17).setCellValue(contRegistroNo);
+                if (rowPendienteValue.getCell(18) != null) rowPendienteValue.getCell(18).setCellValue(contRevisionSunatNo);
+                if (rowPendienteValue.getCell(19) != null) rowPendienteValue.getCell(19).setCellValue(contValidacionNo);
+                if (rowPendienteValue.getCell(20) != null) rowPendienteValue.getCell(20).setCellValue(contConfirmacionNo);
+            }
+
+            Row rowNoAplicaValue = sheet.getRow(4);
+            if (rowNoAplicaValue != null) {
+                if (rowNoAplicaValue.getCell(17) != null) rowNoAplicaValue.getCell(17).setCellValue(contRegistroNa);
+                if (rowNoAplicaValue.getCell(18) != null) rowNoAplicaValue.getCell(18).setCellValue(contRevisionSunatNa);
+                if (rowNoAplicaValue.getCell(19) != null) rowNoAplicaValue.getCell(19).setCellValue(contValidacionNa);
+            }
+
+            Row rowTotalValue = sheet.getRow(5);
+            if (rowTotalValue != null) {
+                if (rowTotalValue.getCell(17) != null) rowTotalValue.getCell(17).setCellValue(contRegistroSi + contRegistroNo + contRegistroNa);
+                if (rowTotalValue.getCell(18) != null) rowTotalValue.getCell(18).setCellValue(contRevisionSunatSi + contRevisionSunatNo + contRevisionSunatNa);
+                if (rowTotalValue.getCell(19) != null) rowTotalValue.getCell(19).setCellValue(contValidacionVal + contValidacionSi + contValidacionNo + contValidacionNa);
+                if (rowTotalValue.getCell(20) != null) rowTotalValue.getCell(20).setCellValue(contConfirmacionSi + contConfirmacionNo);
+            }
+            // </editor-fold>
+
+            int finFilt = rowNum - 1;
+            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 21));
+            sheet.createFreezePane(0, 11);
+
+            for (int contCol = 0; contCol < 22; contCol++) {
                 sheet.autoSizeColumn(contCol);
             }
 
@@ -161,22 +515,6 @@ public class LoginVentaExcelService {
         } catch (Exception e) {
             log.error("Error generating excel", e);
             throw new RuntimeException("Error generating excel");
-        }
-    }
-
-    private void setIndicatorCell(Cell cell, Integer value, XSSFCellStyle green, XSSFCellStyle red,
-            XSSFCellStyle grey) {
-        if (value == null)
-            value = 0;
-        if (value == 1) {
-            cell.setCellStyle(green);
-            cell.setCellValue("✓");
-        } else if (value == 2) {
-            cell.setCellStyle(grey);
-            cell.setCellValue("N/A");
-        } else {
-            cell.setCellStyle(red);
-            cell.setCellValue("X");
         }
     }
 
