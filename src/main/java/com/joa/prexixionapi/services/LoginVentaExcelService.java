@@ -292,8 +292,8 @@ public class LoginVentaExcelService {
                     c.setCellValue(h);
                 }
             }
-            rowNum++;
             int inicioFilt = rowNum;
+            rowNum++;
             // </editor-fold>
 
             int i = 1;
@@ -503,7 +503,7 @@ public class LoginVentaExcelService {
 
             int finFilt = rowNum - 1;
             sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 21));
-            sheet.createFreezePane(0, 11);
+            sheet.createFreezePane(0, 10);
 
             for (int contCol = 0; contCol < 22; contCol++) {
                 sheet.autoSizeColumn(contCol);
