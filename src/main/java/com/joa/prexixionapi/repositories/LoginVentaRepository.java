@@ -378,7 +378,7 @@ public class LoginVentaRepository {
             } else if (getIntegerSafely(tuple, "rT5ta") != 0) {
                 rTs.add("5ta");
             }
-            clie.setRegimenTributario(String.join(", ", rTs));
+            clie.setRegimenTributario(rTs.isEmpty() ? "" : rTs.get(rTs.size() - 1));
 
             // Login Venta properties
             LoginVenta lv = new LoginVenta();
