@@ -35,15 +35,19 @@ public class LoginCompraExcelService {
             Workbook wb = new XSSFWorkbook();
             Sheet sheet = wb.createSheet("Compras");
 
-            int contMasivaSunatSi = 0;
-            int contMasivaSunatNo = 0;
-            int contMasivaSunatNa = 0;
-            
+            int contSireSi = 0;
+            int contSireNo = 0;
+            int contSireNa = 0;
+
+            int contValidacionSunatSi = 0;
+            int contValidacionSunatNo = 0;
+            int contValidacionSunatNa = 0;
+
             int contValidacionVal = 0;
             int contValidacionSi = 0;
             int contValidacionNo = 0;
             int contValidacionNa = 0;
-            
+
             int contConfirmacionSi = 0;
             int contConfirmacionNo = 0;
 
@@ -78,32 +82,44 @@ public class LoginCompraExcelService {
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" CELL STYLES ">
-            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
-            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, cabeceraFont);
+            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    MATTE_BLACK, subHeaderFont);
             PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle cabeceraStyleRes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
+            CellStyle cabeceraStyleRes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, subHeaderFont);
             PoiUtils.addBorders(cabeceraStyleRes, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyleCellNegro = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, BLACK, subHeaderFont);
+            CellStyle dataStyleCellNegro = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    BLACK, subHeaderFont);
             PoiUtils.addBorders(dataStyleCellNegro, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyle2Neg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2Neg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataStyle2Neg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyleLeft2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyleLeft2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyleLeft2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataRedFont);
             PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataOrangeStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataOrangeFont);
+            CellStyle dataOrangeStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataOrangeFont);
             PoiUtils.addBorders(dataOrangeStyle, BorderStyle.THIN, IndexedColors.WHITE);
             // </editor-fold>
 
@@ -118,9 +134,13 @@ public class LoginCompraExcelService {
             cellHeadResumen.setCellStyle(cabeceraStyleRes);
             cellHeadResumen.setCellValue("RESUMEN");
             colNum++;
-            Cell cellHeadResumenMasivaSunat = cabeceraResumen.createCell(colNum);
-            cellHeadResumenMasivaSunat.setCellStyle(cabeceraStyleRes);
-            cellHeadResumenMasivaSunat.setCellValue("M SUNAT");
+            Cell cellHeadResumenSire = cabeceraResumen.createCell(colNum);
+            cellHeadResumenSire.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenSire.setCellValue("SIRE");
+            colNum++;
+            Cell cellHeadResumenValidacionSunat = cabeceraResumen.createCell(colNum);
+            cellHeadResumenValidacionSunat.setCellStyle(cabeceraStyleRes);
+            cellHeadResumenValidacionSunat.setCellValue("VAL SUNAT");
             colNum++;
             Cell cellHeadResumenValidacion = cabeceraResumen.createCell(colNum);
             cellHeadResumenValidacion.setCellStyle(cabeceraStyleRes);
@@ -139,9 +159,13 @@ public class LoginCompraExcelService {
             cellOtr.setCellStyle(cabeceraStyleRes);
             cellOtr.setCellValue("OTR");
             colNum++;
-            Cell cellOtrMasivaSunat = rowOtr.createCell(colNum);
-            cellOtrMasivaSunat.setCellStyle(dataOrangeStyle);
-            cellOtrMasivaSunat.setCellValue("-");
+            Cell cellOtrSire = rowOtr.createCell(colNum);
+            cellOtrSire.setCellStyle(dataOrangeStyle);
+            cellOtrSire.setCellValue("-");
+            colNum++;
+            Cell cellOtrValidacionSunat = rowOtr.createCell(colNum);
+            cellOtrValidacionSunat.setCellStyle(dataOrangeStyle);
+            cellOtrValidacionSunat.setCellValue("-");
             colNum++;
             Cell cellOtrValidacion = rowOtr.createCell(colNum);
             cellOtrValidacion.setCellStyle(dataOrangeStyle);
@@ -159,8 +183,11 @@ public class LoginCompraExcelService {
             cellTerminado.setCellStyle(cabeceraStyleRes);
             cellTerminado.setCellValue("TERMINADO");
             colNum++;
-            Cell cellTerminadoMasivaSunat = rowTerminado.createCell(colNum);
-            cellTerminadoMasivaSunat.setCellStyle(dataGreenStyle);
+            Cell cellTerminadoSire = rowTerminado.createCell(colNum);
+            cellTerminadoSire.setCellStyle(dataGreenStyle);
+            colNum++;
+            Cell cellTerminadoValidacionSunat = rowTerminado.createCell(colNum);
+            cellTerminadoValidacionSunat.setCellStyle(dataGreenStyle);
             colNum++;
             Cell cellTerminadoValidacion = rowTerminado.createCell(colNum);
             cellTerminadoValidacion.setCellStyle(dataGreenStyle);
@@ -177,8 +204,11 @@ public class LoginCompraExcelService {
             cellPendiente.setCellStyle(cabeceraStyleRes);
             cellPendiente.setCellValue("PENDIENTE");
             colNum++;
-            Cell cellPendienteMasivaSunat = rowPendiente.createCell(colNum);
-            cellPendienteMasivaSunat.setCellStyle(dataRedStyle);
+            Cell cellPendienteSire = rowPendiente.createCell(colNum);
+            cellPendienteSire.setCellStyle(dataRedStyle);
+            colNum++;
+            Cell cellPendienteValidacionSunat = rowPendiente.createCell(colNum);
+            cellPendienteValidacionSunat.setCellStyle(dataRedStyle);
             colNum++;
             Cell cellPendienteValidacion = rowPendiente.createCell(colNum);
             cellPendienteValidacion.setCellStyle(dataRedStyle);
@@ -195,8 +225,11 @@ public class LoginCompraExcelService {
             cellNoAplica.setCellStyle(cabeceraStyleRes);
             cellNoAplica.setCellValue("NO APLICA");
             colNum++;
-            Cell cellNoAplicaMasivaSunat = rowNoAplica.createCell(colNum);
-            cellNoAplicaMasivaSunat.setCellStyle(dataStyle2Neg);
+            Cell cellNoAplicaSire = rowNoAplica.createCell(colNum);
+            cellNoAplicaSire.setCellStyle(dataStyle2Neg);
+            colNum++;
+            Cell cellNoAplicaValidacionSunat = rowNoAplica.createCell(colNum);
+            cellNoAplicaValidacionSunat.setCellStyle(dataStyle2Neg);
             colNum++;
             Cell cellNoAplicaValidacion = rowNoAplica.createCell(colNum);
             cellNoAplicaValidacion.setCellStyle(dataStyle2Neg);
@@ -214,8 +247,11 @@ public class LoginCompraExcelService {
             cellTotal.setCellStyle(cabeceraStyleRes);
             cellTotal.setCellValue("TOTAL");
             colNum++;
-            Cell cellTotalMasivaSunat = rowTotal.createCell(colNum);
-            cellTotalMasivaSunat.setCellStyle(dataStyle);
+            Cell cellTotalSire = rowTotal.createCell(colNum);
+            cellTotalSire.setCellStyle(dataStyle);
+            colNum++;
+            Cell cellTotalValidacionSunat = rowTotal.createCell(colNum);
+            cellTotalValidacionSunat.setCellStyle(dataStyle);
             colNum++;
             Cell cellTotalValidacion = rowTotal.createCell(colNum);
             cellTotalValidacion.setCellStyle(dataStyle);
@@ -236,7 +272,7 @@ public class LoginCompraExcelService {
             Cell header0 = header.createCell(colNum);
             header0.setCellStyle(cabeceraStyle);
             header0.setCellValue("L O G I N   C O M P R A S :   " + anio + "-" + mes);
-            CellRangeAddress region = CellRangeAddress.valueOf("A8:Q8");
+            CellRangeAddress region = CellRangeAddress.valueOf("A8:R8");
             sheet.addMergedRegion(region);
 
             rowNum++;
@@ -255,18 +291,18 @@ public class LoginCompraExcelService {
             Cell sub1ProcesoValidacion = subheader1.createCell(colNum);
             sub1ProcesoValidacion.setCellStyle(subHeaderStyle);
             sub1ProcesoValidacion.setCellValue("PROCESO VALIDACIÓN");
-            region = CellRangeAddress.valueOf("K9:P9");
+            region = CellRangeAddress.valueOf("K9:Q9");
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
-            colNum = 16;
+            colNum = 17;
 
             Cell sub1Observacion = subheader1.createCell(colNum);
             sub1Observacion.setCellStyle(subHeaderStyle);
             sub1Observacion.setCellValue("OBSERVACION");
-            region = CellRangeAddress.valueOf("Q9:Q10");
+            region = CellRangeAddress.valueOf("R9:R10");
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
-            
+
             rowNum++;
             colNum = 0;
 
@@ -276,32 +312,32 @@ public class LoginCompraExcelService {
             sub2N.setCellStyle(subHeaderStyle);
             sub2N.setCellValue("N°");
             colNum++;
-            
+
             Cell sub2Estado = subheader2.createCell(colNum);
             sub2Estado.setCellStyle(subHeaderStyle);
             sub2Estado.setCellValue("ESTADO");
             colNum++;
-            
+
             Cell sub2CategoriaStore = subheader2.createCell(colNum);
             sub2CategoriaStore.setCellStyle(subHeaderStyle);
             sub2CategoriaStore.setCellValue("STO");
             colNum++;
-            
+
             Cell sub2GrupoEconomico = subheader2.createCell(colNum);
             sub2GrupoEconomico.setCellStyle(subHeaderStyle);
             sub2GrupoEconomico.setCellValue("GE");
             colNum++;
-            
+
             Cell sub2Y = subheader2.createCell(colNum);
             sub2Y.setCellStyle(subHeaderStyle);
             sub2Y.setCellValue("Y");
             colNum++;
-            
+
             Cell sub2Signer = subheader2.createCell(colNum);
             sub2Signer.setCellStyle(subHeaderStyle);
             sub2Signer.setCellValue("SIGNER");
             colNum++;
-            
+
             Cell sub2RegimenTributario = subheader2.createCell(colNum);
             sub2RegimenTributario.setCellStyle(subHeaderStyle);
             sub2RegimenTributario.setCellValue("RT");
@@ -321,7 +357,7 @@ public class LoginCompraExcelService {
             sub2Movimiento.setCellStyle(subHeaderStyle);
             sub2Movimiento.setCellValue("MOV");
             colNum++;
-            
+
             Cell sub2ComprasFilas = subheader2.createCell(colNum);
             sub2ComprasFilas.setCellStyle(subHeaderStyle);
             sub2ComprasFilas.setCellValue("C-FIL");
@@ -332,9 +368,14 @@ public class LoginCompraExcelService {
             sub2VentasConfirmacion.setCellValue("V-CON");
             colNum++;
 
-            Cell sub2MasivaSunat = subheader2.createCell(colNum);
-            sub2MasivaSunat.setCellStyle(subHeaderStyle);
-            sub2MasivaSunat.setCellValue("M SUNAT");
+            Cell sub2Sire = subheader2.createCell(colNum);
+            sub2Sire.setCellStyle(subHeaderStyle);
+            sub2Sire.setCellValue("SIRE");
+            colNum++;
+
+            Cell sub2ValidacionSunat = subheader2.createCell(colNum);
+            sub2ValidacionSunat.setCellStyle(subHeaderStyle);
+            sub2ValidacionSunat.setCellValue("VAL SUNAT");
             colNum++;
 
             Cell sub2Validacion = subheader2.createCell(colNum);
@@ -367,20 +408,20 @@ public class LoginCompraExcelService {
             for (Cliente clie : list) {
                 LoginCompra lc = clie.getLoginCompra() != null ? clie.getLoginCompra() : new LoginCompra();
                 LoginVenta lv = clie.getLoginVenta() != null ? clie.getLoginVenta() : new LoginVenta();
-                
+
                 Row dataRow = sheet.createRow(rowNum);
                 colNum = 0;
 
                 Cell dataN = dataRow.createCell(colNum);
                 dataN.setCellStyle(dataStyleCellNegro);
                 dataN.setCellValue(i);
-                colNum++;                
+                colNum++;
 
                 Cell dataEstado = dataRow.createCell(colNum);
                 dataEstado.setCellStyle(dataStyle2);
                 dataEstado.setCellValue(clie.getEstado() != null ? clie.getEstado().getDescripcion() : "");
                 colNum++;
-                
+
                 Cell dataCategoriaStore = dataRow.createCell(colNum);
                 dataCategoriaStore.setCellStyle(dataStyle2);
                 int catStore = (clie.getSignerNivel() != null) ? clie.getSignerNivel().getCategoriaStore() : 0;
@@ -395,30 +436,33 @@ public class LoginCompraExcelService {
                         break;
                 }
                 colNum++;
-                
+
                 Cell dataGrupoEconomico = dataRow.createCell(colNum);
                 dataGrupoEconomico.setCellStyle(dataStyle2);
-                dataGrupoEconomico.setCellValue((clie.getGrupoEconomico() != null) ? clie.getGrupoEconomico().getDescripcion() : "");
+                dataGrupoEconomico.setCellValue(
+                        (clie.getGrupoEconomico() != null) ? clie.getGrupoEconomico().getDescripcion() : "");
                 colNum++;
-                
+
                 Cell dataY = dataRow.createCell(colNum);
                 dataY.setCellStyle(dataStyle);
                 dataY.setCellValue(clie.getY() != null ? clie.getY() : "");
                 colNum++;
-                
+
                 Cell dataSigner = dataRow.createCell(colNum);
                 dataSigner.setCellStyle(dataLeftStyle);
                 dataSigner.setCellValue(clie.getNombreCorto() != null ? clie.getNombreCorto() : "");
                 colNum++;
-                
+
                 Cell dataRegimenTributario = dataRow.createCell(colNum);
                 dataRegimenTributario.setCellStyle(dataStyle2);
-                dataRegimenTributario.setCellValue(clie.getRegimenTributario() != null ? clie.getRegimenTributario() : "");
+                dataRegimenTributario
+                        .setCellValue(clie.getRegimenTributario() != null ? clie.getRegimenTributario() : "");
                 colNum++;
-                
+
                 Cell dataPeriodo = dataRow.createCell(colNum);
                 dataPeriodo.setCellStyle(dataStyle2);
-                dataPeriodo.setCellValue((lc.getAnio() != null && lc.getMes() != null) ? lc.getAnio() + "-" + lc.getMes() : "");
+                dataPeriodo.setCellValue(
+                        (lc.getAnio() != null && lc.getMes() != null) ? lc.getAnio() + "-" + lc.getMes() : "");
                 colNum++;
 
                 Cell dataVencimientoDJ = dataRow.createCell(colNum);
@@ -430,12 +474,12 @@ public class LoginCompraExcelService {
                 dataMovimiento.setCellValue(lc.getMovimiento() != null ? lc.getMovimiento() : "");
                 dataMovimiento.setCellStyle(dataStyle2);
                 colNum++;
-                
+
                 Cell dataComprasFilas = dataRow.createCell(colNum);
                 dataComprasFilas.setCellValue(lc.getComprasFilas() != null ? lc.getComprasFilas() : 0);
                 dataComprasFilas.setCellStyle(dataStyle2);
                 colNum++;
-                
+
                 String valVentasConfirmacion = "";
                 Cell dataVentasConfirmacion = dataRow.createCell(colNum);
                 dataVentasConfirmacion.setCellStyle(dataStyle2);
@@ -451,7 +495,31 @@ public class LoginCompraExcelService {
                         break;
                 }
                 dataVentasConfirmacion.setCellValue(valVentasConfirmacion);
-                colNum++;               
+                colNum++;
+
+                String sire = "";
+                Cell dataSire = dataRow.createCell(colNum);
+                dataSire.setCellStyle(dataStyle2);
+                int valSire = lc.getSire() != null ? lc.getSire() : 0;
+                switch (valSire) {
+                    case 0:
+                        dataSire.setCellStyle(dataRedStyle);
+                        sire = "X";
+                        contSireNo++;
+                        break;
+                    case 1:
+                        dataSire.setCellStyle(dataGreenStyle);
+                        sire = "✓";
+                        contSireSi++;
+                        break;
+                    case 2:
+                        dataSire.setCellStyle(dataStyle2Neg);
+                        sire = "N/A";
+                        contSireNa++;
+                        break;
+                }
+                dataSire.setCellValue(sire);
+                colNum++;
 
                 String valValidacionSunat = "";
                 Cell dataValidacionSunat = dataRow.createCell(colNum);
@@ -461,22 +529,22 @@ public class LoginCompraExcelService {
                     case 0:
                         dataValidacionSunat.setCellStyle(dataRedStyle);
                         valValidacionSunat = "X";
-                        contMasivaSunatNo++;
+                        contValidacionSunatNo++;
                         break;
                     case 1:
                         dataValidacionSunat.setCellStyle(dataGreenStyle);
                         valValidacionSunat = "✓";
-                        contMasivaSunatSi++;
+                        contValidacionSunatSi++;
                         break;
                     case 2:
                         dataValidacionSunat.setCellStyle(dataStyle2Neg);
                         valValidacionSunat = "N/A";
-                        contMasivaSunatNa++;
+                        contValidacionSunatNa++;
                         break;
                 }
                 dataValidacionSunat.setCellValue(valValidacionSunat);
                 colNum++;
-                
+
                 String valValidacion = "";
                 Cell dataValidacion = dataRow.createCell(colNum);
                 dataValidacion.setCellStyle(dataStyle2);
@@ -558,25 +626,31 @@ public class LoginCompraExcelService {
             // <editor-fold defaultstate="collapsed" desc="DATA RESUMEN">
             cellOtrValidacion.setCellValue(contValidacionVal);
 
-            cellTerminadoMasivaSunat.setCellValue(contMasivaSunatSi);
+            cellTerminadoSire.setCellValue(contSireSi);
+            cellTerminadoValidacionSunat.setCellValue(contValidacionSunatSi);
             cellTerminadoValidacion.setCellValue(contValidacionSi);
             cellTerminadoConfirmacion.setCellValue(contConfirmacionSi);
-            
-            cellPendienteMasivaSunat.setCellValue(contMasivaSunatNo);
+
+            cellPendienteSire.setCellValue(contSireNo);
+            cellPendienteValidacionSunat.setCellValue(contValidacionSunatNo);
             cellPendienteValidacion.setCellValue(contValidacionNo);
             cellPendienteConfirmacion.setCellValue(contConfirmacionNo);
-            
-            cellNoAplicaMasivaSunat.setCellValue(contMasivaSunatNa);
+
+            cellNoAplicaSire.setCellValue(contSireNa);
+            cellNoAplicaValidacionSunat.setCellValue(contValidacionSunatNa);
             cellNoAplicaValidacion.setCellValue(contValidacionNa);
-            
-            cellTotalMasivaSunat.setCellValue(contMasivaSunatSi + contMasivaSunatNo + contMasivaSunatNa);
-            cellTotalValidacion.setCellValue(contValidacionVal + contValidacionSi + contValidacionNo + contValidacionNa);
+
+            cellTotalSire.setCellValue(contSireSi + contSireNo + contSireNa);
+            cellTotalValidacionSunat
+                    .setCellValue(contValidacionSunatSi + contValidacionSunatNo + contValidacionSunatNa);
+            cellTotalValidacion
+                    .setCellValue(contValidacionVal + contValidacionSi + contValidacionNo + contValidacionNa);
             cellTotalConfirmacion.setCellValue(contConfirmacionSi + contConfirmacionNo);
             // </editor-fold>
 
             int finFilt = rowNum - 1;
 
-            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 16));
+            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 17));
             sheet.createFreezePane(0, 11);
 
             for (int contCol = 0; contCol < colNum; contCol++) {
@@ -598,10 +672,16 @@ public class LoginCompraExcelService {
         int realizado = 0;
         switch (proceso) {
             case "validacion":
-                realizado = (int) (list.isEmpty() ? 0 : list.stream().filter(e -> e.getLoginCompra() != null && (e.getLoginCompra().getValidacion() == 1 || e.getLoginCompra().getValidacion() == 2)).count());
+                realizado = (int) (list.isEmpty() ? 0
+                        : list.stream().filter(e -> e.getLoginCompra() != null
+                                && (e.getLoginCompra().getValidacion() == 1 || e.getLoginCompra().getValidacion() == 2))
+                                .count());
                 break;
             case "confirmacion":
-                realizado = (int) (list.isEmpty() ? 0 : list.stream().filter(e -> e.getLoginCompra() != null && e.getLoginCompra().getConfirmacion() == 1).count());
+                realizado = (int) (list.isEmpty() ? 0
+                        : list.stream()
+                                .filter(e -> e.getLoginCompra() != null && e.getLoginCompra().getConfirmacion() == 1)
+                                .count());
                 break;
         }
         int total = loginCompraRepository.countTotal(anio, mes);
@@ -651,42 +731,58 @@ public class LoginCompraExcelService {
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc="CELL STYLES">
-            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
-            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, cabeceraFont);
+            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    MATTE_BLACK, subHeaderFont);
             PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataRedFont);
             PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
+            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreyFont);
             PoiUtils.addBorders(dataGreyStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
+            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataYellowFont);
             PoiUtils.addBorders(dataYellowStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
+            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataLightBlueFont);
             PoiUtils.addBorders(dataLightBlueStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    WHITE, dataRedFont);
             PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle subCabeceraStyleBlue = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
+            CellStyle subCabeceraStyleBlue = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, subHeaderFont);
             PoiUtils.addBorders(subCabeceraStyleBlue, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle subCabeceraStyleRed = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, RED, subHeaderFont);
+            CellStyle subCabeceraStyleRed = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, RED,
+                    subHeaderFont);
             PoiUtils.addBorders(subCabeceraStyleRed, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataAcumulado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataSimpleFont);
+            CellStyle dataAcumulado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataAcumulado, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRealizado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_SKYBLUE, dataSimpleFont);
+            CellStyle dataRealizado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_SKYBLUE, dataSimpleFont);
             PoiUtils.addBorders(dataRealizado, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataFaltantes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, SUPERLIGHT_RED, dataSimpleFont);
+            CellStyle dataFaltantes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    SUPERLIGHT_RED, dataSimpleFont);
             PoiUtils.addBorders(dataFaltantes, BorderStyle.THIN, IndexedColors.WHITE);
             // </editor-fold>
 
@@ -792,7 +888,7 @@ public class LoginCompraExcelService {
             resTotalPercent.setCellValue(Math.round(totalPercent) + " %");
             resTotalPercent.setCellStyle(dataStyle2);
             colNumRes++;
-            
+
             rowNum++;
             rowNum++;
             // </editor-fold>
@@ -898,10 +994,10 @@ public class LoginCompraExcelService {
             int inicioFilt = rowNum;
             int i = 1;
 
-            // <editor-fold defaultstate="collapsed" desc=" L L E N A D O   D E   L A   D A T A ">
+            // <editor-fold defaultstate="collapsed" desc=" L L E N A D O D E L A D A T A ">
             for (Cliente clie : list) {
                 LoginCompra lc = clie.getLoginCompra() != null ? clie.getLoginCompra() : new LoginCompra();
-                
+
                 colNum = 0;
 
                 Row dataRow = sheet.createRow(rowNum);
