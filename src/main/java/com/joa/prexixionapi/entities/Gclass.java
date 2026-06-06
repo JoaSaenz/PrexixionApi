@@ -15,6 +15,10 @@ public class Gclass {
     private String abreviatura;
     private int marcado;
     
+    public Gclass(int id) {
+        this.id = id;
+    }
+
     public Gclass(int id, String descripcion) {
         this.id = id;
         this.descripcion = descripcion;
@@ -25,6 +29,4 @@ public class Gclass {
         this.abreviatura = abreviatura;
         this.descripcion = descripcion;
     }
-
-    
 }
