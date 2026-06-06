@@ -15,11 +15,6 @@ public class SunatBuzonService {
 
     public SunatBuzonDataTablesResponse listServerSide(SunatBuzonDataTablesRequest req) {
         SunatBuzonDataTablesResponse response = new SunatBuzonDataTablesResponse();
-        response.setDraw(req.getDraw());
-        
-        int total = sunatBuzonRepository.countServerSide(req);
-        response.setRecordsTotal(total);
-        response.setRecordsFiltered(total);
         
         response.setData(sunatBuzonRepository.listServerSide(req));
         

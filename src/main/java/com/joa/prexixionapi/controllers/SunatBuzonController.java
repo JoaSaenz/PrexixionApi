@@ -54,12 +54,10 @@ public class SunatBuzonController {
 
     @GetMapping("/server-side-proxy")
     public ResponseEntity<SunatBuzonDataTablesResponse> listServerSideProxy(
-            @RequestParam int draw,
-            @RequestParam int start,
-            @RequestParam int length,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String fecha,
             @RequestParam(required = false) String tieneNotificacion,
+            @RequestParam(required = false) String tieneAdjunto,
             @RequestParam(required = false) String gruposEconomicos,
             @RequestParam(required = false) String estados,
             @RequestParam(required = false) String grupos,
@@ -67,12 +65,10 @@ public class SunatBuzonController {
             @RequestParam(required = false, defaultValue = "asc") String sortDir) {
 
         SunatBuzonDataTablesRequest req = new SunatBuzonDataTablesRequest();
-        req.setDraw(draw);
-        req.setStart(start);
-        req.setLength(length);
         req.setSearch(search);
         req.setFecha(fecha);
         req.setTieneNotificacionString(tieneNotificacion);
+        req.setTieneAdjuntoString(tieneAdjunto);
         req.setGrupoEconomicoString(gruposEconomicos);
         req.setEstadosString(estados);
         req.setGruposString(grupos);
@@ -87,8 +83,10 @@ public class SunatBuzonController {
         try {
             byte[] excel = sunatBuzonExcelService.exportarDetalleJobStatus(jobStatusId);
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=SUNAT_JobStatus_" + jobStatusId + ".xlsx")
-                    .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=SUNAT_JobStatus_" + jobStatusId + ".xlsx")
+                    .contentType(MediaType
+                            .parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(excel);
         } catch (Exception e) {
             log.error("Error describiendo reporte de ejecución para id: {}", jobStatusId, e);
@@ -228,9 +226,11 @@ public class SunatBuzonController {
     }
 
     @GetMapping("/notificaciones/{ruc}")
-    public ResponseEntity<List<com.joa.prexixionapi.dto.NotificacionResumenDTO>> getNotificacionesByRuc(@PathVariable String ruc) {
+    public ResponseEntity<List<com.joa.prexixionapi.dto.NotificacionResumenDTO>> getNotificacionesByRuc(
+            @PathVariable String ruc) {
         try {
-            List<com.joa.prexixionapi.dto.NotificacionProjection> notificaciones = notificacionRepository.findResumenByRuc(ruc);
+            List<com.joa.prexixionapi.dto.NotificacionProjection> notificaciones = notificacionRepository
+                    .findResumenByRuc(ruc);
             List<com.joa.prexixionapi.dto.NotificacionResumenDTO> resumen = new ArrayList<>();
 
             for (com.joa.prexixionapi.dto.NotificacionProjection n : notificaciones) {
