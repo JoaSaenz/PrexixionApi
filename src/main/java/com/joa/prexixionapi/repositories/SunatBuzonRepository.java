@@ -26,17 +26,18 @@ public class SunatBuzonRepository {
     private static final Map<String, String> IBOX_SERVER_SIDE_ORDER_BY = new HashMap<>();
 
     static {
-        IBOX_SERVER_SIDE_ORDER_BY.put("1", "ge.descripcion"); // Grupo Económico
-        IBOX_SERVER_SIDE_ORDER_BY.put("2", "cE.descripcion"); // Estado
-        IBOX_SERVER_SIDE_ORDER_BY.put("3", "c.ruc");           // RUC
-        IBOX_SERVER_SIDE_ORDER_BY.put("4", "c.y");             // Y
-        IBOX_SERVER_SIDE_ORDER_BY.put("5", "c.nombreCorto");   // Signer/Nombre Corto
+        IBOX_SERVER_SIDE_ORDER_BY.put("1", "cE.descripcion"); // Estado
+        IBOX_SERVER_SIDE_ORDER_BY.put("2", "ge.descripcion"); // Grupo Económico
+        IBOX_SERVER_SIDE_ORDER_BY.put("3", "c.y");             // Y
+        IBOX_SERVER_SIDE_ORDER_BY.put("4", "c.nombreCorto");   // Signer/Nombre Corto
+        IBOX_SERVER_SIDE_ORDER_BY.put("5", "c.ruc");           // RUC
     }
 
     private String getBaseSelect(String fecha) {
         return """
                 SELECT c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, c.idEstado, cE.descripcion AS estado, 
                 c.ruc, c.y, c.razonSocial, c.nombreCorto, sc.notificaciones, 
+                sc.tipos, sc.nombresCortos,
                 ISNULL(sc.adjuntosDiaCount, 0) as adjuntosDiaCount, 
                 ISNULL(sc.notifDiaCount, 0) as notifDiaCount, 
                 ISNULL(sc.notifPendientesCount, 0) as notifPendientesCount 
@@ -44,8 +45,11 @@ public class SunatBuzonRepository {
                 LEFT JOIN ( 
                   SELECT n.ruc, 
                          STRING_AGG(n.titulo , CHAR(13) + CHAR(10)) AS notificaciones, 
+                         STRING_AGG(n.tipo , CHAR(13) + CHAR(10)) AS tipos, 
+                         STRING_AGG(n.nombreCorto , CHAR(13) + CHAR(10)) AS nombresCortos, 
                          SUM(t.adjCount) as adjuntosDiaCount, 
                          COUNT(CASE WHEN t.adjCount > 0 THEN 1 END) as notifDiaCount, 
+                         COUNT(n.id) as notifTotalDiaCount,
                          COUNT(CASE WHEN t.adjCount > 0 AND (n.revisado = 0 OR n.revisado IS NULL) THEN 1 END) as notifPendientesCount 
                   FROM sunatBuzonNotificacion n 
                   OUTER APPLY ( 
@@ -67,12 +71,9 @@ public class SunatBuzonRepository {
         appendFilters(sql, req);
         
         sql.append(buildOrderClause(req.getSortKey(), req.getSortDir()));
-        sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
         setFilterParams(query, req);
-        query.setParameter("offset", req.getStart());
-        query.setParameter("limit", req.getLength());
 
         return mapTuples((List<Tuple>) query.getResultList());
     }
@@ -80,7 +81,7 @@ public class SunatBuzonRepository {
     public int countServerSide(SunatBuzonDataTablesRequest req) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cliente c ");
         sql.append("LEFT JOIN ( ");
-        sql.append("  SELECT n.ruc, COUNT(CASE WHEN t.adjCount > 0 THEN 1 END) as notifDiaCount ");
+        sql.append("  SELECT n.ruc, COUNT(CASE WHEN t.adjCount > 0 THEN 1 END) as notifDiaCount, COUNT(n.id) as notifTotalDiaCount ");
         sql.append("  FROM sunatBuzonNotificacion n ");
         sql.append("  OUTER APPLY ( SELECT COUNT(*) as adjCount FROM sunatBuzonAdjunto sba WHERE sba.notificacion_id = n.id ) t ");
         sql.append("  WHERE CONVERT(char(10), n.fecha, 120) = :fecha ");
@@ -117,6 +118,18 @@ public class SunatBuzonRepository {
         String tieneNotif = req.getTieneNotificacionString();
         if (tieneNotif != null && !tieneNotif.isEmpty()) {
             List<Integer> filters = Arrays.stream(tieneNotif.split(",")).map(Integer::parseInt).toList();
+            if (filters.size() == 1) {
+                if (filters.contains(1)) {
+                    query.append(" AND ISNULL(sc.notifTotalDiaCount, 0) > 0 ");
+                } else if (filters.contains(0)) {
+                    query.append(" AND ISNULL(sc.notifTotalDiaCount, 0) = 0 ");
+                }
+            }
+        }
+
+        String tieneAdjunto = req.getTieneAdjuntoString();
+        if (tieneAdjunto != null && !tieneAdjunto.isEmpty()) {
+            List<Integer> filters = Arrays.stream(tieneAdjunto.split(",")).map(Integer::parseInt).toList();
             if (filters.size() == 1) {
                 if (filters.contains(1)) {
                     query.append(" AND ISNULL(sc.notifDiaCount, 0) > 0 ");
@@ -173,6 +186,8 @@ public class SunatBuzonRepository {
             dto.setIdEstado(t.get("idEstado", Integer.class) != null ? t.get("idEstado", Integer.class) : 0);
             dto.setEstado(t.get("estado", String.class));
             dto.setNotificaciones(t.get("notificaciones", String.class));
+            dto.setTipos(t.get("tipos", String.class));
+            dto.setNombresCortos(t.get("nombresCortos", String.class));
             
             int totalDia = t.get("notifDiaCount", Number.class).intValue();
             int pendientesDia = t.get("notifPendientesCount", Number.class).intValue();

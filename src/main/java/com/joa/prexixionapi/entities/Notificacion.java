@@ -33,6 +33,8 @@ public class Notificacion {
     @Column(columnDefinition = "NVARCHAR(MAX)")
     private String titulo;
     private LocalDateTime fecha;
+    private String tipo;
+    private String nombreCorto;
 
     @jakarta.persistence.Transient
     private String estadoCliente;
@@ -119,6 +121,22 @@ public class Notificacion {
 
     public void setRevisado(boolean revisado) {
         this.revisado = revisado;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public String getNombreCorto() {
+        return nombreCorto;
+    }
+
+    public void setNombreCorto(String nombreCorto) {
+        this.nombreCorto = nombreCorto;
     }
 
 }

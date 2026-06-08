@@ -41,15 +41,7 @@ public class ClienteController {
     @Autowired
     ClienteCuentaBancariaExcelService clienteCuentaBancariaExcelService;
 
-    @GetMapping
-    public List<Cliente> list() {
-        try {
-            return clienteService.list();
-        } catch (Exception e) {
-            log.error("Error al listar clientes", e);
-            throw e;
-        }
-    }
+
 
     @GetMapping("/server-side")
     public ClienteDataTablesResponse listServerSide(ClienteDataTablesRequest req) {

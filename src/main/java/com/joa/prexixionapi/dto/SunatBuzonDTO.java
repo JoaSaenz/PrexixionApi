@@ -13,6 +13,8 @@ public class SunatBuzonDTO {
     private String razonSocial;
     private String nombreCorto;
     private String notificaciones;
+    private String tipos;
+    private String nombresCortos;
 
     private Long id;
     private String idSunat;

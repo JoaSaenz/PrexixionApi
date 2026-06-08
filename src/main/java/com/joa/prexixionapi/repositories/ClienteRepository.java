@@ -84,11 +84,7 @@ public class ClienteRepository {
                 """;
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Cliente> list() {
-        Query query = em.createNativeQuery(getBaseSelect(), Tuple.class);
-        return mapTuples((List<Tuple>) query.getResultList());
-    }
+
 
     @SuppressWarnings("unchecked")
     public List<Cliente> listServerSide(ClienteDataTablesRequest req) {

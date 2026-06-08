@@ -11,6 +11,7 @@ public class SunatBuzonDataTablesRequest {
     
     private String fecha;
     private String tieneNotificacionString;
+    private String tieneAdjuntoString;
     private String grupoEconomicoString;
     private String estadosString;
     private String gruposString;
