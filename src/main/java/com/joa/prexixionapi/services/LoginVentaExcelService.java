@@ -3,7 +3,6 @@ package com.joa.prexixionapi.services;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
-
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
@@ -64,22 +63,22 @@ public class LoginVentaExcelService {
             int contConfirmacionNo = 0;
 
             // <editor-fold defaultstate="collapsed" desc=" COLORES Y FUENTES ">
-            XSSFColor ROYAL_BLUE_MOD = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204});
-            XSSFColor DATA_BG_COLOR = new XSSFColor(new byte[]{(byte) 242, (byte) 242, (byte) 242});
-            XSSFColor CLIENTE_BG_COLOR = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228});
-            XSSFColor GRIS_CABECERA_COLOR = new XSSFColor(new byte[]{(byte) 128, (byte) 128, (byte) 128});
-            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[]{(byte) 138, (byte) 193, (byte) 255});
-            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[]{(byte) 81, (byte) 198, (byte) 218});
-            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[]{(byte) 254, (byte) 255, (byte) 155});
-            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[]{(byte) 252, (byte) 184, (byte) 72});
-            XSSFColor ROJO_COLOR = new XSSFColor(new byte[]{(byte) 169, (byte) 0, (byte) 54});
-            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255});
-            XSSFColor BLACK = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 0});
-            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 128, (byte) 0});
-            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0});
-            XSSFColor BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 255});
-            XSSFColor SKY_BLUE = new XSSFColor(new byte[]{(byte) 135, (byte) 206, (byte) 235});
-            XSSFColor ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 165, (byte) 0});
+            XSSFColor ROYAL_BLUE_MOD = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 });
+            XSSFColor DATA_BG_COLOR = new XSSFColor(new byte[] { (byte) 242, (byte) 242, (byte) 242 });
+            XSSFColor CLIENTE_BG_COLOR = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 });
+            XSSFColor GRIS_CABECERA_COLOR = new XSSFColor(new byte[] { (byte) 128, (byte) 128, (byte) 128 });
+            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[] { (byte) 138, (byte) 193, (byte) 255 });
+            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[] { (byte) 81, (byte) 198, (byte) 218 });
+            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[] { (byte) 254, (byte) 255, (byte) 155 });
+            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[] { (byte) 252, (byte) 184, (byte) 72 });
+            XSSFColor ROJO_COLOR = new XSSFColor(new byte[] { (byte) 169, (byte) 0, (byte) 54 });
+            XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 });
+            XSSFColor BLACK = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
+            XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 128, (byte) 0 });
+            XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 });
+            XSSFColor BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 255 });
+            XSSFColor SKY_BLUE = new XSSFColor(new byte[] { (byte) 135, (byte) 206, (byte) 235 });
+            XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 165, (byte) 0 });
 
             Boolean negrita = true;
             XSSFFont cabeceraFont = com.joa.prexixionapi.utils.PoiUtils.fuente(wb, WHITE, 18, negrita);
@@ -96,33 +95,48 @@ public class LoginVentaExcelService {
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" ESTILOS ">
-            CellStyle cabeceraStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, cabeceraFont);
-            CellStyle cabeceraStyleRes = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, subHeaderFont);
-            com.joa.prexixionapi.utils.PoiUtils.addBorders(cabeceraStyleRes, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
-            CellStyle subHeaderStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, GRIS_CABECERA_COLOR, subHeaderFont);
+            CellStyle cabeceraStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, cabeceraFont);
+            CellStyle cabeceraStyleRes = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, ROYAL_BLUE_MOD, subHeaderFont);
+            com.joa.prexixionapi.utils.PoiUtils.addBorders(cabeceraStyleRes, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+            CellStyle subHeaderStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, GRIS_CABECERA_COLOR, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, CLIENTE_BG_COLOR, dataFont);
+            CellStyle dataStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER,
+                    CLIENTE_BG_COLOR, dataFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, CLIENTE_BG_COLOR, dataFontNeg);
+            CellStyle dataStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER,
+                    CLIENTE_BG_COLOR, dataFontNeg);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLeftStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, CLIENTE_BG_COLOR, dataFont);
+            CellStyle dataLeftStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT,
+                    CLIENTE_BG_COLOR, dataFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataFont);
+            CellStyle dataStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER,
+                    DATA_BG_COLOR, dataFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyle2Neg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataFontNeg);
+            CellStyle dataStyle2Neg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, DATA_BG_COLOR, dataFontNeg);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle2Neg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyleLeft2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT, DATA_BG_COLOR, dataFont);
+            CellStyle dataStyleLeft2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.LEFT,
+                    DATA_BG_COLOR, dataFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleLeft2, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataGreenStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataGreenFont);
+            CellStyle dataGreenStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, DATA_BG_COLOR, dataGreenFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataRedFont);
+            CellStyle dataRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER,
+                    DATA_BG_COLOR, dataRedFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataOrangeStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, DATA_BG_COLOR, dataOrangeFont);
+            CellStyle dataOrangeStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, DATA_BG_COLOR, dataOrangeFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataOrangeStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyleCellNegro = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.CENTER, BLACK, subHeaderFont);
+            CellStyle dataStyleCellNegro = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.CENTER, BLACK, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleCellNegro, BorderStyle.THIN, IndexedColors.WHITE);
-            
-            CellStyle dataRightStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb, HorizontalAlignment.RIGHT, DATA_BG_COLOR, dataFont);
+
+            CellStyle dataRightStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle(wb,
+                    HorizontalAlignment.RIGHT, DATA_BG_COLOR, dataFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRightStyle2, BorderStyle.THIN, IndexedColors.WHITE);
             // </editor-fold>
 
@@ -247,7 +261,7 @@ public class LoginVentaExcelService {
             CellRangeAddress region = CellRangeAddress.valueOf("A8:V8");
             sheet.addMergedRegion(region);
             rowNum++;
-            
+
             Row subheader1 = sheet.createRow(rowNum);
             colNum = 0;
             Cell sub1Contribuyente = subheader1.createCell(colNum);
@@ -256,7 +270,7 @@ public class LoginVentaExcelService {
             region = CellRangeAddress.valueOf("A9:M9");
             sheet.addMergedRegion(region);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
-            
+
             colNum = 13;
             Cell sub1ProcesoRegistro = subheader1.createCell(colNum);
             sub1ProcesoRegistro.setCellStyle(subHeaderStyle);
@@ -264,7 +278,7 @@ public class LoginVentaExcelService {
             region = CellRangeAddress.valueOf("N9:S9");
             sheet.addMergedRegion(region);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
-            
+
             colNum = 19;
             Cell sub1ProcesoValidacion = subheader1.createCell(colNum);
             sub1ProcesoValidacion.setCellStyle(subHeaderStyle);
@@ -272,7 +286,7 @@ public class LoginVentaExcelService {
             region = CellRangeAddress.valueOf("T9:U9");
             sheet.addMergedRegion(region);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
-            
+
             colNum = 21;
             Cell sub1Observacion = subheader1.createCell(colNum);
             sub1Observacion.setCellStyle(subHeaderStyle);
@@ -284,14 +298,17 @@ public class LoginVentaExcelService {
 
             Row subheader2 = sheet.createRow(rowNum);
             colNum = 0;
-            String[] hdrs = {"N°", "ESTADO", "STO", "GE", "Y", "SIGNER", "RT", "PERIODO", "V DJ", "MOV", "S", "E", "G", "RESPONSABLE", "C-FIL", "REG", "REV S", "SEE V", "EXT V", "VAL", "CON", "OBSERVACION"};
-            for(String h : hdrs) {
+            String[] hdrs = { "N°", "ESTADO", "STO", "GE", "Y", "SIGNER", "RT", "PERIODO", "V DJ", "MOV", "S", "E", "G",
+                    "RESPONSABLE", "C-FIL", "REG", "REV S", "SEE V", "EXT V", "VAL", "CON", "OBSERVACION" };
+            for (String h : hdrs) {
                 Cell c = subheader2.createCell(colNum++);
                 c.setCellStyle(subHeaderStyle);
                 if (!h.equals("OBSERVACION")) {
                     c.setCellValue(h);
                 }
             }
+
+            rowNum++;
             int inicioFilt = rowNum;
             rowNum++;
             // </editor-fold>
@@ -320,7 +337,8 @@ public class LoginVentaExcelService {
 
                 Cell dataGrupoEconomico = data.createCell(colNum++);
                 dataGrupoEconomico.setCellStyle(dataStyle2);
-                dataGrupoEconomico.setCellValue(clie.getGrupoEconomico() != null ? clie.getGrupoEconomico().getDescripcion() : "");
+                dataGrupoEconomico.setCellValue(
+                        clie.getGrupoEconomico() != null ? clie.getGrupoEconomico().getDescripcion() : "");
 
                 Cell dataY = data.createCell(colNum++);
                 dataY.setCellStyle(dataStyle);
@@ -404,9 +422,21 @@ public class LoginVentaExcelService {
                 dataRegistro.setCellStyle(dataStyle2);
                 if (clie.getLoginVenta() != null && clie.getLoginVenta().getRegistro() != null) {
                     switch (clie.getLoginVenta().getRegistro()) {
-                        case 0: dataRegistro.setCellStyle(dataRedStyle); dataRegistro.setCellValue("X"); contRegistroNo++; break;
-                        case 1: dataRegistro.setCellStyle(dataGreenStyle); dataRegistro.setCellValue("✓"); contRegistroSi++; break;
-                        case 2: dataRegistro.setCellStyle(dataStyle2Neg); dataRegistro.setCellValue("N/A"); contRegistroNa++; break;
+                        case 0:
+                            dataRegistro.setCellStyle(dataRedStyle);
+                            dataRegistro.setCellValue("X");
+                            contRegistroNo++;
+                            break;
+                        case 1:
+                            dataRegistro.setCellStyle(dataGreenStyle);
+                            dataRegistro.setCellValue("✓");
+                            contRegistroSi++;
+                            break;
+                        case 2:
+                            dataRegistro.setCellStyle(dataStyle2Neg);
+                            dataRegistro.setCellValue("N/A");
+                            contRegistroNa++;
+                            break;
                     }
                 }
 
@@ -414,12 +444,24 @@ public class LoginVentaExcelService {
                 dataRevisionSunat.setCellStyle(dataStyle2);
                 if (clie.getLoginVenta() != null && clie.getLoginVenta().getRevisionSunat() != null) {
                     switch (clie.getLoginVenta().getRevisionSunat()) {
-                        case 0: dataRevisionSunat.setCellStyle(dataRedStyle); dataRevisionSunat.setCellValue("X"); contRevisionSunatNo++; break;
-                        case 1: dataRevisionSunat.setCellStyle(dataGreenStyle); dataRevisionSunat.setCellValue("✓"); contRevisionSunatSi++; break;
-                        case 2: dataRevisionSunat.setCellStyle(dataStyle2Neg); dataRevisionSunat.setCellValue("N/A"); contRevisionSunatNa++; break;
+                        case 0:
+                            dataRevisionSunat.setCellStyle(dataRedStyle);
+                            dataRevisionSunat.setCellValue("X");
+                            contRevisionSunatNo++;
+                            break;
+                        case 1:
+                            dataRevisionSunat.setCellStyle(dataGreenStyle);
+                            dataRevisionSunat.setCellValue("✓");
+                            contRevisionSunatSi++;
+                            break;
+                        case 2:
+                            dataRevisionSunat.setCellStyle(dataStyle2Neg);
+                            dataRevisionSunat.setCellValue("N/A");
+                            contRevisionSunatNa++;
+                            break;
                     }
                 }
-                
+
                 Cell dataSeeVentas = data.createCell(colNum++);
                 dataSeeVentas.setCellStyle(dataRightStyle2);
                 if (clie.getLoginVenta() != null && clie.getLoginVenta().getSeeVentas() != null) {
@@ -436,10 +478,26 @@ public class LoginVentaExcelService {
                 dataValidacion.setCellStyle(dataStyle2);
                 if (clie.getLoginVenta() != null && clie.getLoginVenta().getValidacion() != null) {
                     switch (clie.getLoginVenta().getValidacion()) {
-                        case 0: dataValidacion.setCellStyle(dataRedStyle); dataValidacion.setCellValue("X"); contValidacionNo++; break;
-                        case 1: dataValidacion.setCellStyle(dataGreenStyle); dataValidacion.setCellValue("✓"); contValidacionSi++; break;
-                        case 2: dataValidacion.setCellStyle(dataStyle2Neg); dataValidacion.setCellValue("N/A"); contValidacionNa++; break;
-                        case 3: dataValidacion.setCellStyle(dataOrangeStyle); dataValidacion.setCellValue("VAL"); contValidacionVal++; break;
+                        case 0:
+                            dataValidacion.setCellStyle(dataRedStyle);
+                            dataValidacion.setCellValue("X");
+                            contValidacionNo++;
+                            break;
+                        case 1:
+                            dataValidacion.setCellStyle(dataGreenStyle);
+                            dataValidacion.setCellValue("✓");
+                            contValidacionSi++;
+                            break;
+                        case 2:
+                            dataValidacion.setCellStyle(dataStyle2Neg);
+                            dataValidacion.setCellValue("N/A");
+                            contValidacionNa++;
+                            break;
+                        case 3:
+                            dataValidacion.setCellStyle(dataOrangeStyle);
+                            dataValidacion.setCellValue("VAL");
+                            contValidacionVal++;
+                            break;
                     }
                 }
 
@@ -447,8 +505,16 @@ public class LoginVentaExcelService {
                 dataConfirmacion.setCellStyle(dataStyle2);
                 if (clie.getLoginVenta() != null && clie.getLoginVenta().getConfirmacion() != null) {
                     switch (clie.getLoginVenta().getConfirmacion()) {
-                        case 0: dataConfirmacion.setCellStyle(dataRedStyle); dataConfirmacion.setCellValue("X"); contConfirmacionNo++; break;
-                        case 1: dataConfirmacion.setCellStyle(dataGreenStyle); dataConfirmacion.setCellValue("✓"); contConfirmacionSi++; break;
+                        case 0:
+                            dataConfirmacion.setCellStyle(dataRedStyle);
+                            dataConfirmacion.setCellValue("X");
+                            contConfirmacionNo++;
+                            break;
+                        case 1:
+                            dataConfirmacion.setCellStyle(dataGreenStyle);
+                            dataConfirmacion.setCellValue("✓");
+                            contConfirmacionSi++;
+                            break;
                     }
                 }
 
@@ -466,44 +532,62 @@ public class LoginVentaExcelService {
             Row rowOtrValue = sheet.getRow(1);
             if (rowOtrValue != null) {
                 Cell cellVal = rowOtrValue.getCell(19);
-                if (cellVal != null) cellVal.setCellValue(contValidacionVal);
+                if (cellVal != null)
+                    cellVal.setCellValue(contValidacionVal);
             }
 
             Row rowTerminadoValue = sheet.getRow(2);
             if (rowTerminadoValue != null) {
-                if (rowTerminadoValue.getCell(17) != null) rowTerminadoValue.getCell(17).setCellValue(contRegistroSi);
-                if (rowTerminadoValue.getCell(18) != null) rowTerminadoValue.getCell(18).setCellValue(contRevisionSunatSi);
-                if (rowTerminadoValue.getCell(19) != null) rowTerminadoValue.getCell(19).setCellValue(contValidacionSi);
-                if (rowTerminadoValue.getCell(20) != null) rowTerminadoValue.getCell(20).setCellValue(contConfirmacionSi);
+                if (rowTerminadoValue.getCell(17) != null)
+                    rowTerminadoValue.getCell(17).setCellValue(contRegistroSi);
+                if (rowTerminadoValue.getCell(18) != null)
+                    rowTerminadoValue.getCell(18).setCellValue(contRevisionSunatSi);
+                if (rowTerminadoValue.getCell(19) != null)
+                    rowTerminadoValue.getCell(19).setCellValue(contValidacionSi);
+                if (rowTerminadoValue.getCell(20) != null)
+                    rowTerminadoValue.getCell(20).setCellValue(contConfirmacionSi);
             }
 
             Row rowPendienteValue = sheet.getRow(3);
             if (rowPendienteValue != null) {
-                if (rowPendienteValue.getCell(17) != null) rowPendienteValue.getCell(17).setCellValue(contRegistroNo);
-                if (rowPendienteValue.getCell(18) != null) rowPendienteValue.getCell(18).setCellValue(contRevisionSunatNo);
-                if (rowPendienteValue.getCell(19) != null) rowPendienteValue.getCell(19).setCellValue(contValidacionNo);
-                if (rowPendienteValue.getCell(20) != null) rowPendienteValue.getCell(20).setCellValue(contConfirmacionNo);
+                if (rowPendienteValue.getCell(17) != null)
+                    rowPendienteValue.getCell(17).setCellValue(contRegistroNo);
+                if (rowPendienteValue.getCell(18) != null)
+                    rowPendienteValue.getCell(18).setCellValue(contRevisionSunatNo);
+                if (rowPendienteValue.getCell(19) != null)
+                    rowPendienteValue.getCell(19).setCellValue(contValidacionNo);
+                if (rowPendienteValue.getCell(20) != null)
+                    rowPendienteValue.getCell(20).setCellValue(contConfirmacionNo);
             }
 
             Row rowNoAplicaValue = sheet.getRow(4);
             if (rowNoAplicaValue != null) {
-                if (rowNoAplicaValue.getCell(17) != null) rowNoAplicaValue.getCell(17).setCellValue(contRegistroNa);
-                if (rowNoAplicaValue.getCell(18) != null) rowNoAplicaValue.getCell(18).setCellValue(contRevisionSunatNa);
-                if (rowNoAplicaValue.getCell(19) != null) rowNoAplicaValue.getCell(19).setCellValue(contValidacionNa);
+                if (rowNoAplicaValue.getCell(17) != null)
+                    rowNoAplicaValue.getCell(17).setCellValue(contRegistroNa);
+                if (rowNoAplicaValue.getCell(18) != null)
+                    rowNoAplicaValue.getCell(18).setCellValue(contRevisionSunatNa);
+                if (rowNoAplicaValue.getCell(19) != null)
+                    rowNoAplicaValue.getCell(19).setCellValue(contValidacionNa);
             }
 
             Row rowTotalValue = sheet.getRow(5);
             if (rowTotalValue != null) {
-                if (rowTotalValue.getCell(17) != null) rowTotalValue.getCell(17).setCellValue(contRegistroSi + contRegistroNo + contRegistroNa);
-                if (rowTotalValue.getCell(18) != null) rowTotalValue.getCell(18).setCellValue(contRevisionSunatSi + contRevisionSunatNo + contRevisionSunatNa);
-                if (rowTotalValue.getCell(19) != null) rowTotalValue.getCell(19).setCellValue(contValidacionVal + contValidacionSi + contValidacionNo + contValidacionNa);
-                if (rowTotalValue.getCell(20) != null) rowTotalValue.getCell(20).setCellValue(contConfirmacionSi + contConfirmacionNo);
+                if (rowTotalValue.getCell(17) != null)
+                    rowTotalValue.getCell(17).setCellValue(contRegistroSi + contRegistroNo + contRegistroNa);
+                if (rowTotalValue.getCell(18) != null)
+                    rowTotalValue.getCell(18)
+                            .setCellValue(contRevisionSunatSi + contRevisionSunatNo + contRevisionSunatNa);
+                if (rowTotalValue.getCell(19) != null)
+                    rowTotalValue.getCell(19)
+                            .setCellValue(contValidacionVal + contValidacionSi + contValidacionNo + contValidacionNa);
+                if (rowTotalValue.getCell(20) != null)
+                    rowTotalValue.getCell(20).setCellValue(contConfirmacionSi + contConfirmacionNo);
             }
             // </editor-fold>
 
             int finFilt = rowNum - 1;
             sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 21));
-            sheet.createFreezePane(0, 10);
+            sheet.createFreezePane(0, 11);
 
             for (int contCol = 0; contCol < 22; contCol++) {
                 sheet.autoSizeColumn(contCol);
@@ -527,13 +611,19 @@ public class LoginVentaExcelService {
             int realizado = 0;
             switch (proceso) {
                 case "registro":
-                    realizado = (int) (list.isEmpty() ? 0 : list.stream().filter(e -> e.getLoginVenta().getRegistro() == 1 || e.getLoginVenta().getRegistro() == 2).count());
+                    realizado = (int) (list.isEmpty() ? 0
+                            : list.stream().filter(
+                                    e -> e.getLoginVenta().getRegistro() == 1 || e.getLoginVenta().getRegistro() == 2)
+                                    .count());
                     break;
                 case "validacion":
-                    realizado = (int) (list.isEmpty() ? 0 : list.stream().filter(e -> e.getLoginVenta().getValidacion() == 1 || e.getLoginVenta().getValidacion() == 2).count());
+                    realizado = (int) (list.isEmpty() ? 0
+                            : list.stream().filter(e -> e.getLoginVenta().getValidacion() == 1
+                                    || e.getLoginVenta().getValidacion() == 2).count());
                     break;
                 case "confirmacion":
-                    realizado = (int) (list.isEmpty() ? 0 : list.stream().filter(e -> e.getLoginVenta().getConfirmacion() == 1).count());
+                    realizado = (int) (list.isEmpty() ? 0
+                            : list.stream().filter(e -> e.getLoginVenta().getConfirmacion() == 1).count());
                     break;
             }
             int contadorDia = list.isEmpty() ? 0 : list.size();
@@ -543,139 +633,169 @@ public class LoginVentaExcelService {
             Workbook wb = new XSSFWorkbook();
             Sheet sheet = wb.createSheet(sheetName);
 
-            //<editor-fold defaultstate="collapsed" desc="ESTILOS">
-            //<editor-fold defaultstate="collapsed" desc="COLORES PERSONALIZADOS">
-            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204});
-            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228});
-            XSSFColor MATTE_BLACK = new XSSFColor(new byte[]{(byte) 43, (byte) 43, (byte) 43});
+            // <editor-fold defaultstate="collapsed" desc="ESTILOS">
+            // <editor-fold defaultstate="collapsed" desc="COLORES PERSONALIZADOS">
+            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 });
+            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 });
+            XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 });
 
-            XSSFColor VERY_LIGHT_RED = new XSSFColor(new byte[]{(byte) 255, (byte) 102, (byte) 102});
-            XSSFColor LIGHT_RED = new XSSFColor(new byte[]{(byte) 255, (byte) 51, (byte) 51});
-            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0});
-            XSSFColor DARK_RED = new XSSFColor(new byte[]{(byte) 204, (byte) 0, (byte) 0});
-            XSSFColor VERY_DARK_RED = new XSSFColor(new byte[]{(byte) 153, (byte) 0, (byte) 0});
-            XSSFColor SUPERLIGHT_RED = new XSSFColor(new byte[]{(byte) 253, (byte) 237, (byte) 236});
+            XSSFColor VERY_LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 102 });
+            XSSFColor LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 51, (byte) 51 });
+            XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 });
+            XSSFColor DARK_RED = new XSSFColor(new byte[] { (byte) 204, (byte) 0, (byte) 0 });
+            XSSFColor VERY_DARK_RED = new XSSFColor(new byte[] { (byte) 153, (byte) 0, (byte) 0 });
+            XSSFColor SUPERLIGHT_RED = new XSSFColor(new byte[] { (byte) 253, (byte) 237, (byte) 236 });
 
-            XSSFColor VERY_LIGHT_BLUE = new XSSFColor(new byte[]{(byte) 51, (byte) 204, (byte) 255});
-            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[]{(byte) 51, (byte) 153, (byte) 255});
-            XSSFColor BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 255});
-            XSSFColor DARK_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 204});
-            XSSFColor VERY_DARK_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 153});
-            XSSFColor LIGHT_SKYBLUE = new XSSFColor(new byte[]{(byte) 235, (byte) 245, (byte) 251});
+            XSSFColor VERY_LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 204, (byte) 255 });
+            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 });
+            XSSFColor BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 255 });
+            XSSFColor DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 204 });
+            XSSFColor VERY_DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 153 });
+            XSSFColor LIGHT_SKYBLUE = new XSSFColor(new byte[] { (byte) 235, (byte) 245, (byte) 251 });
 
-            XSSFColor VERY_LIGHT_GREEN = new XSSFColor(new byte[]{(byte) 102, (byte) 255, (byte) 102});
-            XSSFColor LIGHT_GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 255, (byte) 51});
-            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 204, (byte) 0});
-            XSSFColor DARK_GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 153, (byte) 0});
-            XSSFColor VERY_DARK_GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 102, (byte) 0});
+            XSSFColor VERY_LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 102, (byte) 255, (byte) 102 });
+            XSSFColor LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 255, (byte) 51 });
+            XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 });
+            XSSFColor DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 153, (byte) 0 });
+            XSSFColor VERY_DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 102, (byte) 0 });
 
-            XSSFColor VERY_LIGHT_YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 204});
-            XSSFColor LIGHT_YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 153});
-            XSSFColor YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 0});
-            XSSFColor DARK_YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 204, (byte) 0});
+            XSSFColor VERY_LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 204 });
+            XSSFColor LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 153 });
+            XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 });
+            XSSFColor DARK_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 0 });
 
-            XSSFColor LIGHT_ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 153, (byte) 0});
-            XSSFColor ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 102, (byte) 0});
+            XSSFColor LIGHT_ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 153, (byte) 0 });
+            XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 0 });
 
-            XSSFColor GOLD = new XSSFColor(new byte[]{(byte) 255, (byte) 204, (byte) 51});
+            XSSFColor GOLD = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 51 });
 
-            XSSFColor LIGHT_GREY = new XSSFColor(new byte[]{(byte) 240, (byte) 240, (byte) 240});
-            XSSFColor GREY = new XSSFColor(new byte[]{(byte) 153, (byte) 153, (byte) 153});
-            XSSFColor DARK_GREY = new XSSFColor(new byte[]{(byte) 102, (byte) 102, (byte) 102});
-            XSSFColor VERY_DARK_GREY = new XSSFColor(new byte[]{(byte) 51, (byte) 51, (byte) 51});
+            XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 });
+            XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 });
+            XSSFColor DARK_GREY = new XSSFColor(new byte[] { (byte) 102, (byte) 102, (byte) 102 });
+            XSSFColor VERY_DARK_GREY = new XSSFColor(new byte[] { (byte) 51, (byte) 51, (byte) 51 });
 
-            XSSFColor LIGHT_BROWN = new XSSFColor(new byte[]{(byte) 153, (byte) 102, (byte) 0});
-            XSSFColor BROWN = new XSSFColor(new byte[]{(byte) 102, (byte) 51, (byte) 0});
-            XSSFColor VERY_DARK_BROWN = new XSSFColor(new byte[]{(byte) 51, (byte) 0, (byte) 0});
+            XSSFColor LIGHT_BROWN = new XSSFColor(new byte[] { (byte) 153, (byte) 102, (byte) 0 });
+            XSSFColor BROWN = new XSSFColor(new byte[] { (byte) 102, (byte) 51, (byte) 0 });
+            XSSFColor VERY_DARK_BROWN = new XSSFColor(new byte[] { (byte) 51, (byte) 0, (byte) 0 });
 
-            XSSFColor PURPLE = new XSSFColor(new byte[]{(byte) 102, (byte) 0, (byte) 153});
+            XSSFColor PURPLE = new XSSFColor(new byte[] { (byte) 102, (byte) 0, (byte) 153 });
 
-            XSSFColor BLACK = new XSSFColor(new byte[]{(byte) 0, (byte) 0, (byte) 0});
+            XSSFColor BLACK = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
 
-            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255});
-            //</editor-fold>
+            XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 });
+            // </editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="FONTS">
+            // <editor-fold defaultstate="collapsed" desc="FONTS">
             Boolean negrita = true;
             XSSFFont cabeceraFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 17, negrita);
             XSSFFont subHeaderFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 9, negrita);
-            XSSFFont dataSimpleFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9, negrita);
+            XSSFFont dataSimpleFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9,
+                    negrita);
             XSSFFont dataGreenFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, GREEN, 9, negrita);
             XSSFFont dataRedFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, RED, 9, negrita);
             XSSFFont dataGreyFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, GREY, 9, negrita);
             XSSFFont dataYellowFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, YELLOW, 9, negrita);
             XSSFFont dataOrangeFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, negrita);
-            XSSFFont dataLightBlueFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9, negrita);
-            XSSFFont resStyleFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, GERENCIA_BLUE, 9, negrita);
-            XSSFFont dataStarFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9, negrita);
+            XSSFFont dataLightBlueFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9,
+                    negrita);
+            XSSFFont resStyleFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, GERENCIA_BLUE, 9,
+                    negrita);
+            XSSFFont dataStarFont = com.joa.prexixionapi.utils.PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9,
+                    negrita);
             dataStarFont.setFontName("Wingdings");
-            //</editor-fold>
+            // </editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="CELL STYLES">
-            CellStyle cabeceraStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
-            CellStyle subHeaderStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            // <editor-fold defaultstate="collapsed" desc="CELL STYLES">
+            CellStyle cabeceraStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
+            CellStyle subHeaderStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle subHeaderResStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
+            CellStyle subHeaderResStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(subHeaderResStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE, dataSimpleFont);
+            CellStyle dataSimpleStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.LEFT, WHITE, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataSimpleStyle, BorderStyle.THIN, IndexedColors.WHITE);
             dataSimpleStyle.setRightBorderColor(GREY.getIndex());
-            CellStyle dataStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLeftStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataGreyStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
+            CellStyle dataGreyStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataGreyStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataYellowStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
+            CellStyle dataYellowStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataYellowStyle, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataLightBlueStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
+            CellStyle dataLightBlueStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataLightBlueStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataGreenFont);
+            CellStyle dataGreenStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_GREY, dataGreenFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataGreenStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRedStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataRedFont);
+            CellStyle dataRedStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_GREY, dataRedFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRedStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataOrangeStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataOrangeFont);
+            CellStyle dataOrangeStyleNeg = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_GREY, dataOrangeFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataOrangeStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle dataSimpleRedStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, WHITE, dataRedFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle resStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE, resStyleFont);
-            CellStyle resStyleG = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataGreenFont);
-            CellStyle resStyleR = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle resStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.LEFT, WHITE, resStyleFont);
+            CellStyle resStyleG = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, WHITE, dataGreenFont);
+            CellStyle resStyleR = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, WHITE, dataRedFont);
 
-            CellStyle dataStarStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataStarFont);
+            CellStyle dataStarStyle = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_GREY, dataStarFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataStarStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle subCabeceraStyleBlue = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
+            CellStyle subCabeceraStyleBlue = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(subCabeceraStyleBlue, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle subCabeceraStyleRed = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, RED, subHeaderFont);
+            CellStyle subCabeceraStyleRed = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, RED, subHeaderFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(subCabeceraStyleRed, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataAcumulado = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataSimpleFont);
+            CellStyle dataAcumulado = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, WHITE, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataAcumulado, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataRealizado = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_SKYBLUE, dataSimpleFont);
+            CellStyle dataRealizado = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, LIGHT_SKYBLUE, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataRealizado, BorderStyle.THIN, IndexedColors.WHITE);
-            CellStyle dataFaltantes = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, SUPERLIGHT_RED, dataSimpleFont);
+            CellStyle dataFaltantes = com.joa.prexixionapi.utils.PoiUtils.createCellStyle((XSSFWorkbook) wb,
+                    HorizontalAlignment.CENTER, SUPERLIGHT_RED, dataSimpleFont);
             com.joa.prexixionapi.utils.PoiUtils.addBorders(dataFaltantes, BorderStyle.THIN, IndexedColors.WHITE);
-            //</editor-fold>
+            // </editor-fold>
 
-            //</editor-fold>
+            // </editor-fold>
             int rowNum = 0;
 
-            //<editor-fold defaultstate="collapsed" desc="RESUMEN">
+            // <editor-fold defaultstate="collapsed" desc="RESUMEN">
             Row res0 = sheet.createRow(rowNum);
             int colNumRes = 6;
 
@@ -777,9 +897,9 @@ public class LoginVentaExcelService {
             colNumRes++;
             rowNum++;
             rowNum++;
-            //</editor-fold>
+            // </editor-fold>
 
-            // <editor-fold  defaultstate="collapsed" desc="CABECERA">
+            // <editor-fold defaultstate="collapsed" desc="CABECERA">
             Row cabecera = sheet.createRow(rowNum);
             cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
 
@@ -880,7 +1000,7 @@ public class LoginVentaExcelService {
             int inicioFilt = rowNum;
             rowNum++;
 
-            // <editor-fold  defaultstate="collapsed" desc=" L L E N A D O   D E   L A   D A T A ">
+            // <editor-fold defaultstate="collapsed" desc=" L L E N A D O D E L A D A T A ">
             for (Cliente clie : list) {
                 colNum = 0;
 
@@ -926,7 +1046,9 @@ public class LoginVentaExcelService {
 
                 Cell estadoData = data.createCell(colNum);
                 estadoData.setCellStyle(dataStyle2);
-                estadoData.setCellValue(clie.getEstado() != null && clie.getEstado().getDescripcion() != null ? clie.getEstado().getDescripcion().toUpperCase() : "");
+                estadoData.setCellValue(clie.getEstado() != null && clie.getEstado().getDescripcion() != null
+                        ? clie.getEstado().getDescripcion().toUpperCase()
+                        : "");
                 switch (clie.getEstado() != null ? clie.getEstado().getId() : 0) {
                     case 1:
                         estadoData.setCellStyle(dataGreenStyle);
@@ -947,12 +1069,16 @@ public class LoginVentaExcelService {
                 colNum++;
 
                 Cell tipoServicioData = data.createCell(colNum);
-                tipoServicioData.setCellValue(clie.getServicio() != null && clie.getServicio().getAbreviatura() != null ? clie.getServicio().getAbreviatura() : "");
+                tipoServicioData.setCellValue(clie.getServicio() != null && clie.getServicio().getAbreviatura() != null
+                        ? clie.getServicio().getAbreviatura()
+                        : "");
                 tipoServicioData.setCellStyle(dataStyle2);
                 colNum++;
 
                 Cell pleData = data.createCell(colNum);
-                pleData.setCellValue(clie.getLoginVenta() != null && clie.getLoginVenta().getPle() != null ? clie.getLoginVenta().getPle() : "");
+                pleData.setCellValue(clie.getLoginVenta() != null && clie.getLoginVenta().getPle() != null
+                        ? clie.getLoginVenta().getPle()
+                        : "");
                 pleData.setCellStyle(dataStyle2);
                 colNum++;
 
@@ -962,11 +1088,13 @@ public class LoginVentaExcelService {
                 colNum++;
 
                 Cell movData = data.createCell(colNum);
-                movData.setCellValue(clie.getLoginVenta() != null && clie.getLoginVenta().getMovimiento() != null ? clie.getLoginVenta().getMovimiento() : "");
+                movData.setCellValue(clie.getLoginVenta() != null && clie.getLoginVenta().getMovimiento() != null
+                        ? clie.getLoginVenta().getMovimiento()
+                        : "");
                 movData.setCellStyle(dataStyle2);
                 colNum++;
 
-                //PROCESO DATA
+                // PROCESO DATA
                 Cell procesoData = data.createCell(colNum);
 
                 int procesoValor = 0;
@@ -1061,13 +1189,13 @@ public class LoginVentaExcelService {
             int finFilt = rowNum - 1;
             sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 11));
 
-            //<editor-fold defaultstate="collapsed" desc=" A N C H O   D E   C O L U M N A S ">
+            // <editor-fold defaultstate="collapsed" desc=" A N C H O D E C O L U M N A S ">
             for (int contCol = 0; contCol < colNum; contCol++) {
                 sheet.autoSizeColumn(contCol);
             }
-            //</editor-fold>
+            // </editor-fold>
 
-                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
             wb.write(bos);
             wb.close();
             return bos.toByteArray();

@@ -65,22 +65,22 @@ public class LoginProcesosExcelService {
             int contSireNa = 0;
 
             // Colores
-            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204}, null);
-            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228}, null);
-            XSSFColor MATTE_BLACK = new XSSFColor(new byte[]{(byte) 43, (byte) 43, (byte) 43}, null);
-            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0}, null);
-            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 204, (byte) 0}, null);
-            XSSFColor YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 0}, null);
-            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[]{(byte) 51, (byte) 153, (byte) 255}, null);
-            XSSFColor ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 102, (byte) 0}, null);
-            XSSFColor GREY = new XSSFColor(new byte[]{(byte) 153, (byte) 153, (byte) 153}, null);
-            XSSFColor LIGHT_GREY = new XSSFColor(new byte[]{(byte) 240, (byte) 240, (byte) 240}, null);
-            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255}, null);
-            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[]{(byte) 138, (byte) 193, (byte) 255}, null);
-            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[]{(byte) 81, (byte) 198, (byte) 218}, null);
-            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[]{(byte) 254, (byte) 255, (byte) 155}, null);
-            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[]{(byte) 252, (byte) 184, (byte) 72}, null);
-            XSSFColor ROJO_COLOR = new XSSFColor(new byte[]{(byte) 169, (byte) 0, (byte) 54}, null);
+            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 }, null);
+            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 }, null);
+            XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 }, null);
+            XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 }, null);
+            XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 }, null);
+            XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 }, null);
+            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 }, null);
+            XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 0 }, null);
+            XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 }, null);
+            XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 }, null);
+            XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 }, null);
+            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[] { (byte) 138, (byte) 193, (byte) 255 }, null);
+            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[] { (byte) 81, (byte) 198, (byte) 218 }, null);
+            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[] { (byte) 254, (byte) 255, (byte) 155 }, null);
+            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[] { (byte) 252, (byte) 184, (byte) 72 }, null);
+            XSSFColor ROJO_COLOR = new XSSFColor(new byte[] { (byte) 169, (byte) 0, (byte) 54 }, null);
 
             // Fuentes
             XSSFFont cabeceraFont = PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 17, true);
@@ -93,51 +93,67 @@ public class LoginProcesosExcelService {
             XSSFFont dataLightBlueFont = PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9, true);
 
             // Estilos
-            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
-            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, cabeceraFont);
+            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    MATTE_BLACK, subHeaderFont);
             PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE, dataSimpleFont);
+            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataSimpleStyle, BorderStyle.THIN, IndexedColors.WHITE);
             dataSimpleStyle.setRightBorderColor(GREY.getIndex());
 
-            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataRedFont);
             PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
+            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreyFont);
             PoiUtils.addBorders(dataGreyStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
+            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataYellowFont);
             PoiUtils.addBorders(dataYellowStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
+            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataLightBlueFont);
             PoiUtils.addBorders(dataLightBlueStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataGreenFont);
+            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataRedFont);
+            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataRedFont);
             PoiUtils.addBorders(dataRedStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataOrangeStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, true));
+            CellStyle dataOrangeStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, true));
             PoiUtils.addBorders(dataOrangeStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    WHITE, dataRedFont);
             PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
             int rowNum = 0;
@@ -308,27 +324,33 @@ public class LoginProcesosExcelService {
             Cell cellTotalResumenSIRE = rowTotal.createCell(colNum);
             cellTotalResumenSIRE.setCellStyle(dataStyle);
             colNum++;
-            rowNum += 2;
+            rowNum++;
+            rowNum++;
+
+            colNum = 0;
 
             // CABECERA TABLA PRINCIPAL
             Row cabecera = sheet.createRow(rowNum);
             cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
 
-            Cell cellCabecera = cabecera.createCell(0);
+            Cell cellCabecera = cabecera.createCell(colNum);
             cellCabecera.setCellStyle(cabeceraStyle);
             cellCabecera.setCellValue("M A E S T R O   -  L O G I N    P R O C E S O S");
             sheet.addMergedRegion(CellRangeAddress.valueOf("A7:R7"));
             rowNum++;
 
             Row title = sheet.createRow(rowNum);
-            Cell cellTitle1 = title.createCell(0);
+            colNum = 0;
+
+            Cell cellTitle1 = title.createCell(colNum);
             cellTitle1.setCellStyle(subHeaderStyle);
             cellTitle1.setCellValue("C  O  N  T  R  I  B  U  Y  E  N  T  E");
             CellRangeAddress region = CellRangeAddress.valueOf("A8:I8");
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            colNum = 9;
 
-            Cell cellTitle2 = title.createCell(9);
+            Cell cellTitle2 = title.createCell(colNum);
             cellTitle2.setCellStyle(subHeaderStyle);
             cellTitle2.setCellValue("P  R  O  C  E  S  O");
             region = CellRangeAddress.valueOf("J8:R8");
@@ -337,18 +359,22 @@ public class LoginProcesosExcelService {
             rowNum++;
 
             Row subHeader = sheet.createRow(rowNum);
+            colNum = 0;
             String[] headers = {
-                "N°", "ESTADO", "CAT", "STO", "GRUPO E.", "Y", "SIGNER", "RT", "MOV",
-                "V-CON", "C-CON", "PRE", "CONF", " PDT ", " PLE CV ", " SIRE CV ", " R  T  B", " O B S E R V A C I Ó N "
+                    "N°", "ESTADO", "CAT", "STO", "GRUPO E.", "Y", "SIGNER", "RT", "MOV",
+                    "V-CON", "C-CON", "PRE", "CONF", "PDT", "PLE CV", "SIRE CV", "RTB",
+                    "OBSERVACION"
             };
-            for (int h = 0; h < headers.length; h++) {
-                Cell c = subHeader.createCell(h);
+            for (String h : headers) {
+                Cell c = subHeader.createCell(colNum++);
                 c.setCellStyle(subHeaderStyle);
-                c.setCellValue(headers[h]);
+                c.setCellValue(h);
             }
+
+            rowNum++;
+            int inicioFilt = rowNum;
             rowNum++;
 
-            int iFilt = rowNum;
             int i = 1;
 
             // ORDENAR ARRAY LIST (orden descendente)
@@ -368,18 +394,30 @@ public class LoginProcesosExcelService {
                 CellStyle estStyle = dataStyle2;
                 if (obj.getIdEstado() != null) {
                     switch (obj.getIdEstado()) {
-                        case 1: estStyle = dataGreenStyle; break;
-                        case 2: estStyle = dataRedStyle; break;
-                        case 3: estStyle = dataLightBlueStyle; break;
-                        case 4: estStyle = dataYellowStyle; break;
-                        case 5: estStyle = dataGreyStyle; break;
+                        case 1:
+                            estStyle = dataGreenStyle;
+                            break;
+                        case 2:
+                            estStyle = dataRedStyle;
+                            break;
+                        case 3:
+                            estStyle = dataLightBlueStyle;
+                            break;
+                        case 4:
+                            estStyle = dataYellowStyle;
+                            break;
+                        case 5:
+                            estStyle = dataGreyStyle;
+                            break;
                     }
                 }
                 estadoData.setCellStyle(estStyle);
 
                 Cell dataCategoria = dataRow.createCell(colNum++);
                 dataCategoria.setCellStyle(dataStyle2);
-                dataCategoria.setCellValue(obj.getSignerNivel() != null && obj.getSignerNivel().getCategoria() != null ? obj.getSignerNivel().getCategoria().getAbreviatura() : "");
+                dataCategoria.setCellValue(obj.getSignerNivel() != null && obj.getSignerNivel().getCategoria() != null
+                        ? obj.getSignerNivel().getCategoria().getAbreviatura()
+                        : "");
 
                 Cell dataCategoriaStore = dataRow.createCell(colNum++);
                 int storeVal = obj.getSignerNivel() != null ? obj.getSignerNivel().getCategoriaStore() : 0;
@@ -392,7 +430,8 @@ public class LoginProcesosExcelService {
                 }
 
                 Cell dataGrupoE = dataRow.createCell(colNum++);
-                dataGrupoE.setCellValue(obj.getGrupoEconomico() != null ? obj.getGrupoEconomico().getDescripcion() : "");
+                dataGrupoE
+                        .setCellValue(obj.getGrupoEconomico() != null ? obj.getGrupoEconomico().getDescripcion() : "");
                 dataGrupoE.setCellStyle(dataStyle2);
 
                 Cell yData = dataRow.createCell(colNum++);
@@ -532,8 +571,8 @@ public class LoginProcesosExcelService {
                 obsData.setCellValue(obj.getObservacion());
                 obsData.setCellStyle(dataSimpleStyle);
 
-                rowNum++;
                 i++;
+                rowNum++;
             }
 
             // Actualizar resumen
@@ -567,10 +606,11 @@ public class LoginProcesosExcelService {
             cellTotalResumenPLE.setCellValue(contPleSi + contPleNo + contPleNa);
             cellTotalResumenSIRE.setCellValue(contSireSi + contSireNo + contSireNa);
 
-            sheet.setAutoFilter(new CellRangeAddress(iFilt - 1, rowNum - 1, 0, headers.length - 1));
+            int finFilt = rowNum - 1;
+            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 17));
             sheet.createFreezePane(0, 10);
 
-            for (int contCol = 0; contCol < headers.length; contCol++) {
+            for (int contCol = 0; contCol < colNum; contCol++) {
                 sheet.autoSizeColumn(contCol);
             }
 
@@ -583,7 +623,7 @@ public class LoginProcesosExcelService {
     }
 
     public byte[] exportarExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
-        List<LoginProcesos> list = loginProcesosRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
+        List<LoginProcesos> list = loginProcesosRepository.listExcelDiario(proceso, fechaI, fechaF);
         int acumulado = loginProcesosRepository.countAcumulado(proceso, fechaF, anio, mes);
         int total = loginProcesosRepository.countTotal(anio, mes);
         int realizado = 0;
@@ -591,16 +631,20 @@ public class LoginProcesosExcelService {
         for (LoginProcesos lp : list) {
             switch (proceso) {
                 case "validerCompras":
-                    if (lp.getValidacionCompras() != null && lp.getValidacionCompras() == 1) realizado++;
+                    if (lp.getValidacionCompras() != null && lp.getValidacionCompras() == 1)
+                        realizado++;
                     break;
                 case "validerVentas":
-                    if (lp.getValidacionVentas() != null && lp.getValidacionVentas() == 1) realizado++;
+                    if (lp.getValidacionVentas() != null && lp.getValidacionVentas() == 1)
+                        realizado++;
                     break;
                 case "preLiquidacion":
-                    if (lp.getPreLiquidacion() != null && (lp.getPreLiquidacion() == 1 || lp.getPreLiquidacion() == 2)) realizado++;
+                    if (lp.getPreLiquidacion() != null && (lp.getPreLiquidacion() == 1 || lp.getPreLiquidacion() == 2))
+                        realizado++;
                     break;
                 case "confirmacion":
-                    if (lp.getConfirmacion() != null && (lp.getConfirmacion() == 1 || lp.getConfirmacion() == 2)) realizado++;
+                    if (lp.getConfirmacion() != null && (lp.getConfirmacion() == 1 || lp.getConfirmacion() == 2))
+                        realizado++;
                     break;
             }
         }
@@ -611,19 +655,19 @@ public class LoginProcesosExcelService {
             Sheet sheet = wb.createSheet("Reporte");
 
             // Colores
-            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204}, null);
-            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228}, null);
-            XSSFColor MATTE_BLACK = new XSSFColor(new byte[]{(byte) 43, (byte) 43, (byte) 43}, null);
-            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0}, null);
-            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 204, (byte) 0}, null);
-            XSSFColor YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 0}, null);
-            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[]{(byte) 51, (byte) 153, (byte) 255}, null);
-            XSSFColor GREY = new XSSFColor(new byte[]{(byte) 153, (byte) 153, (byte) 153}, null);
-            XSSFColor LIGHT_GREY = new XSSFColor(new byte[]{(byte) 240, (byte) 240, (byte) 240}, null);
-            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255}, null);
-            XSSFColor ORANGE = new XSSFColor(new byte[]{(byte) 255, (byte) 102, (byte) 0}, null);
-            XSSFColor SUPERLIGHT_RED = new XSSFColor(new byte[]{(byte) 253, (byte) 237, (byte) 236}, null);
-            XSSFColor LIGHT_SKYBLUE = new XSSFColor(new byte[]{(byte) 235, (byte) 245, (byte) 251}, null);
+            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 }, null);
+            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 }, null);
+            XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 }, null);
+            XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 }, null);
+            XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 }, null);
+            XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 }, null);
+            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 }, null);
+            XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 }, null);
+            XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 }, null);
+            XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 }, null);
+            XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 0 }, null);
+            XSSFColor SUPERLIGHT_RED = new XSSFColor(new byte[] { (byte) 253, (byte) 237, (byte) 236 }, null);
+            XSSFColor LIGHT_SKYBLUE = new XSSFColor(new byte[] { (byte) 235, (byte) 245, (byte) 251 }, null);
 
             // Fonts
             XSSFFont cabeceraFont = PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 17, true);
@@ -636,73 +680,95 @@ public class LoginProcesosExcelService {
             XSSFFont dataLightBlueFont = PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9, true);
 
             // Styles
-            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, cabeceraFont);
-            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            CellStyle cabeceraStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, cabeceraFont);
+            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    MATTE_BLACK, subHeaderFont);
             PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE, dataSimpleFont);
+            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataSimpleStyle, BorderStyle.THIN, IndexedColors.WHITE);
             dataSimpleStyle.setRightBorderColor(GREY.getIndex());
 
-            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataRedFont);
             PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
+            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreyFont);
             PoiUtils.addBorders(dataGreyStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
+            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataYellowFont);
             PoiUtils.addBorders(dataYellowStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
+            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataLightBlueFont);
             PoiUtils.addBorders(dataLightBlueStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataGreenFont);
+            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataRedFont);
+            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataRedFont);
             PoiUtils.addBorders(dataRedStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataOrangeStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, true));
+            CellStyle dataOrangeStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, true));
             PoiUtils.addBorders(dataOrangeStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    WHITE, dataRedFont);
             PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle subCabeceraStyleBlue = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, subHeaderFont);
+            CellStyle subCabeceraStyleBlue = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, subHeaderFont);
             PoiUtils.addBorders(subCabeceraStyleBlue, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle subCabeceraStyleRed = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, RED, subHeaderFont);
+            CellStyle subCabeceraStyleRed = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, RED,
+                    subHeaderFont);
             PoiUtils.addBorders(subCabeceraStyleRed, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataAcumulado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataSimpleFont);
+            CellStyle dataAcumulado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataAcumulado, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRealizado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_SKYBLUE, dataSimpleFont);
+            CellStyle dataRealizado = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_SKYBLUE, dataSimpleFont);
             PoiUtils.addBorders(dataRealizado, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataFaltantes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, SUPERLIGHT_RED, dataSimpleFont);
+            CellStyle dataFaltantes = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    SUPERLIGHT_RED, dataSimpleFont);
             PoiUtils.addBorders(dataFaltantes, BorderStyle.THIN, IndexedColors.WHITE);
 
             int rowNum = 0;
-            int colNumRes = 5;
 
             // RESUMEN
             Row res0 = sheet.createRow(rowNum);
+            int colNumRes = 5;
+
             Cell resumenTit = res0.createCell(colNumRes);
             resumenTit.setCellValue(" R E S U M E N ");
             resumenTit.setCellStyle(cabeceraStyle);
@@ -713,72 +779,92 @@ public class LoginProcesosExcelService {
 
             colNumRes = 5;
             Row res1 = sheet.createRow(rowNum);
-            Cell resSubTitAcumulado = res1.createCell(colNumRes++);
+
+            Cell resSubTitAcumulado = res1.createCell(colNumRes);
             resSubTitAcumulado.setCellValue("ACUMULADO");
             resSubTitAcumulado.setCellStyle(subHeaderStyle);
+            colNumRes++;
 
-            Cell resSubTitRealizado = res1.createCell(colNumRes++);
+            Cell resSubTitRealizado = res1.createCell(colNumRes);
             resSubTitRealizado.setCellValue("HOY (Cerrados)");
             resSubTitRealizado.setCellStyle(subCabeceraStyleBlue);
+            colNumRes++;
 
-            Cell resSubTitFaltantes = res1.createCell(colNumRes++);
+            Cell resSubTitFaltantes = res1.createCell(colNumRes);
             resSubTitFaltantes.setCellValue("FALTANTES");
             resSubTitFaltantes.setCellStyle(subCabeceraStyleRed);
+            colNumRes++;
 
-            Cell resSubTitTotal = res1.createCell(colNumRes++);
+            Cell resSubTitTotal = res1.createCell(colNumRes);
             resSubTitTotal.setCellValue("TOTAL");
             resSubTitTotal.setCellStyle(subHeaderStyle);
+            colNumRes++;
 
-            Cell resSubTitContadorDia = res1.createCell(colNumRes++);
+            Cell resSubTitContadorDia = res1.createCell(colNumRes);
             resSubTitContadorDia.setCellValue("Contador Día");
             resSubTitContadorDia.setCellStyle(subHeaderStyle);
-            rowNum++;
+            colNumRes++;
 
+            rowNum++;
             colNumRes = 5;
+
             Row res2 = sheet.createRow(rowNum);
-            Cell resAcum = res2.createCell(colNumRes++);
+
+            Cell resAcum = res2.createCell(colNumRes);
             resAcum.setCellValue(acumulado);
             resAcum.setCellStyle(dataAcumulado);
+            colNumRes++;
 
-            Cell resReal = res2.createCell(colNumRes++);
+            Cell resReal = res2.createCell(colNumRes);
             resReal.setCellValue(realizado);
             resReal.setCellStyle(dataRealizado);
+            colNumRes++;
 
-            Cell resFalt = res2.createCell(colNumRes++);
+            Cell resFalt = res2.createCell(colNumRes);
             int faltantes = total - acumulado - realizado;
             resFalt.setCellValue(faltantes);
             resFalt.setCellStyle(dataFaltantes);
+            colNumRes++;
 
-            Cell resTot = res2.createCell(colNumRes++);
+            Cell resTot = res2.createCell(colNumRes);
             resTot.setCellValue(total);
             resTot.setCellStyle(dataStyle2);
+            colNumRes++;
 
-            Cell resCont = res2.createCell(colNumRes++);
+            Cell resCont = res2.createCell(colNumRes);
             resCont.setCellValue(contadorDia);
             resCont.setCellStyle(dataStyle2);
-            rowNum++;
+            colNumRes++;
 
+            rowNum++;
             colNumRes = 5;
+
             Row res3 = sheet.createRow(rowNum);
-            Cell resAcumPct = res3.createCell(colNumRes++);
+            Cell resAcumPct = res3.createCell(colNumRes);
             double acPct = total > 0 ? ((double) acumulado * 100.0) / total : 0;
             resAcumPct.setCellValue(Math.round(acPct) + " %");
             resAcumPct.setCellStyle(dataAcumulado);
+            colNumRes++;
 
-            Cell resRealPct = res3.createCell(colNumRes++);
+            Cell resRealPct = res3.createCell(colNumRes);
             double rePct = total > 0 ? ((double) realizado * 100.0) / total : 0;
             resRealPct.setCellValue(Math.round(rePct) + " %");
             resRealPct.setCellStyle(dataRealizado);
+            colNumRes++;
 
-            Cell resFaltPct = res3.createCell(colNumRes++);
+            Cell resFaltPct = res3.createCell(colNumRes);
             double faPct = total > 0 ? ((double) faltantes * 100.0) / total : 0;
             resFaltPct.setCellValue(Math.round(faPct) + " %");
             resFaltPct.setCellStyle(dataFaltantes);
+            colNumRes++;
 
-            Cell resTotPct = res3.createCell(colNumRes++);
+            Cell resTotPct = res3.createCell(colNumRes);
             resTotPct.setCellValue("100 %");
             resTotPct.setCellStyle(dataStyle2);
-            rowNum += 2;
+            colNumRes++;
+
+            rowNum++;
+            rowNum++;
 
             // CABECERA
             Row cabeceraRow = sheet.createRow(rowNum);
@@ -787,96 +873,174 @@ public class LoginProcesosExcelService {
             cCab.setCellStyle(cabeceraStyle);
             cCab.setCellValue("M A E S T R O   -  L O G I N    P R O C E S O S");
             sheet.addMergedRegion(CellRangeAddress.valueOf("A" + (rowNum + 1) + ":K" + (rowNum + 1)));
+
             rowNum++;
+            int colNum = 0;
 
             Row titleRow = sheet.createRow(rowNum);
-            Cell cellTitle1 = titleRow.createCell(0);
+
+            Cell cellTitle1 = titleRow.createCell(colNum);
             cellTitle1.setCellStyle(subHeaderStyle);
             cellTitle1.setCellValue("C  O  N  T  R  I  B  U  Y  E  N  T  E");
             CellRangeAddress region = CellRangeAddress.valueOf("A" + (rowNum + 1) + ":H" + (rowNum + 1));
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            colNum = colNum + 8;
 
-            Cell cellTitle2 = titleRow.createCell(8);
+            Cell cellTitle2 = titleRow.createCell(colNum);
             cellTitle2.setCellStyle(subHeaderStyle);
             cellTitle2.setCellValue("P  R  O  C  E  S  O");
             region = CellRangeAddress.valueOf("I" + (rowNum + 1) + ":J" + (rowNum + 1));
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            colNum = colNum + 2;
 
-            Cell cellEncargado = titleRow.createCell(10);
+            Cell cellEncargado = titleRow.createCell(colNum);
             cellEncargado.setCellStyle(subHeaderStyle);
             cellEncargado.setCellValue("REGISTRADO POR");
             sheet.addMergedRegion(CellRangeAddress.valueOf("K" + (rowNum + 1) + ":K" + (rowNum + 2)));
-            PoiUtils.addBorders(CellRangeAddress.valueOf("K" + (rowNum + 1) + ":K" + (rowNum + 2)), BorderStyle.THIN, IndexedColors.WHITE, sheet);
+            PoiUtils.addBorders(CellRangeAddress.valueOf("K" + (rowNum + 1) + ":K" + (rowNum + 2)), BorderStyle.THIN,
+                    IndexedColors.WHITE, sheet);
+
             rowNum++;
+            colNum = 0;
 
             Row subHeader = sheet.createRow(rowNum);
-            String[] subHeaders = {"N°", "RUC", "star", "SIGNER", "ESTADO", "T. SERV.", "PLE", "MOV", proceso.toUpperCase(), "FECHA"};
-            for (int h = 0; h < subHeaders.length; h++) {
-                Cell cell = subHeader.createCell(h);
-                cell.setCellStyle(subHeaderStyle);
-                cell.setCellValue(subHeaders[h]);
-            }
-            int inicioFilt = rowNum + 1;
+
+            Cell cellHeaderNro = subHeader.createCell(colNum);
+            cellHeaderNro.setCellStyle(subHeaderStyle);
+            cellHeaderNro.setCellValue("N°");
+            colNum++;
+
+            Cell cellHeaderRuc = subHeader.createCell(colNum);
+            cellHeaderRuc.setCellStyle(subHeaderStyle);
+            cellHeaderRuc.setCellValue("RUC");
+            colNum++;
+
+            Cell cellHeaderStar = subHeader.createCell(colNum);
+            cellHeaderStar.setCellStyle(subHeaderStyle);
+            cellHeaderStar.setCellValue("star");
+            colNum++;
+
+            Cell cellHeaderSigner = subHeader.createCell(colNum);
+            cellHeaderSigner.setCellStyle(subHeaderStyle);
+            cellHeaderSigner.setCellValue("SIGNER");
+            colNum++;
+
+            Cell cellHeaderEstado = subHeader.createCell(colNum);
+            cellHeaderEstado.setCellStyle(subHeaderStyle);
+            cellHeaderEstado.setCellValue("ESTADO");
+            colNum++;
+
+            Cell cellHeaderTipoServicio = subHeader.createCell(colNum);
+            cellHeaderTipoServicio.setCellStyle(subHeaderStyle);
+            cellHeaderTipoServicio.setCellValue("T. SERV.");
+            colNum++;
+
+            Cell cellHeaderPle = subHeader.createCell(colNum);
+            cellHeaderPle.setCellStyle(subHeaderStyle);
+            cellHeaderPle.setCellValue("PLE");
+            colNum++;
+
+            Cell cellHeaderMovimiento = subHeader.createCell(colNum);
+            cellHeaderMovimiento.setCellStyle(subHeaderStyle);
+            cellHeaderMovimiento.setCellValue("MOV");
+            colNum++;
+
+            Cell cellHeaderProceso = subHeader.createCell(colNum);
+            cellHeaderProceso.setCellStyle(subHeaderStyle);
+            cellHeaderProceso.setCellValue(proceso.toUpperCase());
+            colNum++;
+
+            Cell cellHeaderProcesoFecha = subHeader.createCell(colNum);
+            cellHeaderProcesoFecha.setCellStyle(subHeaderStyle);
+            cellHeaderProcesoFecha.setCellValue("FECHA");
+            colNum++;
+
+            rowNum++;
+            int inicioFilt = rowNum;
             rowNum++;
 
             // Data
             for (LoginProcesos obj : list) {
                 Row data = sheet.createRow(rowNum);
-                int col = 0;
+                colNum = 0;
 
-                Cell yData = data.createCell(col++);
+                Cell yData = data.createCell(colNum);
                 yData.setCellValue(obj.getY());
                 yData.setCellStyle(dataStyle);
+                colNum++;
 
-                Cell rucData = data.createCell(col++);
+                Cell rucData = data.createCell(colNum);
                 rucData.setCellValue(obj.getRuc());
                 rucData.setCellStyle(dataStyle);
+                colNum++;
 
-                Cell prioriData = data.createCell(col++);
+                Cell prioriData = data.createCell(colNum);
                 String priVal = "";
                 if (obj.getPrioridad() != null) {
                     switch (obj.getPrioridad()) {
-                        case "ALTA - PRE": priVal = "☆ - PRE"; break;
-                        case "ALTA": priVal = "☆"; break;
-                        case "PRE": priVal = "PRE"; break;
+                        case "ALTA - PRE":
+                            priVal = "☆ - PRE";
+                            break;
+                        case "ALTA":
+                            priVal = "☆";
+                            break;
+                        case "PRE":
+                            priVal = "PRE";
+                            break;
                     }
                 }
                 prioriData.setCellValue(priVal);
                 prioriData.setCellStyle(dataStyle);
+                colNum++;
 
-                Cell rsData = data.createCell(col++);
+                Cell rsData = data.createCell(colNum);
                 rsData.setCellValue(obj.getNombreCortoSigner());
                 rsData.setCellStyle(dataLeftStyle);
+                colNum++;
 
-                Cell estadoData = data.createCell(col++);
+                Cell estadoData = data.createCell(colNum);
                 estadoData.setCellValue(obj.getEstado() != null ? obj.getEstado().toUpperCase() : "");
                 CellStyle estSt = dataStyle2;
                 if (obj.getIdEstado() != null) {
                     switch (obj.getIdEstado()) {
-                        case 1: estSt = dataGreenStyle; break;
-                        case 2: estSt = dataRedStyle; break;
-                        case 3: estSt = dataLightBlueStyle; break;
-                        case 4: estSt = dataYellowStyle; break;
-                        case 5: estSt = dataGreyStyle; break;
+                        case 1:
+                            estSt = dataGreenStyle;
+                            break;
+                        case 2:
+                            estSt = dataRedStyle;
+                            break;
+                        case 3:
+                            estSt = dataLightBlueStyle;
+                            break;
+                        case 4:
+                            estSt = dataYellowStyle;
+                            break;
+                        case 5:
+                            estSt = dataGreyStyle;
+                            break;
                     }
                 }
                 estadoData.setCellStyle(estSt);
+                colNum++;
 
-                Cell tipoServicioData = data.createCell(col++);
+                Cell tipoServicioData = data.createCell(colNum);
                 tipoServicioData.setCellValue(obj.getTipoServicio());
                 tipoServicioData.setCellStyle(dataStyle2);
+                colNum++;
 
-                Cell pleData = data.createCell(col++);
+                Cell pleData = data.createCell(colNum);
                 pleData.setCellValue(obj.getPle());
                 pleData.setCellStyle(dataStyle2);
+                colNum++;
 
-                Cell movData = data.createCell(col++);
+                Cell movData = data.createCell(colNum);
                 movData.setCellValue(obj.getMovimiento());
                 movData.setCellStyle(dataStyle2);
+                colNum++;
 
-                Cell procesoData = data.createCell(col++);
+                Cell procesoData = data.createCell(colNum);
                 String fch = "";
                 String user = "";
                 int pVal = 0;
@@ -939,25 +1103,28 @@ public class LoginProcesosExcelService {
                             break;
                     }
                 }
+                colNum++;
 
-                Cell procesoFecha = data.createCell(col++);
+                Cell procesoFecha = data.createCell(colNum);
                 procesoFecha.setCellValue(fch);
                 procesoFecha.setCellStyle(dataStyle2);
+                colNum++;
 
-                Cell dataEncargado = data.createCell(col++);
+                Cell dataEncargado = data.createCell(colNum);
                 dataEncargado.setCellValue(user);
                 dataEncargado.setCellStyle(dataStyle2);
-
+                colNum++;
                 rowNum++;
             }
 
             sheet.createFreezePane(0, 9);
-            sheet.setAutoFilter(new CellRangeAddress(inicioFilt - 1, rowNum - 1, 0, 10));
+
+            int finFilt = rowNum - 1;
+            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 10));
 
             // Col widths
-            int[] widths = {2 * 256 + 200, 15 * 256 + 200, 3 * 256 + 200, 28 * 256 + 200, 10 * 256 + 200, 20 * 256 + 200, 12 * 256 + 200, 15 * 256 + 200, 10 * 256 + 200, 12 * 256 + 200, 50 * 256 + 200};
-            for (int col = 0; col < widths.length; col++) {
-                sheet.setColumnWidth(col, widths[col]);
+            for (int contCol = 0; contCol < colNum; contCol++) {
+                sheet.autoSizeColumn(contCol);
             }
 
             wb.write(out);
@@ -1012,16 +1179,16 @@ public class LoginProcesosExcelService {
             Sheet sheet = wb.createSheet("Reporte");
 
             // Colores
-            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[]{(byte) 0, (byte) 51, (byte) 204}, null);
-            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[]{(byte) 214, (byte) 220, (byte) 228}, null);
-            XSSFColor MATTE_BLACK = new XSSFColor(new byte[]{(byte) 43, (byte) 43, (byte) 43}, null);
-            XSSFColor RED = new XSSFColor(new byte[]{(byte) 255, (byte) 0, (byte) 0}, null);
-            XSSFColor GREEN = new XSSFColor(new byte[]{(byte) 0, (byte) 204, (byte) 0}, null);
-            XSSFColor YELLOW = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 0}, null);
-            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[]{(byte) 51, (byte) 153, (byte) 255}, null);
-            XSSFColor GREY = new XSSFColor(new byte[]{(byte) 153, (byte) 153, (byte) 153}, null);
-            XSSFColor LIGHT_GREY = new XSSFColor(new byte[]{(byte) 240, (byte) 240, (byte) 240}, null);
-            XSSFColor WHITE = new XSSFColor(new byte[]{(byte) 255, (byte) 255, (byte) 255}, null);
+            XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 }, null);
+            XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 }, null);
+            XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 }, null);
+            XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 }, null);
+            XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 }, null);
+            XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 }, null);
+            XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 }, null);
+            XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 }, null);
+            XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 }, null);
+            XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 }, null);
 
             // Fonts
             XSSFFont periodosFont = PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 9, true);
@@ -1034,48 +1201,63 @@ public class LoginProcesosExcelService {
             XSSFFont dataLightBlueFont = PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9, true);
 
             // Styles
-            CellStyle periodosStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_BLUE, periodosFont);
-            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, MATTE_BLACK, subHeaderFont);
+            CellStyle periodosStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_BLUE, periodosFont);
+            CellStyle subHeaderStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    MATTE_BLACK, subHeaderFont);
             PoiUtils.addBorders(subHeaderStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE, dataSimpleFont);
+            CellStyle dataSimpleStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, WHITE,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataSimpleStyle, BorderStyle.THIN, IndexedColors.WHITE);
             dataSimpleStyle.setRightBorderColor(GREY.getIndex());
 
-            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataLeftStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.LEFT,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataLeftStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataSimpleFont);
+            CellStyle dataStyle2 = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataSimpleFont);
             PoiUtils.addBorders(dataStyle2, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreenFont);
+            CellStyle dataGreenStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataRedFont);
+            CellStyle dataRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY,
+                    dataRedFont);
             PoiUtils.addBorders(dataRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataGreyFont);
+            CellStyle dataGreyStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataGreyFont);
             PoiUtils.addBorders(dataGreyStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataYellowFont);
+            CellStyle dataYellowStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataYellowFont);
             PoiUtils.addBorders(dataYellowStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, LIGHT_GREY, dataLightBlueFont);
+            CellStyle dataLightBlueStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    LIGHT_GREY, dataLightBlueFont);
             PoiUtils.addBorders(dataLightBlueStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, WHITE, dataRedFont);
+            CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    WHITE, dataRedFont);
             PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataRedFont);
+            CellStyle dataRedStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataRedFont);
             PoiUtils.addBorders(dataRedStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataGreenFont);
+            CellStyle dataGreenStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataGreenFont);
             PoiUtils.addBorders(dataGreenStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
-            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER, GERENCIA_GREY, dataSimpleFont);
+            CellStyle dataStyleNeg = PoiUtils.createCellStyle((XSSFWorkbook) wb, HorizontalAlignment.CENTER,
+                    GERENCIA_GREY, dataSimpleFont);
             PoiUtils.addBorders(dataStyleNeg, BorderStyle.THIN, IndexedColors.WHITE);
 
             // Resumen rows
@@ -1117,8 +1299,10 @@ public class LoginProcesosExcelService {
                 List<LoginProcesos> datosPeriodo = dataMap.get(periodo);
 
                 // MOV
-                int conMov = datosPeriodo.stream().mapToInt(e -> e.getMovimiento() != null && e.getMovimiento().equals("C/M") ? 1 : 0).sum();
-                int sinMov = datosPeriodo.stream().mapToInt(e -> e.getMovimiento() != null && e.getMovimiento().equals("S/M") ? 1 : 0).sum();
+                int conMov = datosPeriodo.stream()
+                        .mapToInt(e -> e.getMovimiento() != null && e.getMovimiento().equals("C/M") ? 1 : 0).sum();
+                int sinMov = datosPeriodo.stream()
+                        .mapToInt(e -> e.getMovimiento() != null && e.getMovimiento().equals("S/M") ? 1 : 0).sum();
                 int naMov = list.size() - (conMov + sinMov);
 
                 Cell cellHeadMov = rowResumen.createCell(colNum);
@@ -1139,8 +1323,12 @@ public class LoginProcesosExcelService {
                 colNum++;
 
                 // V-CON
-                int conVentas = datosPeriodo.stream().mapToInt(e -> e.getConfirmacionVentas() != null && e.getConfirmacionVentas() == 1 ? 1 : 0).sum();
-                int sinVentas = datosPeriodo.stream().mapToInt(e -> e.getConfirmacionVentas() != null && e.getConfirmacionVentas() == 0 ? 1 : 0).sum();
+                int conVentas = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacionVentas() != null && e.getConfirmacionVentas() == 1 ? 1 : 0)
+                        .sum();
+                int sinVentas = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacionVentas() != null && e.getConfirmacionVentas() == 0 ? 1 : 0)
+                        .sum();
 
                 Cell cellHeadVCon = rowResumen.createCell(colNum);
                 cellHeadVCon.setCellStyle(subHeaderStyle);
@@ -1160,8 +1348,12 @@ public class LoginProcesosExcelService {
                 colNum++;
 
                 // C-CON
-                int conCompras = datosPeriodo.stream().mapToInt(e -> e.getConfirmacionCompras() != null && e.getConfirmacionCompras() == 1 ? 1 : 0).sum();
-                int sinCompras = datosPeriodo.stream().mapToInt(e -> e.getConfirmacionCompras() != null && e.getConfirmacionCompras() == 0 ? 1 : 0).sum();
+                int conCompras = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacionCompras() != null && e.getConfirmacionCompras() == 1 ? 1 : 0)
+                        .sum();
+                int sinCompras = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacionCompras() != null && e.getConfirmacionCompras() == 0 ? 1 : 0)
+                        .sum();
 
                 Cell cellHeadCCon = rowResumen.createCell(colNum);
                 cellHeadCCon.setCellStyle(subHeaderStyle);
@@ -1181,8 +1373,10 @@ public class LoginProcesosExcelService {
                 colNum++;
 
                 // PRE
-                int conPre = datosPeriodo.stream().mapToInt(e -> e.getPreLiquidacion() != null && e.getPreLiquidacion() == 1 ? 1 : 0).sum();
-                int sinPre = datosPeriodo.stream().mapToInt(e -> e.getPreLiquidacion() != null && e.getPreLiquidacion() == 0 ? 1 : 0).sum();
+                int conPre = datosPeriodo.stream()
+                        .mapToInt(e -> e.getPreLiquidacion() != null && e.getPreLiquidacion() == 1 ? 1 : 0).sum();
+                int sinPre = datosPeriodo.stream()
+                        .mapToInt(e -> e.getPreLiquidacion() != null && e.getPreLiquidacion() == 0 ? 1 : 0).sum();
                 int naPre = list.size() - (conPre + sinPre);
 
                 Cell cellHeadPre = rowResumen.createCell(colNum);
@@ -1203,8 +1397,10 @@ public class LoginProcesosExcelService {
                 colNum++;
 
                 // CONF
-                int conConf = datosPeriodo.stream().mapToInt(e -> e.getConfirmacion() != null && e.getConfirmacion() == 1 ? 1 : 0).sum();
-                int sinConf = datosPeriodo.stream().mapToInt(e -> e.getConfirmacion() != null && e.getConfirmacion() == 0 ? 1 : 0).sum();
+                int conConf = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacion() != null && e.getConfirmacion() == 1 ? 1 : 0).sum();
+                int sinConf = datosPeriodo.stream()
+                        .mapToInt(e -> e.getConfirmacion() != null && e.getConfirmacion() == 0 ? 1 : 0).sum();
                 int naConf = list.size() - (conConf + sinConf);
 
                 Cell cellHeadConf = rowResumen.createCell(colNum);
@@ -1235,7 +1431,10 @@ public class LoginProcesosExcelService {
                             hasPdt = true;
                         }
                     }
-                    if (hasPdt) conPdt++; else sinPdt++;
+                    if (hasPdt)
+                        conPdt++;
+                    else
+                        sinPdt++;
                 }
                 int naPdt = list.size() - (conPdt + sinPdt);
 
@@ -1271,7 +1470,10 @@ public class LoginProcesosExcelService {
                                 hasPdt = true;
                             }
                         }
-                        if (hasPdt) conPle++; else sinPle++;
+                        if (hasPdt)
+                            conPle++;
+                        else
+                            sinPle++;
                     }
                 }
 
@@ -1293,8 +1495,10 @@ public class LoginProcesosExcelService {
                 colNum++;
 
                 // SIRE
-                int conSire = datosPeriodo.stream().mapToInt(x -> x.getSireCV() != null && x.getSireCV() == 1 ? 1 : 0).sum();
-                int sinSire = datosPeriodo.stream().mapToInt(x -> x.getSireCV() != null && x.getSireCV() == 0 ? 1 : 0).sum();
+                int conSire = datosPeriodo.stream().mapToInt(x -> x.getSireCV() != null && x.getSireCV() == 1 ? 1 : 0)
+                        .sum();
+                int sinSire = datosPeriodo.stream().mapToInt(x -> x.getSireCV() != null && x.getSireCV() == 0 ? 1 : 0)
+                        .sum();
                 int naSire = datosPeriodo.size() - (conSire + sinSire);
 
                 Cell cellHeadSire = rowResumen.createCell(colNum);
@@ -1354,7 +1558,7 @@ public class LoginProcesosExcelService {
                 CellRangeAddress range = new CellRangeAddress(6, 6, colHeadPeriodos, colHeadPeriodos + 7);
                 sheet.addMergedRegion(range);
 
-                String[] subHeaderTitles = {"MOV", "V-CON", "C-CON", "PRE", "CONF", "PDT", "PLE", "SIRE"};
+                String[] subHeaderTitles = { "MOV", "V-CON", "C-CON", "PRE", "CONF", "PDT", "PLE", "SIRE" };
                 for (int t = 0; t < subHeaderTitles.length; t++) {
                     Cell c = subHeader.createCell(colHeadPeriodos + t);
                     c.setCellStyle(subHeaderStyle);
@@ -1365,6 +1569,7 @@ public class LoginProcesosExcelService {
 
             rowNum = 8;
             int inicioFilt = rowNum + 1;
+            rowNum++;
 
             // Llenado de data
             for (LoginProcesos obj : list) {
@@ -1388,11 +1593,21 @@ public class LoginProcesosExcelService {
                 CellStyle estSt = dataStyle2;
                 if (obj.getIdEstado() != null) {
                     switch (obj.getIdEstado()) {
-                        case 1: estSt = dataGreenStyle; break;
-                        case 2: estSt = dataRedStyle; break;
-                        case 3: estSt = dataLightBlueStyle; break;
-                        case 4: estSt = dataYellowStyle; break;
-                        case 5: estSt = dataGreyStyle; break;
+                        case 1:
+                            estSt = dataGreenStyle;
+                            break;
+                        case 2:
+                            estSt = dataRedStyle;
+                            break;
+                        case 3:
+                            estSt = dataLightBlueStyle;
+                            break;
+                        case 4:
+                            estSt = dataYellowStyle;
+                            break;
+                        case 5:
+                            estSt = dataGreyStyle;
+                            break;
                     }
                 }
                 estadoData.setCellStyle(estSt);
@@ -1404,7 +1619,8 @@ public class LoginProcesosExcelService {
 
                 for (String periodo : periodos) {
                     List<LoginProcesos> datosPeriodo = dataMap.get(periodo);
-                    LoginProcesos x = datosPeriodo.stream().filter(e -> e.getRuc().equals(obj.getRuc())).findFirst().orElse(null);
+                    LoginProcesos x = datosPeriodo.stream().filter(e -> e.getRuc().equals(obj.getRuc())).findFirst()
+                            .orElse(null);
 
                     if (x != null) {
                         Cell mD = dataRow.createCell(colNum++);

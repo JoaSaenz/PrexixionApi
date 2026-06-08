@@ -32,32 +32,27 @@ public class LoginProcesosRepository {
                 + " grt.idRegimenTributario AS gestionRegimenTributario, rt.abreviatura AS abrGestionRegimenTributario, "
                 + " (SELECT TOP 1 CONCAT(acAnioPeriodoInicio, '-', acMesPeriodoInicio) FROM clienteAltaCom y WHERE y.idCliente = c.ruc ORDER BY acAnioPeriodoInicio DESC, acMesPeriodoInicio DESC) AS periodoInicioCom, "
                 + " lp.movimiento, lp.anio, lp.mes, "
-                + " lp.recepcion, lp.recepcionFecha, lp.recepcionUsuario, lp.idTipoDocumento, td.abreviatura as abrTipoDocumento, td.descripcion as descTipoDocumento, "
-                + " lp.archivo, lp.archivoFecha, lp.archivoUsuario, "
-                + " lv.registro as registroVentas, lv.registroUsuario as registroUsuarioVentas, lv.registroFecha as registroFechaVentas, "
-                + " lv.validacion as validacionVentas, lv.validacionUsuario as validacionUsuarioVentas, lv.validacionFecha as validacionFechaVentas, "
                 + " lv.confirmacion as confirmacionVentas, lv.confirmacionUsuario as confirmacionUsuarioVentas, lv.confirmacionFecha as confirmacionFechaVentas, "
-                + " lc.registroGeneral as registroGeneralCompras, lc.registroGeneralUsuario as registroGeneralUsuarioCompras, lc.registroGeneralFecha as registroGeneralFechaCompras, "
-                + " lc.validacion as validacionCompras, lc.validacionUsuario as validacionUsuarioCompras, lc.validacionFecha as validacionFechaCompras, "
                 + " lc.confirmacion as confirmacionCompras, lc.confirmacionUsuario as confirmacionUsuarioCompras, lc.confirmacionFecha as confirmacionFechaCompras, "
                 + " lp.idPropuestaVentas, lp.idPropuestaCompras, "
                 + " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, lp.preLiquidacionHora, "
                 + " lp.confirmacion, lp.confirmacionFecha, lp.confirmacionUsuario, lp.confirmacionHora, "
-                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, c.prioridad, "
-                + " c.fPle, "
-                + " so.idCliente AS rucInventario, si.idCliente AS rucSire, siData.registrado AS sireCV, "
+                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, "
+                + " si.idCliente AS rucSire, siData.registrado AS sireCV, "
                 + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
-                + " ple.registrado AS pleCV, ple.ventasFilas, ple.comprasFilas, "
                 + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
                 + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
                 + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
                 + " lp.version, "
-                + " c.rTMypeTributario, c.rTRus, c.rTEspecial, c.rTGeneral, c.rTAmazonico, c.rTAgrario, c.rT1ra, c.rT2da, c.rT3ra, c.rT4ta, c.rT5ta, "
-                + " c.idTipoServicio, tS.abreviatura as tipoServicioAbr, tS.descripcion as tipoServicio, "
-                + " CASE WHEN c.idGrupoEconomico IS NOT NULL AND c.idGrupoEconomico NOT IN (0, 1) THEN 1 ELSE 0 END AS categoriaGrupoE, "
                 + " per2.dni as responsable2Dni, "
-                + " SUBSTRING (per2.nombres, 1, CASE WHEN CHARINDEX(' ', per2.nombres)-1 < 0 THEN LEN (per2.nombres) ELSE CHARINDEX(' ', per2.nombres)-1 END) as nombreResponsable2, "
-                + " SUBSTRING (per2.apellidos, 1, CASE WHEN CHARINDEX(' ', per2.apellidos)-1 < 0 THEN LEN (per2.apellidos) ELSE CHARINDEX(' ', per2.apellidos)-1 END) as apellidoResponsable2, "
+                + " LEFT(per2.nombres, 1) + "
+                + " SUBSTRING(per2.apellidos, 1, "
+                + "    CASE "
+                + "        WHEN CHARINDEX(' ', per2.apellidos) - 1 < 0 "
+                + "        THEN LEN(per2.apellidos) "
+                + "        ELSE CHARINDEX(' ', per2.apellidos) - 1 "
+                + "    END "
+                + ") AS descResponsable2, "
                 + " CASE WHEN (:anioMesInt >= 202310) "
                 + "      THEN CASE WHEN si.idCliente IS NOT NULL "
                 + "                THEN CASE WHEN c.y = '0' THEN crS.fecha0 WHEN c.y = '1' THEN crS.fecha1 WHEN c.y = '2' THEN crS.fecha2 "
@@ -158,15 +153,11 @@ public class LoginProcesosRepository {
                 + "      END END AS fVencimiento "
                 + " FROM cliente c "
                 + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
-                + " LEFT JOIN clientsTipoServicio tS ON c.idTipoServicio = tS.id "
                 + " LEFT JOIN signerNiveles s ON c.ruc = s.idCliente "
                 + " LEFT JOIN signerNivelesCategorias nc ON s.idCategoria = nc.id "
                 + " LEFT JOIN (SELECT DISTINCT idCliente FROM clienteServiciosOtros WHERE soIdServicioOtro = 6) cso ON c.ruc = cso.idCliente "
                 + " LEFT JOIN gruposEconomicos ge ON c.idGrupoEconomico = ge.id "
                 + " INNER JOIN clienteServiciosTributarios p ON c.ruc = p.idCliente AND p.stIdServicioTributario = 4 "
-                + " LEFT JOIN clienteServiciosOtros so ON c.ruc = so.idCliente AND so.soIdServicioOtro = 6 "
-                + "      AND CAST(so.soAnioDesde + so.soMesDesde + '01' as date) <= :startDate "
-                + "      AND (CAST(so.soAnioHasta + so.soMesHasta + '01' as date) >= :startDate OR so.soAnioHasta IS NULL) "
                 + " LEFT JOIN clienteServiciosTributarios si ON c.ruc = si.idCliente AND si.stIdServicioTributario = 15 "
                 + "      AND CAST(si.stAnioDesde + si.stMesDesde + '01' as date) <= :startDate "
                 + "      AND (CAST(si.stAnioHasta + si.stMesHasta + '01' as date) >= :startDate OR si.stAnioHasta IS NULL) "
@@ -179,14 +170,12 @@ public class LoginProcesosRepository {
                 + " LEFT JOIN cronogramaSire crS ON :anio = crS.anio AND :mes = crS.mes "
                 + " LEFT JOIN uit u ON u.anio = :lastAnio "
                 + " LEFT JOIN loginProcesos lp ON lp.ruc = c.ruc AND lp.anio = :anio AND lp.mes = :mes "
-                + " LEFT JOIN loginProcesosTiposDocumentos td ON lp.idTipoDocumento = td.id "
                 + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = :anio AND lv.mes = :mes "
                 + " LEFT JOIN loginCompras lc ON c.ruc = lc.idCliente AND lc.anio = :anio AND lc.mes = :mes "
                 + " LEFT JOIN pdt621DataNew pDataN ON lp.ruc = pDataN.idCliente AND lp.anio = pDataN.anio AND lp.mes = pDataN.mes "
                 + " LEFT JOIN sireData siData ON c.ruc = siData.idCliente AND siData.anio = :anio AND siData.mes = :mes "
                 + " LEFT JOIN pdt621registros pR ON p.idCliente = pR.idCliente AND pR.anio = :anio AND pR.mes = :mes "
                 + "      AND pR.id = (select MAX(id) from pdt621Registros x where x.idCliente = c.ruc AND x.anio = :anio AND x.mes = :mes AND x.idTipo IN (3,4,5) ) "
-                + " LEFT JOIN pleComprasVentasData ple ON ple.idCliente = c.ruc AND ple.anio = :anio AND ple.mes = :mes "
                 + " LEFT JOIN gestionRegimenesTributarios grt ON c.ruc = grt.idCliente AND grt.anio = :anio AND grt.mes = :mes "
                 + " LEFT JOIN regimenesTributarios rt ON grt.idRegimenTributario = rt.id "
                 + " LEFT JOIN personal per2 ON lp.dniResponsable2RTB = per2.dni "
@@ -221,7 +210,7 @@ public class LoginProcesosRepository {
         if (equipo2 != null && !equipo2.trim().isEmpty()) {
             List<String> eqList = Arrays.stream(equipo2.split(",")).map(String::trim).collect(Collectors.toList());
             if (eqList.contains("0") || eqList.contains("00000000")) {
-                sql.append(" AND (lp.dniResponsable2RTB IN (:equipo2) OR lp.dniResponsable2RTB IS NULL) ");
+                sql.append(" AND (lp.dniResponsable2RTB IN (:equipo2) OR lp.dniResponsable2RTB IS NULL OR LTRIM(RTRIM(lp.dniResponsable2RTB)) = '') ");
             } else {
                 sql.append(" AND lp.dniResponsable2RTB IN (:equipo2) ");
             }
@@ -233,15 +222,18 @@ public class LoginProcesosRepository {
         bindBaseParameters(query, anio, mes);
 
         if (estados != null && !estados.trim().isEmpty()) {
-            query.setParameter("estados", Arrays.stream(estados.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList()));
+            query.setParameter("estados", Arrays.stream(estados.split(",")).map(String::trim).map(Integer::parseInt)
+                    .collect(Collectors.toList()));
         }
 
         if (grupos != null && !grupos.trim().isEmpty()) {
-            query.setParameter("grupos", Arrays.stream(grupos.split(",")).map(String::trim).collect(Collectors.toList()));
+            query.setParameter("grupos",
+                    Arrays.stream(grupos.split(",")).map(String::trim).collect(Collectors.toList()));
         }
 
         if (equipo2 != null && !equipo2.trim().isEmpty()) {
-            query.setParameter("equipo2", Arrays.stream(equipo2.split(",")).map(String::trim).collect(Collectors.toList()));
+            query.setParameter("equipo2",
+                    Arrays.stream(equipo2.split(",")).map(String::trim).collect(Collectors.toList()));
         }
 
         List<Tuple> tuples = query.getResultList();
@@ -250,63 +242,164 @@ public class LoginProcesosRepository {
 
     @SuppressWarnings("unchecked")
     public LoginProcesos getOne(String ruc, String anio, String mes) {
-        String sql = getBaseSelect() + " AND c.ruc = :ruc ";
+        String sql = " SELECT c.razonSocial, "
+                + " (SELECT SUBSTRING ( "
+                + "     (SELECT ',' + cp.plCorreo AS 'data()' FROM clientePersonal cp where cp.idCliente = c.ruc FOR XML PATH('')), 2, 9999) AS Correo) AS correos, "
+                + " lp.movimiento, "
+                + " lp.dniResponsable2RTB, "
+                + " lv.confirmacion as confirmacionVentas, lv.confirmacionUsuario as confirmacionUsuarioVentas, lv.confirmacionFecha as confirmacionFechaVentas, "
+                + " lc.confirmacion as confirmacionCompras, lc.confirmacionUsuario as confirmacionUsuarioCompras, lc.confirmacionFecha as confirmacionFechaCompras, "
+                + " lp.idPropuestaVentas, lp.idPropuestaCompras, "
+                + " lp.preLiquidacion, lp.preLiquidacionUsuario, lp.preLiquidacionFecha, lp.preLiquidacionHora, "
+                + " lp.confirmacion, lp.confirmacionUsuario, lp.confirmacionFecha, lp.confirmacionHora, "
+                + " lp.observacion, lp.version "
+                + " FROM cliente c "
+                + " LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = :anio AND lp.mes = :mes "
+                + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = :anio AND lv.mes = :mes "
+                + " LEFT JOIN loginCompras lc ON c.ruc = lc.idCliente AND lc.anio = :anio AND lc.mes = :mes "
+                + " WHERE c.ruc = :ruc ";
+
         Query query = em.createNativeQuery(sql, Tuple.class);
-        bindBaseParameters(query, anio, mes);
         query.setParameter("ruc", ruc);
+        query.setParameter("anio", anio);
+        query.setParameter("mes", mes);
 
         List<Tuple> tuples = query.getResultList();
-        List<LoginProcesos> result = mapTuples(tuples, anio, mes);
-        return result.isEmpty() ? null : result.get(0);
+        if (tuples.isEmpty()) {
+            return null;
+        }
+
+        Tuple tuple = tuples.get(0);
+        LoginProcesos obj = new LoginProcesos();
+        obj.setRuc(ruc);
+        obj.setAnio(anio);
+        obj.setMes(mes);
+        obj.setRazonSocial(getStringSafely(tuple, "razonSocial"));
+        obj.setCorreos(getStringSafely(tuple, "correos"));
+        obj.setMovimiento(getStringSafely(tuple, "movimiento"));
+        obj.setDniResponsable2RTB(getStringSafely(tuple, "dniResponsable2RTB"));
+
+        obj.setConfirmacionVentas(getIntegerSafely(tuple, "confirmacionVentas"));
+        obj.setConfirmacionUsuarioVentas(getStringSafely(tuple, "confirmacionUsuarioVentas"));
+        obj.setConfirmacionFechaVentas(getStringSafely(tuple, "confirmacionFechaVentas"));
+
+        obj.setConfirmacionCompras(getIntegerSafely(tuple, "confirmacionCompras"));
+        obj.setConfirmacionUsuarioCompras(getStringSafely(tuple, "confirmacionUsuarioCompras"));
+        obj.setConfirmacionFechaCompras(getStringSafely(tuple, "confirmacionFechaCompras"));
+
+        obj.setPropuestaVentas(new Gclass(getIntegerSafely(tuple, "idPropuestaVentas")));
+        obj.setPropuestaCompras(new Gclass(getIntegerSafely(tuple, "idPropuestaCompras")));
+
+        obj.setPreLiquidacion(getIntegerSafely(tuple, "preLiquidacion"));
+        obj.setPreLiquidacionFecha(getStringSafely(tuple, "preLiquidacionFecha"));
+        obj.setPreLiquidacionUsuario(getStringSafely(tuple, "preLiquidacionUsuario"));
+        obj.setPreLiquidacionHora(getStringSafely(tuple, "preLiquidacionHora"));
+
+        obj.setConfirmacion(getIntegerSafely(tuple, "confirmacion"));
+        obj.setConfirmacionFecha(getStringSafely(tuple, "confirmacionFecha"));
+        obj.setConfirmacionUsuario(getStringSafely(tuple, "confirmacionUsuario"));
+        obj.setConfirmacionHora(getStringSafely(tuple, "confirmacionHora"));
+
+        obj.setVersion(getIntegerSafely(tuple, "version"));
+        obj.setObservacion(getStringSafely(tuple, "observacion") == null ? "" : getStringSafely(tuple, "observacion"));
+
+        return obj;
     }
 
     // --- REPORTE DIARIO METHODS ---
     @SuppressWarnings("unchecked")
-    public List<LoginProcesos> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
+    public List<LoginProcesos> listExcelDiario(String proceso, String fechaI, String fechaF) {
         String queryProceso = "";
         String queryProcesoFecha = "";
+        String orderBy = "";
 
         switch (proceso) {
-            case "validerCompras":
-                queryProceso = " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, "; // validerCompras references validation/preLiqu in this way in original
-                queryProcesoFecha = " :fechaI <= lp.validacionFecha AND lp.validacionFecha <= :fechaF ";
-                break;
-            case "validerVentas":
-                queryProceso = " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, ";
-                queryProcesoFecha = " :fechaI <= lp.validacionFecha AND lp.validacionFecha <= :fechaF "; // validerVentas isn't standard in processes tables, let's keep exact logic if any
-                break;
             case "preLiquidacion":
                 queryProceso = " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, ";
                 queryProcesoFecha = " :fechaI <= lp.preLiquidacionFecha AND lp.preLiquidacionFecha <= :fechaF ";
+                orderBy = " ORDER BY lp.preLiquidacionFecha ";
                 break;
             case "confirmacion":
                 queryProceso = " lp.confirmacion, lp.confirmacionFecha, lp.confirmacionUsuario, ";
                 queryProcesoFecha = " :fechaI <= lp.confirmacionFecha AND lp.confirmacionFecha <= :fechaF ";
+                orderBy = " ORDER BY lp.confirmacionFecha ";
                 break;
         }
 
-        // We will select using getBaseSelect() for mapping parities and append the date range filter
-        String sql = getBaseSelect() + " AND " + queryProcesoFecha + " ORDER BY lp.id "; // lp.id or similar
-        // Wait, lp does not have simple id since it uses composite primary key. We can order by LP preLiquidacionFecha / confirmacionFecha or c.y
-        if (proceso.equals("preLiquidacion")) {
-            sql = getBaseSelect() + " AND " + queryProcesoFecha + " ORDER BY lp.preLiquidacionFecha ";
-        } else if (proceso.equals("confirmacion")) {
-            sql = getBaseSelect() + " AND " + queryProcesoFecha + " ORDER BY lp.confirmacionFecha ";
-        } else {
-            sql = getBaseSelect() + " AND " + queryProcesoFecha + " ORDER BY lp.preLiquidacionFecha ";
-        }
+        String sql = " SELECT c.ruc, c.y, c.razonSocial, c.nombreCorto AS nombreCortoSigner, c.idEstado, cE.descripcion AS estado, "
+                + " c.idTipoServicio, tS.abreviatura as tipoServicioAbr, tS.descripcion as tipoServicio, lp.movimiento, "
+                + " c.prioridad, lp.anio, lp.mes, "
+                + queryProceso
+                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, "
+                + " c.fPle, "
+                + " CASE WHEN c.ruc = lie.ruc THEN 'STORECOM' ELSE 'ENTERCOM' END AS areaEncargada "
+                + " FROM cliente c "
+                + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
+                + " LEFT JOIN clientsTipoServicio tS ON c.idTipoServicio = tS.id "
+                + " LEFT JOIN loginInventariosEmpresas lie ON c.ruc = lie.ruc "
+                + " LEFT JOIN loginProcesos lp ON lp.ruc = c.ruc "
+                + " WHERE " + queryProcesoFecha
+                + orderBy;
 
         Query query = em.createNativeQuery(sql, Tuple.class);
-        bindBaseParameters(query, anio, mes);
         query.setParameter("fechaI", fechaI);
         query.setParameter("fechaF", fechaF);
 
         List<Tuple> tuples = query.getResultList();
-        return mapTuples(tuples, anio, mes);
+        List<LoginProcesos> list = new ArrayList<>();
+        for (Tuple tuple : tuples) {
+            LoginProcesos obj = new LoginProcesos();
+            obj.setRuc(getStringSafely(tuple, "ruc"));
+            Character yChar = getCharacterSafely(tuple, "y");
+            obj.setY(yChar != null ? yChar.toString() : null);
+            obj.setRazonSocial(getStringSafely(tuple, "razonSocial"));
+            obj.setNombreCortoSigner(getStringSafely(tuple, "nombreCortoSigner"));
+            obj.setIdEstado(getIntegerSafely(tuple, "idEstado"));
+            obj.setEstado(getStringSafely(tuple, "estado"));
+
+            obj.setIdTipoServicio(getIntegerSafely(tuple, "idTipoServicio"));
+            obj.setTipoServicioAbr(getStringSafely(tuple, "tipoServicioAbr"));
+            obj.setTipoServicio(getStringSafely(tuple, "tipoServicio"));
+
+            obj.setMovimiento(getStringSafely(tuple, "movimiento"));
+
+            obj.setPrioridad(getStringSafely(tuple, "prioridad"));
+            obj.setAnio(getStringSafely(tuple, "anio"));
+            obj.setMes(getStringSafely(tuple, "mes"));
+
+            switch (proceso) {
+                case "preLiquidacion":
+                    obj.setPreLiquidacion(getIntegerSafely(tuple, "preLiquidacion"));
+                    obj.setPreLiquidacionFecha(getStringSafely(tuple, "preLiquidacionFecha"));
+                    obj.setPreLiquidacionUsuario(getStringSafely(tuple, "preLiquidacionUsuario"));
+                    break;
+                case "confirmacion":
+                    obj.setConfirmacion(getIntegerSafely(tuple, "confirmacion"));
+                    obj.setConfirmacionFecha(getStringSafely(tuple, "confirmacionFecha"));
+                    obj.setConfirmacionUsuario(getStringSafely(tuple, "confirmacionUsuario"));
+                    break;
+            }
+
+            obj.setSolU(getStringSafely(tuple, "solU"));
+            obj.setSolC(getStringSafely(tuple, "solC"));
+            obj.setSoldierU(getStringSafely(tuple, "soldierU"));
+            obj.setSoldierC(getStringSafely(tuple, "soldierC"));
+            obj.setObservacion(
+                    getStringSafely(tuple, "observacion") == null ? "" : getStringSafely(tuple, "observacion"));
+
+            String fPleVal = getStringSafely(tuple, "fPle");
+            obj.setPle((fPleVal == null || fPleVal.isEmpty()) ? "" : "PLE");
+
+            obj.setAreaEncargada(getStringSafely(tuple, "areaEncargada"));
+
+            list.add(obj);
+        }
+        return list;
     }
 
     public int countAcumulado(String proceso, String fecha, String anio, String mes) {
-        // Obtenemos el inicio de mes de la fecha indicada (ej. 2026-05-15 -> 2026-05-01)
+        // Obtenemos el inicio de mes de la fecha indicada (ej. 2026-05-15 ->
+        // 2026-05-01)
         java.time.LocalDate date = java.time.LocalDate.parse(fecha);
         String fechaI = date.withDayOfMonth(1).toString();
         // fechaF = fecha menos 1 dia
@@ -374,8 +467,10 @@ public class LoginProcesosRepository {
     private Character getCharacterSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
-            if (obj == null) return null;
-            if (obj instanceof Character) return (Character) obj;
+            if (obj == null)
+                return null;
+            if (obj instanceof Character)
+                return (Character) obj;
             String s = obj.toString().trim();
             return s.isEmpty() ? null : s.charAt(0);
         } catch (IllegalArgumentException e) {
@@ -386,8 +481,10 @@ public class LoginProcesosRepository {
     private Integer getIntegerSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
-            if (obj == null) return 0;
-            if (obj instanceof Number) return ((Number) obj).intValue();
+            if (obj == null)
+                return 0;
+            if (obj instanceof Number)
+                return ((Number) obj).intValue();
             return Integer.parseInt(obj.toString().trim());
         } catch (IllegalArgumentException e) {
             return 0;
@@ -397,8 +494,10 @@ public class LoginProcesosRepository {
     private Double getDoubleSafely(Tuple tuple, String alias) {
         try {
             Object obj = tuple.get(alias);
-            if (obj == null) return 0.0;
-            if (obj instanceof Number) return ((Number) obj).doubleValue();
+            if (obj == null)
+                return 0.0;
+            if (obj instanceof Number)
+                return ((Number) obj).doubleValue();
             return Double.parseDouble(obj.toString().trim());
         } catch (IllegalArgumentException e) {
             return 0.0;
@@ -408,20 +507,24 @@ public class LoginProcesosRepository {
     private List<LoginProcesos> mapTuples(List<Tuple> tuples, String anio, String mes) {
         List<LoginProcesos> list = new ArrayList<>();
         for (Tuple tuple : tuples) {
+
             LoginProcesos obj = new LoginProcesos();
             obj.setRuc(getStringSafely(tuple, "ruc"));
+
             Character yChar = getCharacterSafely(tuple, "y");
             obj.setY(yChar != null ? yChar.toString() : null);
+
             obj.setRazonSocial(getStringSafely(tuple, "razonSocial"));
             obj.setNombreCortoSigner(getStringSafely(tuple, "nombreCortoSigner"));
             obj.setIdEstado(getIntegerSafely(tuple, "idEstado"));
             obj.setEstado(getStringSafely(tuple, "estado"));
-            obj.setGrupoEconomico(new Gclass(getIntegerSafely(tuple, "idGrupoEconomico"), getStringSafely(tuple, "descGrupoEconomico")));
+            obj.setGrupoEconomico(new Gclass(getIntegerSafely(tuple, "idGrupoEconomico"),
+                    getStringSafely(tuple, "descGrupoEconomico")));
 
             SignerNivel sn = new SignerNivel();
-            sn.setCategoria(new Gclass(getIntegerSafely(tuple, "idCategoria"), getStringSafely(tuple, "abrCategoria"), getStringSafely(tuple, "descCategoria")));
+            sn.setCategoria(new Gclass(getIntegerSafely(tuple, "idCategoria"), getStringSafely(tuple, "abrCategoria"),
+                    getStringSafely(tuple, "descCategoria")));
             sn.setCategoriaStore(getIntegerSafely(tuple, "categoriaStore"));
-            sn.setCategoriaGrupoE(getIntegerSafely(tuple, "categoriaGrupoE"));
             obj.setSignerNivel(sn);
 
             obj.setGestionRegimenTributario(getIntegerSafely(tuple, "gestionRegimenTributario"));
@@ -487,7 +590,8 @@ public class LoginProcesosRepository {
                 obj.setSireCV(getIntegerSafely(tuple, "sireCV"));
             }
 
-            obj.setObservacion(getStringSafely(tuple, "observacion") == null ? "" : getStringSafely(tuple, "observacion"));
+            obj.setObservacion(
+                    getStringSafely(tuple, "observacion") == null ? "" : getStringSafely(tuple, "observacion"));
 
             // RESPONSABLES RTB
             String respDni = getStringSafely(tuple, "responsable2Dni");
@@ -496,36 +600,10 @@ public class LoginProcesosRepository {
                 obj.setResponsable2RTB("");
             } else {
                 obj.setDniResponsable2RTB(respDni);
-                String nombres = getStringSafely(tuple, "nombreResponsable2");
-                String apellidos = getStringSafely(tuple, "apellidoResponsable2");
-                obj.setResponsable2RTB((nombres != null ? nombres : "") + " " + (apellidos != null ? apellidos : ""));
+                obj.setResponsable2RTB(getStringSafely(tuple, "descResponsable2"));
             }
 
             // EXTRA DETAILS FOR EXCEL
-            obj.setPrioridad(getStringSafely(tuple, "prioridad"));
-            obj.setRecepcion(getIntegerSafely(tuple, "recepcion"));
-            obj.setRecepcionFecha(getStringSafely(tuple, "recepcionFecha"));
-            obj.setRecepcionUsuario(getStringSafely(tuple, "recepcionUsuario"));
-            obj.setTipoDocumento(new Gclass(getIntegerSafely(tuple, "idTipoDocumento"), getStringSafely(tuple, "abrTipoDocumento"), getStringSafely(tuple, "descTipoDocumento")));
-
-            obj.setArchivo(getIntegerSafely(tuple, "archivo"));
-            obj.setArchivoFecha(getStringSafely(tuple, "archivoFecha"));
-            obj.setArchivoUsuario(getStringSafely(tuple, "archivoUsuario"));
-
-            obj.setRegistroVentas(getIntegerSafely(tuple, "registroVentas"));
-            obj.setRegistroUsuarioVentas(getStringSafely(tuple, "registroUsuarioVentas"));
-            obj.setRegistroFechaVentas(getStringSafely(tuple, "registroFechaVentas"));
-            obj.setValidacionVentas(getIntegerSafely(tuple, "validacionVentas"));
-            obj.setValidacionUsuarioVentas(getStringSafely(tuple, "validacionUsuarioVentas"));
-            obj.setValidacionFechaVentas(getStringSafely(tuple, "validacionFechaVentas"));
-
-            obj.setRegistroGeneralCompras(getIntegerSafely(tuple, "registroGeneralCompras"));
-            obj.setRegistroGeneralUsuarioCompras(getStringSafely(tuple, "registroGeneralUsuarioCompras"));
-            obj.setRegistroGeneralFechaCompras(getStringSafely(tuple, "registroGeneralFechaCompras"));
-            obj.setValidacionCompras(getIntegerSafely(tuple, "validacionCompras"));
-            obj.setValidacionUsuarioCompras(getStringSafely(tuple, "validacionUsuarioCompras"));
-            obj.setValidacionFechaCompras(getStringSafely(tuple, "validacionFechaCompras"));
-
             obj.setPropuestaVentas(new Gclass(getIntegerSafely(tuple, "idPropuestaVentas")));
             obj.setPropuestaCompras(new Gclass(getIntegerSafely(tuple, "idPropuestaCompras")));
 
@@ -533,20 +611,6 @@ public class LoginProcesosRepository {
             obj.setSolC(getStringSafely(tuple, "solC"));
             obj.setSoldierU(getStringSafely(tuple, "soldierU"));
             obj.setSoldierC(getStringSafely(tuple, "soldierC"));
-
-            String fPleVal = getStringSafely(tuple, "fPle");
-            obj.setPle((fPleVal == null || fPleVal.isEmpty()) ? "" : "PLE");
-            obj.setRucSire((getStringSafely(tuple, "rucSire") == null || getStringSafely(tuple, "rucSire").isEmpty()) ? "" : "SIRE");
-            obj.setInventario((getStringSafely(tuple, "rucInventario") == null || getStringSafely(tuple, "rucInventario").isEmpty()) ? "" : "INV");
-
-            obj.setPleCV(getIntegerSafely(tuple, "pleCV"));
-            obj.setVentasFilas(getIntegerSafely(tuple, "ventasFilas"));
-            obj.setComprasFilas(getIntegerSafely(tuple, "comprasFilas"));
-            obj.setAreaEncargada(getStringSafely(tuple, "areaEncargada"));
-
-            obj.setIdTipoServicio(getIntegerSafely(tuple, "idTipoServicio"));
-            obj.setTipoServicioAbr(getStringSafely(tuple, "tipoServicioAbr"));
-            obj.setTipoServicio(getStringSafely(tuple, "tipoServicio"));
 
             obj.setVersion(getIntegerSafely(tuple, "version"));
 
@@ -558,18 +622,17 @@ public class LoginProcesosRepository {
                 }
             }
             int ordVal = 0;
-            if (obj.getRecepcion() != null) ordVal += obj.getRecepcion();
-            if (obj.getArchivo() != null) ordVal += obj.getArchivo();
-            if (obj.getRegistroVentas() != null) ordVal += obj.getRegistroVentas();
-            if (obj.getValidacionVentas() != null) ordVal += obj.getValidacionVentas();
-            if (obj.getConfirmacionVentas() != null) ordVal += obj.getConfirmacionVentas();
-            if (obj.getRegistroGeneralCompras() != null) ordVal += obj.getRegistroGeneralCompras();
-            if (obj.getValidacionCompras() != null) ordVal += obj.getValidacionCompras();
-            if (obj.getConfirmacionCompras() != null) ordVal += obj.getConfirmacionCompras();
-            if (obj.getPreLiquidacion() != null) ordVal += obj.getPreLiquidacion();
-            if (obj.getConfirmacion() != null) ordVal += obj.getConfirmacion();
+            if (obj.getConfirmacionVentas() != null)
+                ordVal += obj.getConfirmacionVentas();
+            if (obj.getConfirmacionCompras() != null)
+                ordVal += obj.getConfirmacionCompras();
+            if (obj.getPreLiquidacion() != null)
+                ordVal += obj.getPreLiquidacion();
+            if (obj.getConfirmacion() != null)
+                ordVal += obj.getConfirmacion();
+            if (obj.getSireCV() != null)
+                ordVal += obj.getSireCV();
             ordVal += pdt621Registrado;
-            if (obj.getPleCV() != null) ordVal += obj.getPleCV();
             obj.setOrden(ordVal);
 
             list.add(obj);
