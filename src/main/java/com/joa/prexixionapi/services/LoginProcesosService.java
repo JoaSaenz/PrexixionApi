@@ -48,12 +48,15 @@ public class LoginProcesosService {
             int currAnio = startAnio;
             int currMes = startMes;
 
+            // Bucle en el LoginProcesosService de la API para acumular registros de varios
+            // meses
             while (currAnio * 100 + currMes <= endAnio * 100 + endMes) {
                 String mesStr = currMes < 10 ? "0" + currMes : String.valueOf(currMes);
                 String anioStr = String.valueOf(currAnio);
 
                 all.addAll(loginProcesosRepository.list(anioStr, mesStr, null, null, null));
 
+                // ... incremento del mes/año ...
                 if (currMes == 12) {
                     currAnio++;
                     currMes = 1;
@@ -67,7 +70,7 @@ public class LoginProcesosService {
 
         // Aplicar filtros en memoria
         List<LoginProcesos> filtered = new ArrayList<>();
-        
+
         int confirmacionVentasSi = 0;
         int confirmacionVentasNo = 0;
         int confirmacionVentasF = 0;
@@ -233,89 +236,106 @@ public class LoginProcesosService {
             boolean match = (c.getRuc() != null && c.getRuc().toLowerCase().contains(q))
                     || (c.getRazonSocial() != null && c.getRazonSocial().toLowerCase().contains(q))
                     || (c.getNombreCortoSigner() != null && c.getNombreCortoSigner().toLowerCase().contains(q))
-                    || (c.getGrupoEconomico() != null && c.getGrupoEconomico().getDescripcion() != null && c.getGrupoEconomico().getDescripcion().toLowerCase().contains(q));
-            if (!match) return false;
+                    || (c.getGrupoEconomico() != null && c.getGrupoEconomico().getDescripcion() != null
+                            && c.getGrupoEconomico().getDescripcion().toLowerCase().contains(q));
+            if (!match)
+                return false;
         }
 
         // 2. Estados
         if (req.getEstadosString() != null && !req.getEstadosString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getEstadosString());
             String val = c.getIdEstado() != null ? String.valueOf(c.getIdEstado()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 3. Categorias (from signerNivel.categoria.id)
         if (req.getCategoriasString() != null && !req.getCategoriasString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getCategoriasString());
             String val = (c.getSignerNivel() != null && c.getSignerNivel().getCategoria() != null)
-                    ? String.valueOf(c.getSignerNivel().getCategoria().getId()) : "0";
-            if (!list.contains(val)) return false;
+                    ? String.valueOf(c.getSignerNivel().getCategoria().getId())
+                    : "0";
+            if (!list.contains(val))
+                return false;
         }
 
         // 4. CategoriaStore
         if (req.getCategoriaStoreString() != null && !req.getCategoriaStoreString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getCategoriaStoreString());
             String val = (c.getSignerNivel() != null)
-                    ? String.valueOf(c.getSignerNivel().getCategoriaStore()) : "0";
-            if (!list.contains(val)) return false;
+                    ? String.valueOf(c.getSignerNivel().getCategoriaStore())
+                    : "0";
+            if (!list.contains(val))
+                return false;
         }
 
         // 5. GrupoEconomico
         if (req.getGrupoEconomicoString() != null && !req.getGrupoEconomicoString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getGrupoEconomicoString());
             String val = (c.getGrupoEconomico() != null && c.getGrupoEconomico().getId() != 0)
-                    ? String.valueOf(c.getGrupoEconomico().getId()) : "0";
-            if (!list.contains(val)) return false;
+                    ? String.valueOf(c.getGrupoEconomico().getId())
+                    : "0";
+            if (!list.contains(val))
+                return false;
         }
 
         // 6. Grupos
         if (req.getGruposString() != null && !req.getGruposString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getGruposString());
             String val = c.getY() != null ? c.getY() : "";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 7. Equipo2 (DniResponsable2RTB)
         if (req.getEquipo2String() != null && !req.getEquipo2String().trim().isEmpty()) {
             List<String> list = parseCsv(req.getEquipo2String());
             String val = (c.getDniResponsable2RTB() != null && !c.getDniResponsable2RTB().trim().isEmpty())
-                    ? c.getDniResponsable2RTB().trim() : "0";
-            if (!list.contains(val)) return false;
+                    ? c.getDniResponsable2RTB().trim()
+                    : "0";
+            if (!list.contains(val))
+                return false;
         }
 
         // 8. ConfirmacionVentas
         if (req.getConfirmacionVentasString() != null && !req.getConfirmacionVentasString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionVentasString());
             String val = c.getConfirmacionVentas() != null ? String.valueOf(c.getConfirmacionVentas()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 9. ConfirmacionCompras
         if (req.getConfirmacionComprasString() != null && !req.getConfirmacionComprasString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionComprasString());
             String val = c.getConfirmacionCompras() != null ? String.valueOf(c.getConfirmacionCompras()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 10. PreLiquidacion
         if (req.getPreLiquidacionString() != null && !req.getPreLiquidacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getPreLiquidacionString());
             String val = c.getPreLiquidacion() != null ? String.valueOf(c.getPreLiquidacion()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 11. Confirmacion
         if (req.getConfirmacionString() != null && !req.getConfirmacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionString());
             String val = c.getConfirmacion() != null ? String.valueOf(c.getConfirmacion()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 12. SireCv
         if (req.getSireCvString() != null && !req.getSireCvString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getSireCvString());
             String val = c.getSireCV() != null ? String.valueOf(c.getSireCV()) : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 13. Pdt
@@ -329,17 +349,20 @@ public class LoginProcesosService {
                 }
             }
             String val = hasOrder ? "1" : "0";
-            if (!list.contains(val)) return false;
+            if (!list.contains(val))
+                return false;
         }
 
         // 14. fVencimiento range
         if (c.getfVencimiento() != null) {
             String fVenc = c.getfVencimiento();
             if (req.getFVencimientoMin() != null && !req.getFVencimientoMin().isEmpty()) {
-                if (fVenc.compareTo(req.getFVencimientoMin()) < 0) return false;
+                if (fVenc.compareTo(req.getFVencimientoMin()) < 0)
+                    return false;
             }
             if (req.getFVencimientoMax() != null && !req.getFVencimientoMax().isEmpty()) {
-                if (fVenc.compareTo(req.getFVencimientoMax()) > 0) return false;
+                if (fVenc.compareTo(req.getFVencimientoMax()) > 0)
+                    return false;
             }
         }
 
