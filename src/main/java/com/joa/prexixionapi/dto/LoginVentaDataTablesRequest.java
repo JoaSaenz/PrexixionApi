@@ -4,9 +4,6 @@ import lombok.Data;
 
 @Data
 public class LoginVentaDataTablesRequest {
-    private int draw = 1;
-    private int start = 0;
-    private int length = 10;
     private String search;
     private String periodoI;
     private String periodoF;

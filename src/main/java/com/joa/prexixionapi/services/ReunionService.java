@@ -67,10 +67,27 @@ public class ReunionService {
         long total = reunionRepository.countTotal();
 
         return ReunionDataTablesResponse.builder()
-                .draw(req.getDraw())
                 .recordsTotal(total)
                 .recordsFiltered(filtered)
                 .data(data)
                 .build();
+    }
+
+    public ReunionDTO getReunion(int idReunion) {
+        return reunionRepository.getReunion(idReunion);
+    }
+
+    public ReunionDTO insertUpdate(ReunionDTO reunion) {
+        if (reunion.getId() == 0) {
+            int newId = reunionRepository.insertReunion(reunion);
+            reunion.setId(newId);
+        } else {
+            reunionRepository.updateReunion(reunion);
+        }
+        return reunion;
+    }
+
+    public void deleteReunion(int idReunion) {
+        reunionRepository.deleteReunion(idReunion);
     }
 }

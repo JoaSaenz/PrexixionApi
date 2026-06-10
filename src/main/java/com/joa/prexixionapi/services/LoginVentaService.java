@@ -30,9 +30,48 @@ public class LoginVentaService {
     @Autowired
     private LoginVentaJpaRepository loginVentaJpaRepository;
 
+    public String[] getVencimientoLimits(String periodoI, String periodoF) {
+        int startAnio = Integer.parseInt(periodoI.substring(0, 4));
+        int startMes = Integer.parseInt(periodoI.substring(5, 7));
+        int endAnio = Integer.parseInt(periodoF.substring(0, 4));
+        int endMes = Integer.parseInt(periodoF.substring(5, 7));
+
+        int currAnio = startAnio;
+        int currMes = startMes;
+        
+        String globalMin = null;
+        String globalMax = null;
+
+        while (currAnio * 100 + currMes <= endAnio * 100 + endMes) {
+            String mesStr = currMes < 10 ? "0" + currMes : String.valueOf(currMes);
+            String anioStr = String.valueOf(currAnio);
+
+            String[] limits = loginVentaRepository.getVencimientoLimits(anioStr, mesStr);
+            
+            if (limits[0] != null && !limits[0].isEmpty()) {
+                if (globalMin == null || limits[0].compareTo(globalMin) < 0) {
+                    globalMin = limits[0];
+                }
+            }
+            if (limits[1] != null && !limits[1].isEmpty()) {
+                if (globalMax == null || limits[1].compareTo(globalMax) > 0) {
+                    globalMax = limits[1];
+                }
+            }
+
+            if (currMes == 12) {
+                currAnio++;
+                currMes = 1;
+            } else {
+                currMes++;
+            }
+        }
+        
+        return new String[]{globalMin != null ? globalMin : "", globalMax != null ? globalMax : ""};
+    }
+
     public LoginVentaDataTablesResponse listServerSide(LoginVentaDataTablesRequest req) {
         LoginVentaDataTablesResponse response = new LoginVentaDataTablesResponse();
-        response.setDraw(req.getDraw());
 
         List<Cliente> all = new ArrayList<>();
 

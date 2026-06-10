@@ -34,6 +34,18 @@ public class LoginVentaController {
     @Autowired
     private LoginVentaExcelService loginVentaExcelService;
 
+    @GetMapping("/vencimiento-limits")
+    public String[] getVencimientoLimits(
+            @RequestParam(required = true) String periodoI,
+            @RequestParam(required = true) String periodoF) {
+        try {
+            return loginVentaService.getVencimientoLimits(periodoI, periodoF);
+        } catch (Exception e) {
+            log.error("Error en getVencimientoLimits para periodoI: {}, periodoF: {}", periodoI, periodoF, e);
+            throw e;
+        }
+    }
+
     @GetMapping("/server-side")
     public LoginVentaDataTablesResponse listServerSide(LoginVentaDataTablesRequest req) {
         try {

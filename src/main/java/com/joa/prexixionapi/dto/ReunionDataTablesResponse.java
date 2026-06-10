@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ReunionDataTablesResponse {
-    private int draw;
     private long recordsTotal;
     private long recordsFiltered;
     private List<ReunionDTO> data;

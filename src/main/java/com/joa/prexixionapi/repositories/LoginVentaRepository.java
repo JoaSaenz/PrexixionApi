@@ -23,30 +23,8 @@ public class LoginVentaRepository {
     @PersistenceContext
     private EntityManager em;
 
-    private String getBaseSelect(String anio, String mes) {
-        String lastAnio = String.valueOf(Integer.parseInt(anio) - 1);
-        int anioMesInt = Integer.parseInt(anio + mes);
-
-        String queryComprasFilasColumna = "";
-        String queryComprasFilasJoin = "";
-
-        if (anioMesInt < 202310) {
-            queryComprasFilasColumna = " ple.comprasFilas, ";
-            // Asumiendo anioAux y mesAux corresponden a reducir 1 mes. Lo calcularemos en
-            // Java y lo pasaremos o lo calcularemos en BD.
-            // Para mantener fidelidad con el query original:
-            queryComprasFilasJoin = " LEFT JOIN pleComprasVentasData ple ON ple.idCliente = c.ruc AND ple.anio = :anioAux AND ple.mes = :mesAux ";
-        } else {
-            queryComprasFilasColumna = " sd.comprasFilas, ";
-            queryComprasFilasJoin = " LEFT JOIN sireData sd ON sd.idCliente = c.ruc AND sd.anio = :anioAux AND sd.mes = :mesAux ";
-        }
-
-        return "SELECT c.idEstado, cE.descripcion AS estado, "
-                + " CASE WHEN cso.idCliente IS NOT NULL THEN 1 ELSE 0 END AS categoriaStore, "
-                + " c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, "
-                + " c.ruc, c.y, c.razonSocial, c.nombreCorto, "
-                + " c.rTMypeTributario, c.rTRus, c.rTEspecial, c.rTGeneral, c.rTAmazonico, c.rTAgrario, c.rT1ra, c.rT2da, c.rT3ra, c.rT4ta, c.rT5ta, "
-                + "CASE WHEN (" + anio + mes + " >= 202310) "
+    private String getFVencimientoSql(String anio, String mes, String lastAnio) {
+        return "CASE WHEN (" + anio + mes + " >= 202310) "
                 + "	 THEN CASE WHEN si.idCliente IS NOT NULL "
                 + "			   THEN CASE WHEN c.y = '0' THEN crS.fecha0 WHEN c.y = '1' THEN crS.fecha1 WHEN c.y = '2' THEN crS.fecha2 "
                 + "				     WHEN c.y = '3' THEN crS.fecha3 WHEN c.y = '4' THEN crS.fecha4 WHEN c.y = '5' THEN crS.fecha5 "
@@ -58,8 +36,7 @@ public class LoginVentaRepository {
                 + "                                  WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab END END "
                 + "	 ELSE CASE WHEN c.fPle IS NOT NULL THEN "
                 + "     	   CASE WHEN c.fPle != '' THEN "
-                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes
-                + " <= 202008) THEN "
+                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes + " <= 202008) THEN "
                 + "     	                    CASE WHEN (" + anio + mes + " = 202002) THEN "
                 + "     	                                CASE WHEN (c.y IN ('0','1')) OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
                 + lastAnio + ") >= (u.valor * 2300)) THEN "
@@ -108,8 +85,7 @@ public class LoginVentaRepository {
                 + "     	                         WHEN c.y = '9' THEN crPle.fecha9 END "
                 + "     	            END "
                 + "     	        ELSE "
-                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes
-                + " <= 202008) THEN "
+                + "     	            CASE WHEN (" + anio + mes + " >= 202002) AND (" + anio + mes + " <= 202008) THEN "
                 + "     	                   CASE WHEN (" + anio + mes + " = 202002) THEN "
                 + "     	                               CASE WHEN (c.y = '0') OR ((SELECT SUM(ventasG)+SUM(ventasNg) FROM pdt621DataNew pdt WHERE pdt.idCliente = c.ruc AND pdt.anio = "
                 + lastAnio + ") >= (u.valor * 2300)) THEN "
@@ -159,7 +135,56 @@ public class LoginVentaRepository {
                 + "     	            END "
                 + "     	   END "
                 + "       END "
-                + " END AS fVencimiento, "
+                + " END ";
+    }
+
+    private String getBaseFromAndWhere(String anio, String mes, String queryComprasFilasJoin) {
+        String lastAnio = String.valueOf(Integer.parseInt(anio) - 1);
+        return " FROM cliente c "
+                + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
+                + " LEFT JOIN ( SELECT DISTINCT idCliente FROM clienteServiciosOtros WHERE soIdServicioOtro = 6 ) cso ON c.ruc = cso.idCliente "
+                + " LEFT JOIN gruposEconomicos ge ON c.idGrupoEconomico = ge.id "
+                + " INNER JOIN clienteServiciosTributarios p ON c.ruc = p.idCliente AND p.stIdServicioTributario = 4 "
+                + " LEFT JOIN clienteServiciosTributarios si ON c.ruc = si.idCliente AND si.stIdServicioTributario = 15 "
+                + " AND CAST(si.stAnioDesde + si.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
+                + " ( CAST(si.stAnioHasta + si.stMesHasta + '01' as date) >= '" + anio + "-" + mes + "-01' OR si.stAnioHasta IS NULL ) "
+                + " LEFT JOIN cronogramaPDT cr ON '" + anio + "' = cr.anio AND '" + mes + "' = cr.mes "
+                + " LEFT JOIN cronogramaCovidPDT crC ON '" + anio + "' = crC.anio AND '" + mes + "' = crC.mes "
+                + " LEFT JOIN cronogramaPricoPDT crP ON '" + anio + "' = crP.anio AND '" + mes + "' = crP.mes "
+                + " LEFT JOIN CRONOGRAMAPLE_A crPle ON crPle.anio = '" + anio + "' AND crPle.mes = '" + mes + "' "
+                + " LEFT JOIN CRONOGRAMACOVIDPLE_A crPleC ON crPleC.anio = '" + anio + "' AND crPleC.mes = '" + mes + "' "
+                + " LEFT JOIN cronogramaPricoPLE_A crPleP ON crPleP.anio = '" + anio + "' AND crPleP.mes = '" + mes + "'  "
+                + " LEFT JOIN cronogramaSire crS ON '" + anio + "' = crS.anio AND '" + mes + "' = crS.mes "
+                + " LEFT JOIN uit u ON u.anio = '" + lastAnio + "' "
+                + " LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = '" + anio + "'  AND lp.mes = '" + mes + "' "
+                + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = '" + anio + "'  AND lv.mes = '" + mes + "' "
+                + " LEFT JOIN personal per ON lv.responsable = per.dni "
+                + queryComprasFilasJoin
+                + " WHERE CAST(p.stAnioDesde + p.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
+                + " ( CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= '" + anio + "-" + mes + "-01' OR p.stAnioHasta IS NULL ) ";
+    }
+
+    private String getBaseSelect(String anio, String mes) {
+        String lastAnio = String.valueOf(Integer.parseInt(anio) - 1);
+        int anioMesInt = Integer.parseInt(anio + mes);
+
+        String queryComprasFilasColumna = "";
+        String queryComprasFilasJoin = "";
+
+        if (anioMesInt < 202310) {
+            queryComprasFilasColumna = " ple.comprasFilas, ";
+            queryComprasFilasJoin = " LEFT JOIN pleComprasVentasData ple ON ple.idCliente = c.ruc AND ple.anio = :anioAux AND ple.mes = :mesAux ";
+        } else {
+            queryComprasFilasColumna = " sd.comprasFilas, ";
+            queryComprasFilasJoin = " LEFT JOIN sireData sd ON sd.idCliente = c.ruc AND sd.anio = :anioAux AND sd.mes = :mesAux ";
+        }
+
+        return "SELECT c.idEstado, cE.descripcion AS estado, "
+                + " CASE WHEN cso.idCliente IS NOT NULL THEN 1 ELSE 0 END AS categoriaStore, "
+                + " c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, "
+                + " c.ruc, c.y, c.razonSocial, c.nombreCorto, "
+                + " c.rTMypeTributario, c.rTRus, c.rTEspecial, c.rTGeneral, c.rTAmazonico, c.rTAgrario, c.rT1ra, c.rT2da, c.rT3ra, c.rT4ta, c.rT5ta, "
+                + getFVencimientoSql(anio, mes, lastAnio) + " AS fVencimiento, "
                 + " lp.movimiento, "
                 + " c.sunatSire, c.externoSire, c.gerenciaSire, "
                 + " CASE WHEN EXISTS (SELECT idModalidad FROM clienteProcesos cp WHERE cp.idCliente = c.ruc  AND cp.idProceso = 2 ) "
@@ -183,34 +208,46 @@ public class LoginVentaRepository {
                 + " lv.validacion, lv.validacionUsuario, lv.validacionFecha, lv.validacionHora,"
                 + " lv.confirmacion, lv.confirmacionUsuario, lv.confirmacionFecha, lv.confirmacionHora,"
                 + " lv.observacion, lv.version "
-                + " FROM cliente c "
-                + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
-                + " LEFT JOIN ( SELECT DISTINCT idCliente FROM clienteServiciosOtros WHERE soIdServicioOtro = 6 ) cso ON c.ruc = cso.idCliente "
-                + " LEFT JOIN gruposEconomicos ge ON c.idGrupoEconomico = ge.id "
-                + " INNER JOIN clienteServiciosTributarios p ON c.ruc = p.idCliente AND p.stIdServicioTributario = 4 "
-                + " LEFT JOIN clienteServiciosTributarios si ON c.ruc = si.idCliente AND si.stIdServicioTributario = 15 "
-                + " AND CAST(si.stAnioDesde + si.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
-                + " ( CAST(si.stAnioHasta + si.stMesHasta + '01' as date) >= '" + anio + "-" + mes
-                + "-01' OR si.stAnioHasta IS NULL ) "
-                + " LEFT JOIN cronogramaPDT cr ON '" + anio + "' = cr.anio AND '" + mes + "' = cr.mes "
-                + " LEFT JOIN cronogramaCovidPDT crC ON '" + anio + "' = crC.anio AND '" + mes + "' = crC.mes "
-                + " LEFT JOIN cronogramaPricoPDT crP ON '" + anio + "' = crP.anio AND '" + mes + "' = crP.mes "
-                + " LEFT JOIN CRONOGRAMAPLE_A crPle ON crPle.anio = '" + anio + "' AND crPle.mes = '" + mes + "' "
-                + " LEFT JOIN CRONOGRAMACOVIDPLE_A crPleC ON crPleC.anio = '" + anio + "' AND crPleC.mes = '" + mes
-                + "' "
-                + " LEFT JOIN cronogramaPricoPLE_A crPleP ON crPleP.anio = '" + anio + "' AND crPleP.mes = '" + mes
-                + "'  "
-                + " LEFT JOIN cronogramaSire crS ON '" + anio + "' = crS.anio AND '" + mes + "' = crS.mes "
-                + " LEFT JOIN uit u ON u.anio = '" + lastAnio + "' "
-                + " LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = '" + anio + "'  AND lp.mes = '" + mes
-                + "' "
-                + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = '" + anio + "'  AND lv.mes = '" + mes
-                + "' "
-                + " LEFT JOIN personal per ON lv.responsable = per.dni "
-                + queryComprasFilasJoin
-                + " WHERE CAST(p.stAnioDesde + p.stMesDesde + '01' as date) <= '" + anio + "-" + mes + "-01' AND "
-                + " ( CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= '" + anio + "-" + mes
-                + "-01' OR p.stAnioHasta IS NULL ) ";
+                + getBaseFromAndWhere(anio, mes, queryComprasFilasJoin);
+    }
+    
+    public String[] getVencimientoLimits(String anio, String mes) {
+        String lastAnio = String.valueOf(Integer.parseInt(anio) - 1);
+        int anioMesInt = Integer.parseInt(anio + mes);
+        String queryComprasFilasJoin = "";
+        
+        if (anioMesInt < 202310) {
+            queryComprasFilasJoin = " LEFT JOIN pleComprasVentasData ple ON ple.idCliente = c.ruc AND ple.anio = :anioAux AND ple.mes = :mesAux ";
+        } else {
+            queryComprasFilasJoin = " LEFT JOIN sireData sd ON sd.idCliente = c.ruc AND sd.anio = :anioAux AND sd.mes = :mesAux ";
+        }
+
+        String sql = "SELECT MIN(v.fVencimiento), MAX(v.fVencimiento) FROM ( SELECT " 
+                   + getFVencimientoSql(anio, mes, lastAnio) + " AS fVencimiento "
+                   + getBaseFromAndWhere(anio, mes, queryComprasFilasJoin) + " ) v "
+                   + " WHERE v.fVencimiento IS NOT NULL AND LEN(v.fVencimiento) > 0";
+                   
+        Query query = em.createNativeQuery(sql);
+        
+        int m = Integer.parseInt(mes);
+        int a = Integer.parseInt(anio);
+        if (m == 1) {
+            m = 12;
+            a = a - 1;
+        } else {
+            m = m - 1;
+        }
+        String anioAux = String.valueOf(a);
+        String mesAux = m < 10 ? "0" + m : String.valueOf(m);
+
+        query.setParameter("anioAux", anioAux);
+        query.setParameter("mesAux", mesAux);
+        
+        Object[] result = (Object[]) query.getSingleResult();
+        String min = result[0] != null ? result[0].toString() : "";
+        String max = result[1] != null ? result[1].toString() : "";
+        
+        return new String[]{min, max};
     }
 
     @SuppressWarnings("unchecked")

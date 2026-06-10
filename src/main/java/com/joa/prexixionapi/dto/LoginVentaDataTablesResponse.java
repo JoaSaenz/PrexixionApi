@@ -6,7 +6,6 @@ import com.joa.prexixionapi.entities.Cliente;
 
 @Data
 public class LoginVentaDataTablesResponse {
-    private int draw;
     private int recordsTotal;
     private int recordsFiltered;
     private List<Cliente> data;
