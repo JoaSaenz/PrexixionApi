@@ -37,8 +37,8 @@ public class LoginProcesosExcelService {
     @Autowired
     private LoginProcesosRepository loginProcesosRepository;
 
-    public byte[] exportarExcel(String anio, String mes, String estados, String grupos, String equipo2) {
-        List<LoginProcesos> list = loginProcesosRepository.list(anio, mes, estados, grupos, equipo2);
+    public byte[] exportarExcel(String anio, String mes, String estados, String grupos) {
+        List<LoginProcesos> list = loginProcesosRepository.list(anio, mes, estados, grupos);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Workbook wb = new XSSFWorkbook();
@@ -336,7 +336,7 @@ public class LoginProcesosExcelService {
             Cell cellCabecera = cabecera.createCell(colNum);
             cellCabecera.setCellStyle(cabeceraStyle);
             cellCabecera.setCellValue("M A E S T R O   -  L O G I N    P R O C E S O S");
-            sheet.addMergedRegion(CellRangeAddress.valueOf("A7:R7"));
+            sheet.addMergedRegion(CellRangeAddress.valueOf("A7:Q7"));
             rowNum++;
 
             Row title = sheet.createRow(rowNum);
@@ -353,7 +353,7 @@ public class LoginProcesosExcelService {
             Cell cellTitle2 = title.createCell(colNum);
             cellTitle2.setCellStyle(subHeaderStyle);
             cellTitle2.setCellValue("P  R  O  C  E  S  O");
-            region = CellRangeAddress.valueOf("J8:R8");
+            region = CellRangeAddress.valueOf("J8:Q8");
             sheet.addMergedRegion(region);
             PoiUtils.addBorders(region, BorderStyle.THIN, IndexedColors.WHITE, sheet);
             rowNum++;
@@ -362,7 +362,7 @@ public class LoginProcesosExcelService {
             colNum = 0;
             String[] headers = {
                     "N°", "ESTADO", "CAT", "STO", "GRUPO E.", "Y", "SIGNER", "RT", "MOV",
-                    "V-CON", "C-CON", "PRE", "CONF", "PDT", "PLE CV", "SIRE CV", "RTB",
+                    "V-CON", "C-CON", "PRE", "CONF", "PDT", "PLE CV", "SIRE CV",
                     "OBSERVACION"
             };
             for (String h : headers) {
@@ -563,10 +563,6 @@ public class LoginProcesosExcelService {
                     contSireNo++;
                 }
 
-                Cell rtInfoData = dataRow.createCell(colNum++);
-                rtInfoData.setCellValue(obj.getResponsable2RTB());
-                rtInfoData.setCellStyle(dataSimpleStyle);
-
                 Cell obsData = dataRow.createCell(colNum++);
                 obsData.setCellValue(obj.getObservacion());
                 obsData.setCellStyle(dataSimpleStyle);
@@ -607,7 +603,7 @@ public class LoginProcesosExcelService {
             cellTotalResumenSIRE.setCellValue(contSireSi + contSireNo + contSireNa);
 
             int finFilt = rowNum - 1;
-            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 17));
+            sheet.setAutoFilter(new CellRangeAddress(inicioFilt, finFilt, 0, 16));
             sheet.createFreezePane(0, 10);
 
             for (int contCol = 0; contCol < colNum; contCol++) {
@@ -1135,7 +1131,7 @@ public class LoginProcesosExcelService {
         }
     }
 
-    public byte[] exportarExcelRange(String pI, String pF, String estados, String grupos, String equipo2) {
+    public byte[] exportarExcelRange(String pI, String pF, String estados, String grupos) {
         String anioI = pI.substring(0, 4);
         String mesI = pI.substring(5, 7);
 
@@ -1149,7 +1145,7 @@ public class LoginProcesosExcelService {
         while (Integer.parseInt(anioI + "" + mesI) <= Integer.parseInt(anioF + "" + mesF)) {
             String pKey = anioI + "" + mesI;
             periodos.add(pKey);
-            List<LoginProcesos> subList = loginProcesosRepository.list(anioI, mesI, estados, grupos, equipo2);
+            List<LoginProcesos> subList = loginProcesosRepository.list(anioI, mesI, estados, grupos);
             dataMap.put(pKey, subList);
 
             for (LoginProcesos e : subList) {

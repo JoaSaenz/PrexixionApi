@@ -49,12 +49,12 @@ public class LoginProcesosController {
             @RequestParam(required = true) String anio,
             @RequestParam(required = true) String mes,
             @RequestParam(required = false, defaultValue = "") String estados,
-            @RequestParam(required = false, defaultValue = "") String grupos,
-            @RequestParam(required = false, defaultValue = "") String equipo2) {
+            @RequestParam(required = false, defaultValue = "") String grupos) {
         try {
-            return loginProcesosService.list(anio, mes, estados, grupos, equipo2);
+            return loginProcesosService.list(anio, mes, estados, grupos);
         } catch (Exception e) {
-            log.error("Error al listar login procesos - anio: {}, mes: {}, estados: {}, grupos: {}, equipo2: {}", anio, mes, estados, grupos, equipo2, e);
+            log.error("Error al listar login procesos - anio: {}, mes: {}, estados: {}, grupos: {}", anio, mes, estados,
+                    grupos, e);
             throw e;
         }
     }
@@ -87,10 +87,9 @@ public class LoginProcesosController {
             @RequestParam(required = true) String anio,
             @RequestParam(required = true) String mes,
             @RequestParam(required = false, defaultValue = "") String estados,
-            @RequestParam(required = false, defaultValue = "") String grupos,
-            @RequestParam(required = false, defaultValue = "") String equipo2) {
+            @RequestParam(required = false, defaultValue = "") String grupos) {
         try {
-            byte[] excelContent = loginProcesosExcelService.exportarExcel(anio, mes, estados, grupos, equipo2);
+            byte[] excelContent = loginProcesosExcelService.exportarExcel(anio, mes, estados, grupos);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
@@ -129,10 +128,9 @@ public class LoginProcesosController {
             @RequestParam(required = true) String pI,
             @RequestParam(required = true) String pF,
             @RequestParam(required = false, defaultValue = "") String estados,
-            @RequestParam(required = false, defaultValue = "") String grupos,
-            @RequestParam(required = false, defaultValue = "") String equipo2) {
+            @RequestParam(required = false, defaultValue = "") String grupos) {
         try {
-            byte[] excelContent = loginProcesosExcelService.exportarExcelRange(pI, pF, estados, grupos, equipo2);
+            byte[] excelContent = loginProcesosExcelService.exportarExcelRange(pI, pF, estados, grupos);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);

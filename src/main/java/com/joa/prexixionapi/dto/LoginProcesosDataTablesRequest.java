@@ -15,7 +15,6 @@ public class LoginProcesosDataTablesRequest {
     private String categoriaStoreString;
     private String grupoEconomicoString;
     private String gruposString;
-    private String equipo2String;
     private String confirmacionVentasString;
     private String confirmacionComprasString;
     private String preLiquidacionString;

@@ -44,15 +44,6 @@ public class LoginProcesosRepository {
                 + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
                 + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
                 + " lp.version, "
-                + " per2.dni as responsable2Dni, "
-                + " LEFT(per2.nombres, 1) + "
-                + " SUBSTRING(per2.apellidos, 1, "
-                + "    CASE "
-                + "        WHEN CHARINDEX(' ', per2.apellidos) - 1 < 0 "
-                + "        THEN LEN(per2.apellidos) "
-                + "        ELSE CHARINDEX(' ', per2.apellidos) - 1 "
-                + "    END "
-                + ") AS descResponsable2, "
                 + " CASE WHEN (:anioMesInt >= 202310) "
                 + "      THEN CASE WHEN si.idCliente IS NOT NULL "
                 + "                THEN CASE WHEN c.y = '0' THEN crS.fecha0 WHEN c.y = '1' THEN crS.fecha1 WHEN c.y = '2' THEN crS.fecha2 "
@@ -178,7 +169,6 @@ public class LoginProcesosRepository {
                 + "      AND pR.id = (select MAX(id) from pdt621Registros x where x.idCliente = c.ruc AND x.anio = :anio AND x.mes = :mes AND x.idTipo IN (3,4,5) ) "
                 + " LEFT JOIN gestionRegimenesTributarios grt ON c.ruc = grt.idCliente AND grt.anio = :anio AND grt.mes = :mes "
                 + " LEFT JOIN regimenesTributarios rt ON grt.idRegimenTributario = rt.id "
-                + " LEFT JOIN personal per2 ON lp.dniResponsable2RTB = per2.dni "
                 + " WHERE CAST(p.stAnioDesde + p.stMesDesde + '01' as date) <= :startDate "
                 + "   AND (CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= :startDate OR p.stAnioHasta IS NULL) ";
     }
@@ -196,7 +186,7 @@ public class LoginProcesosRepository {
     }
 
     @SuppressWarnings("unchecked")
-    public List<LoginProcesos> list(String anio, String mes, String estados, String grupos, String equipo2) {
+    public List<LoginProcesos> list(String anio, String mes, String estados, String grupos) {
         StringBuilder sql = new StringBuilder(getBaseSelect());
 
         if (estados != null && !estados.trim().isEmpty()) {
@@ -205,15 +195,6 @@ public class LoginProcesosRepository {
 
         if (grupos != null && !grupos.trim().isEmpty()) {
             sql.append(" AND c.y IN (:grupos) ");
-        }
-
-        if (equipo2 != null && !equipo2.trim().isEmpty()) {
-            List<String> eqList = Arrays.stream(equipo2.split(",")).map(String::trim).collect(Collectors.toList());
-            if (eqList.contains("0") || eqList.contains("00000000")) {
-                sql.append(" AND (lp.dniResponsable2RTB IN (:equipo2) OR lp.dniResponsable2RTB IS NULL OR LTRIM(RTRIM(lp.dniResponsable2RTB)) = '') ");
-            } else {
-                sql.append(" AND lp.dniResponsable2RTB IN (:equipo2) ");
-            }
         }
 
         sql.append(" ORDER BY c.y, c.razonSocial ");
@@ -231,11 +212,6 @@ public class LoginProcesosRepository {
                     Arrays.stream(grupos.split(",")).map(String::trim).collect(Collectors.toList()));
         }
 
-        if (equipo2 != null && !equipo2.trim().isEmpty()) {
-            query.setParameter("equipo2",
-                    Arrays.stream(equipo2.split(",")).map(String::trim).collect(Collectors.toList()));
-        }
-
         List<Tuple> tuples = query.getResultList();
         return mapTuples(tuples, anio, mes);
     }
@@ -246,7 +222,6 @@ public class LoginProcesosRepository {
                 + " (SELECT SUBSTRING ( "
                 + "     (SELECT ',' + cp.plCorreo AS 'data()' FROM clientePersonal cp where cp.idCliente = c.ruc FOR XML PATH('')), 2, 9999) AS Correo) AS correos, "
                 + " lp.movimiento, "
-                + " lp.dniResponsable2RTB, "
                 + " lv.confirmacion as confirmacionVentas, lv.confirmacionUsuario as confirmacionUsuarioVentas, lv.confirmacionFecha as confirmacionFechaVentas, "
                 + " lc.confirmacion as confirmacionCompras, lc.confirmacionUsuario as confirmacionUsuarioCompras, lc.confirmacionFecha as confirmacionFechaCompras, "
                 + " lp.idPropuestaVentas, lp.idPropuestaCompras, "
@@ -277,7 +252,6 @@ public class LoginProcesosRepository {
         obj.setRazonSocial(getStringSafely(tuple, "razonSocial"));
         obj.setCorreos(getStringSafely(tuple, "correos"));
         obj.setMovimiento(getStringSafely(tuple, "movimiento"));
-        obj.setDniResponsable2RTB(getStringSafely(tuple, "dniResponsable2RTB"));
 
         obj.setConfirmacionVentas(getIntegerSafely(tuple, "confirmacionVentas"));
         obj.setConfirmacionUsuarioVentas(getStringSafely(tuple, "confirmacionUsuarioVentas"));
@@ -407,12 +381,6 @@ public class LoginProcesosRepository {
 
         String queryProcesoFecha = "";
         switch (proceso) {
-            case "validerCompras":
-                queryProcesoFecha = " :fechaI <= lp.validacionFecha AND lp.validacionFecha <= :fechaF AND lp.preLiquidacion = 1 ";
-                break;
-            case "validerVentas":
-                queryProcesoFecha = " :fechaI <= lp.validacionFecha AND lp.validacionFecha <= :fechaF AND lp.preLiquidacion = 1 ";
-                break;
             case "preLiquidacion":
                 queryProcesoFecha = " :fechaI <= lp.preLiquidacionFecha AND lp.preLiquidacionFecha <= :fechaF AND lp.preLiquidacion IN (1,2) ";
                 break;
@@ -592,16 +560,6 @@ public class LoginProcesosRepository {
 
             obj.setObservacion(
                     getStringSafely(tuple, "observacion") == null ? "" : getStringSafely(tuple, "observacion"));
-
-            // RESPONSABLES RTB
-            String respDni = getStringSafely(tuple, "responsable2Dni");
-            if (respDni == null || respDni.isEmpty() || respDni.equals("0")) {
-                obj.setDniResponsable2RTB("");
-                obj.setResponsable2RTB("");
-            } else {
-                obj.setDniResponsable2RTB(respDni);
-                obj.setResponsable2RTB(getStringSafely(tuple, "descResponsable2"));
-            }
 
             // EXTRA DETAILS FOR EXCEL
             obj.setPropuestaVentas(new Gclass(getIntegerSafely(tuple, "idPropuestaVentas")));

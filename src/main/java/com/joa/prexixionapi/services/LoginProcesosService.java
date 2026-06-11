@@ -54,7 +54,7 @@ public class LoginProcesosService {
                 String mesStr = currMes < 10 ? "0" + currMes : String.valueOf(currMes);
                 String anioStr = String.valueOf(currAnio);
 
-                all.addAll(loginProcesosRepository.list(anioStr, mesStr, null, null, null));
+                all.addAll(loginProcesosRepository.list(anioStr, mesStr, null, null));
 
                 // ... incremento del mes/año ...
                 if (currMes == 12) {
@@ -71,83 +71,23 @@ public class LoginProcesosService {
         // Aplicar filtros en memoria
         List<LoginProcesos> filtered = new ArrayList<>();
 
-        int confirmacionVentasSi = 0;
-        int confirmacionVentasNo = 0;
-        int confirmacionVentasF = 0;
-
-        int confirmacionComprasSi = 0;
-        int confirmacionComprasNo = 0;
-        int confirmacionComprasF = 0;
-
-        int validerSi = 0;
-
-        int preLiquidacionSi = 0;
-        int preLiquidacionNo = 0;
-        int preLiquidacionNa = 0;
-        int preLiquidacionF = 0;
-
         int confirmacionSi = 0;
         int confirmacionNo = 0;
         int confirmacionNa = 0;
-        int confirmacionF = 0;
 
         int sireCvSi = 0;
         int sireCvNo = 0;
         int sireCvNa = 0;
-        int sireCvF = 0;
 
         int pdtSi = 0;
         int pdtNo = 0;
         int pdtNa = 0;
-        int pdtF = 0;
 
         for (LoginProcesos c : all) {
             if (matchesFilter(c, req)) {
                 filtered.add(c);
 
-                // 1. V-CON (confirmacionVentas)
-                if (c.getConfirmacionVentas() != null) {
-                    if (c.getConfirmacionVentas() == 1) {
-                        confirmacionVentasSi++;
-                    } else if (c.getConfirmacionVentas() == 0) {
-                        confirmacionVentasNo++;
-                    }
-                } else {
-                    confirmacionVentasNo++;
-                }
-
-                // 2. C-CON (confirmacionCompras)
-                if (c.getConfirmacionCompras() != null) {
-                    if (c.getConfirmacionCompras() == 1) {
-                        confirmacionComprasSi++;
-                    } else if (c.getConfirmacionCompras() == 0) {
-                        confirmacionComprasNo++;
-                    }
-                } else {
-                    confirmacionComprasNo++;
-                }
-
-                // validerSi
-                int cvVal = c.getConfirmacionVentas() != null ? c.getConfirmacionVentas() : 0;
-                int ccVal = c.getConfirmacionCompras() != null ? c.getConfirmacionCompras() : 0;
-                if (cvVal == 1 && ccVal == 1) {
-                    validerSi++;
-                }
-
-                // 3. TAKE B (preLiquidacion)
-                if (c.getPreLiquidacion() != null) {
-                    if (c.getPreLiquidacion() == 1) {
-                        preLiquidacionSi++;
-                    } else if (c.getPreLiquidacion() == 0) {
-                        preLiquidacionNo++;
-                    } else if (c.getPreLiquidacion() == 2) {
-                        preLiquidacionNa++;
-                    }
-                } else {
-                    preLiquidacionNo++;
-                }
-
-                // 4. TAKE (confirmacion)
+                // 1. TAKE (confirmacion)
                 if (c.getConfirmacion() != null) {
                     if (c.getConfirmacion() == 1) {
                         confirmacionSi++;
@@ -160,7 +100,7 @@ public class LoginProcesosService {
                     confirmacionNo++;
                 }
 
-                // 5. SIRE (sireCV)
+                // 2. SIRE (sireCV)
                 if (c.getSireCV() != null) {
                     if (c.getSireCV() == 1) {
                         sireCvSi++;
@@ -173,7 +113,7 @@ public class LoginProcesosService {
                     sireCvNo++;
                 }
 
-                // 6. PDT
+                // 3. PDT
                 boolean hasPdt = false;
                 if (c.getRegistros() != null && !c.getRegistros().isEmpty()) {
                     ServicioRegistro reg = c.getRegistros().get(0);
@@ -189,42 +129,21 @@ public class LoginProcesosService {
             }
         }
 
-        // Calculos F
-        preLiquidacionF = validerSi - preLiquidacionSi - preLiquidacionNa;
-        confirmacionF = preLiquidacionSi + preLiquidacionNa - confirmacionSi - confirmacionNa;
-        pdtF = confirmacionSi + confirmacionNa - pdtSi - pdtNa;
-
         response.setRecordsTotal(totalCount);
         response.setRecordsFiltered(filtered.size());
         response.setData(filtered);
 
-        response.setConfirmacionVentasSi(confirmacionVentasSi);
-        response.setConfirmacionVentasNo(confirmacionVentasNo);
-        response.setConfirmacionVentasF(confirmacionVentasF);
-
-        response.setConfirmacionComprasSi(confirmacionComprasSi);
-        response.setConfirmacionComprasNo(confirmacionComprasNo);
-        response.setConfirmacionComprasF(confirmacionComprasF);
-
-        response.setPreLiquidacionSi(preLiquidacionSi);
-        response.setPreLiquidacionNo(preLiquidacionNo);
-        response.setPreLiquidacionNa(preLiquidacionNa);
-        response.setPreLiquidacionF(preLiquidacionF);
-
         response.setConfirmacionSi(confirmacionSi);
         response.setConfirmacionNo(confirmacionNo);
         response.setConfirmacionNa(confirmacionNa);
-        response.setConfirmacionF(confirmacionF);
 
         response.setSireCvSi(sireCvSi);
         response.setSireCvNo(sireCvNo);
         response.setSireCvNa(sireCvNa);
-        response.setSireCvF(sireCvF);
 
         response.setPdtSi(pdtSi);
         response.setPdtNo(pdtNo);
         response.setPdtNa(pdtNa);
-        response.setPdtF(pdtF);
 
         return response;
     }
@@ -288,17 +207,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 7. Equipo2 (DniResponsable2RTB)
-        if (req.getEquipo2String() != null && !req.getEquipo2String().trim().isEmpty()) {
-            List<String> list = parseCsv(req.getEquipo2String());
-            String val = (c.getDniResponsable2RTB() != null && !c.getDniResponsable2RTB().trim().isEmpty())
-                    ? c.getDniResponsable2RTB().trim()
-                    : "0";
-            if (!list.contains(val))
-                return false;
-        }
-
-        // 8. ConfirmacionVentas
+        // 7. ConfirmacionVentas
         if (req.getConfirmacionVentasString() != null && !req.getConfirmacionVentasString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionVentasString());
             String val = c.getConfirmacionVentas() != null ? String.valueOf(c.getConfirmacionVentas()) : "0";
@@ -306,7 +215,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 9. ConfirmacionCompras
+        // 8. ConfirmacionCompras
         if (req.getConfirmacionComprasString() != null && !req.getConfirmacionComprasString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionComprasString());
             String val = c.getConfirmacionCompras() != null ? String.valueOf(c.getConfirmacionCompras()) : "0";
@@ -314,7 +223,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 10. PreLiquidacion
+        // 9. PreLiquidacion
         if (req.getPreLiquidacionString() != null && !req.getPreLiquidacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getPreLiquidacionString());
             String val = c.getPreLiquidacion() != null ? String.valueOf(c.getPreLiquidacion()) : "0";
@@ -322,7 +231,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 11. Confirmacion
+        // 10. Confirmacion
         if (req.getConfirmacionString() != null && !req.getConfirmacionString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getConfirmacionString());
             String val = c.getConfirmacion() != null ? String.valueOf(c.getConfirmacion()) : "0";
@@ -330,7 +239,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 12. SireCv
+        // 11. SireCv
         if (req.getSireCvString() != null && !req.getSireCvString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getSireCvString());
             String val = c.getSireCV() != null ? String.valueOf(c.getSireCV()) : "0";
@@ -338,7 +247,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 13. Pdt
+        // 12. Pdt
         if (req.getPdtString() != null && !req.getPdtString().trim().isEmpty()) {
             List<String> list = parseCsv(req.getPdtString());
             boolean hasOrder = false;
@@ -353,7 +262,7 @@ public class LoginProcesosService {
                 return false;
         }
 
-        // 14. fVencimiento range
+        // 13. fVencimiento range
         if (c.getfVencimiento() != null) {
             String fVenc = c.getfVencimiento();
             if (req.getFVencimientoMin() != null && !req.getFVencimientoMin().isEmpty()) {
@@ -376,8 +285,8 @@ public class LoginProcesosService {
                 .collect(Collectors.toList());
     }
 
-    public List<LoginProcesos> list(String anio, String mes, String estados, String grupos, String equipo2) {
-        return loginProcesosRepository.list(anio, mes, estados, grupos, equipo2);
+    public List<LoginProcesos> list(String anio, String mes, String estados, String grupos) {
+        return loginProcesosRepository.list(anio, mes, estados, grupos);
     }
 
     public LoginProcesos getOne(String ruc, String anio, String mes) {
