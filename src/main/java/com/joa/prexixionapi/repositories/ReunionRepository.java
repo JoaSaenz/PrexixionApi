@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.joa.prexixionapi.dto.ReunionDTO;
 import com.joa.prexixionapi.dto.ReunionDataTablesRequest;
@@ -42,11 +43,8 @@ public class ReunionRepository {
         appendFilters(sql, req);
 
         sql.append(" ORDER BY r.fecha DESC, r.horaI DESC ");
-        sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
-        query.setParameter("offset", req.getStart());
-        query.setParameter("limit", req.getLength());
 
         setFilterParameters(query, req);
 
@@ -194,5 +192,135 @@ public class ReunionRepository {
                         .acuerdo(t.get("acuerdo", String.class))
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public ReunionDTO getReunion(int idReunion) {
+        String sql = getBaseSelect() + " AND r.id = :id";
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        query.setParameter("id", idReunion);
+        
+        @SuppressWarnings("unchecked")
+        List<Tuple> result = query.getResultList();
+        if (result.isEmpty()) return null;
+        
+        ReunionDTO r = mapTuples(result).get(0);
+        List<Integer> ids = List.of(idReunion);
+        
+        r.setTemas(fetchTemas(ids));
+        r.setParticipantesExternos(fetchParticipantesExternos(ids));
+        r.setParticipantesInternos(fetchParticipantesInternos(ids));
+        
+        var areasMap = fetchAreas(ids);
+        r.setAreas(areasMap.stream().map(m -> new Gclass(m.getId(), m.getDescripcion())).collect(Collectors.toList()));
+        
+        var acuerdosMap = fetchAcuerdos(ids);
+        r.setAcuerdos(acuerdosMap.stream().map(m -> new Gclass(m.getId(), m.getAcuerdo())).collect(Collectors.toList()));
+        
+        return r;
+    }
+
+    @Transactional
+    public int insertReunion(ReunionDTO r) {
+        String query = "INSERT INTO reuniones(idCliente, razonSocial, tipo, fecha, horaI, horaF, idEstado, otros) " +
+                       "OUTPUT INSERTED.id " +
+                       "VALUES (:idCliente, :razonSocial, :tipo, :fecha, :horaI, :horaF, :idEstado, :otros)";
+        
+        Integer generatedId = (Integer) em.createNativeQuery(query)
+            .setParameter("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null)
+            .setParameter("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null)
+            .setParameter("tipo", r.getTipo())
+            .setParameter("fecha", r.getFecha())
+            .setParameter("horaI", r.getHoraI())
+            .setParameter("horaF", r.getHoraF())
+            .setParameter("idEstado", r.getEstado() != null ? r.getEstado().getId() : null)
+            .setParameter("otros", r.getOtros())
+            .getSingleResult();
+            
+        r.setId(generatedId);
+        insertSubEntities(r);
+        return generatedId;
+    }
+    
+    @Transactional
+    public void updateReunion(ReunionDTO r) {
+        String query = "UPDATE reuniones SET idCliente = :idCliente, razonSocial = :razonSocial, tipo = :tipo, " +
+                       "fecha = :fecha, horaI = :horaI, horaF = :horaF, idEstado = :idEstado, otros = :otros " +
+                       "WHERE id = :id";
+        em.createNativeQuery(query)
+            .setParameter("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null)
+            .setParameter("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null)
+            .setParameter("tipo", r.getTipo())
+            .setParameter("fecha", r.getFecha())
+            .setParameter("horaI", r.getHoraI())
+            .setParameter("horaF", r.getHoraF())
+            .setParameter("idEstado", r.getEstado() != null ? r.getEstado().getId() : null)
+            .setParameter("otros", r.getOtros())
+            .setParameter("id", r.getId())
+            .executeUpdate();
+            
+        // Delete sub-entities
+        int idReunion = r.getId();
+        em.createNativeQuery("DELETE FROM reunionesTemas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesAreas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesAcuerdos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        
+        insertSubEntities(r);
+    }
+
+    @Transactional
+    public void deleteReunion(int idReunion) {
+        em.createNativeQuery("DELETE FROM reunionesTemas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesAreas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reunionesAcuerdos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
+        em.createNativeQuery("DELETE FROM reuniones WHERE id = :id").setParameter("id", idReunion).executeUpdate();
+    }
+    
+    private void insertSubEntities(ReunionDTO r) {
+        int generatedId = r.getId();
+        if (r.getTemas() != null) {
+            int i = 1;
+            for (ReunionTemaDTO tema : r.getTemas()) {
+                em.createNativeQuery("INSERT INTO reunionesTemas (idReunion, idTema, tema, acuerdoTema) VALUES (:idR, :idT, :t, :a)")
+                    .setParameter("idR", generatedId).setParameter("idT", i++)
+                    .setParameter("t", tema.getTema()).setParameter("a", tema.getAcuerdoTema())
+                    .executeUpdate();
+            }
+        }
+        if (r.getParticipantesExternos() != null) {
+            int i = 1;
+            for (ReunionParticipanteExternoDTO p : r.getParticipantesExternos()) {
+                em.createNativeQuery("INSERT INTO reunionesParticipantesExternos (idReunion, id, nombres, cargo) VALUES (:idR, :idP, :n, :c)")
+                    .setParameter("idR", generatedId).setParameter("idP", i++)
+                    .setParameter("n", p.getNombres()).setParameter("c", p.getCargo())
+                    .executeUpdate();
+            }
+        }
+        if (r.getParticipantesInternos() != null) {
+            for (ReunionParticipanteInternoDTO p : r.getParticipantesInternos()) {
+                em.createNativeQuery("INSERT INTO reunionesParticipantesInternos (idReunion, dni) VALUES (:idR, :dni)")
+                    .setParameter("idR", generatedId).setParameter("dni", p.getDni())
+                    .executeUpdate();
+            }
+        }
+        if (r.getAreas() != null) {
+            for (Gclass a : r.getAreas()) {
+                em.createNativeQuery("INSERT INTO reunionesAreas (idReunion, idArea) VALUES (:idR, :idA)")
+                    .setParameter("idR", generatedId).setParameter("idA", a.getId())
+                    .executeUpdate();
+            }
+        }
+        if (r.getAcuerdos() != null) {
+            int i = 1;
+            for (Gclass a : r.getAcuerdos()) {
+                em.createNativeQuery("INSERT INTO reunionesAcuerdos (idReunion, idAcuerdo, acuerdo) VALUES (:idR, :idA, :a)")
+                    .setParameter("idR", generatedId).setParameter("idA", i++)
+                    .setParameter("a", a.getDescripcion())
+                    .executeUpdate();
+            }
+        }
     }
 }
