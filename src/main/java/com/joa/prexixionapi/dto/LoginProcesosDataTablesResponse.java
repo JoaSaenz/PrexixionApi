@@ -6,7 +6,6 @@ import com.joa.prexixionapi.entities.LoginProcesos;
 
 @Data
 public class LoginProcesosDataTablesResponse {
-    private int draw;
     private int recordsTotal;
     private int recordsFiltered;
     private List<LoginProcesos> data;

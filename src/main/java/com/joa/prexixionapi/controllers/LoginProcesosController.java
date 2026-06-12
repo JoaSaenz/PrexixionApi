@@ -44,6 +44,18 @@ public class LoginProcesosController {
         }
     }
 
+    @GetMapping("/vencimiento-limits")
+    public String[] getVencimientoLimits(
+            @RequestParam(required = true) String periodoI,
+            @RequestParam(required = true) String periodoF) {
+        try {
+            return loginProcesosService.getVencimientoLimits(periodoI, periodoF);
+        } catch (Exception e) {
+            log.error("Error en getVencimientoLimits para periodoI: {}, periodoF: {}", periodoI, periodoF, e);
+            throw e;
+        }
+    }
+
     @GetMapping
     public List<LoginProcesos> list(
             @RequestParam(required = true) String anio,

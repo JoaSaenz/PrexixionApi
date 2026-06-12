@@ -23,28 +23,8 @@ public class LoginProcesosRepository {
     @PersistenceContext
     private EntityManager em;
 
-    private String getBaseSelect() {
-        return "SELECT c.idEstado, cE.descripcion AS estado, "
-                + " s.idCategoria, nc.abreviatura as abrCategoria, nc.descripcion as descCategoria, "
-                + " CASE WHEN cso.idCliente IS NOT NULL THEN 1 ELSE 0 END AS categoriaStore, "
-                + " c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, "
-                + " c.ruc, c.y, c.razonSocial, c.nombreCorto AS nombreCortoSigner, "
-                + " grt.idRegimenTributario AS gestionRegimenTributario, rt.abreviatura AS abrGestionRegimenTributario, "
-                + " (SELECT TOP 1 CONCAT(acAnioPeriodoInicio, '-', acMesPeriodoInicio) FROM clienteAltaCom y WHERE y.idCliente = c.ruc ORDER BY acAnioPeriodoInicio DESC, acMesPeriodoInicio DESC) AS periodoInicioCom, "
-                + " lp.movimiento, lp.anio, lp.mes, "
-                + " lv.confirmacion as confirmacionVentas, lv.confirmacionUsuario as confirmacionUsuarioVentas, lv.confirmacionFecha as confirmacionFechaVentas, "
-                + " lc.confirmacion as confirmacionCompras, lc.confirmacionUsuario as confirmacionUsuarioCompras, lc.confirmacionFecha as confirmacionFechaCompras, "
-                + " lp.idPropuestaVentas, lp.idPropuestaCompras, "
-                + " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, lp.preLiquidacionHora, "
-                + " lp.confirmacion, lp.confirmacionFecha, lp.confirmacionUsuario, lp.confirmacionHora, "
-                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, "
-                + " si.idCliente AS rucSire, siData.registrado AS sireCV, "
-                + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
-                + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
-                + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
-                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
-                + " lp.version, "
-                + " CASE WHEN (:anioMesInt >= 202310) "
+    private String getFVencimientoSql() {
+        return " CASE WHEN (:anioMesInt >= 202310) "
                 + "      THEN CASE WHEN si.idCliente IS NOT NULL "
                 + "                THEN CASE WHEN c.y = '0' THEN crS.fecha0 WHEN c.y = '1' THEN crS.fecha1 WHEN c.y = '2' THEN crS.fecha2 "
                 + "                          WHEN c.y = '3' THEN crS.fecha3 WHEN c.y = '4' THEN crS.fecha4 WHEN c.y = '5' THEN crS.fecha5 "
@@ -52,7 +32,7 @@ public class LoginProcesosRepository {
                 + "                          WHEN c.y = '9' THEN crS.fecha9 END "
                 + "                ELSE CASE WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 "
                 + "                          WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 "
-                + "                          WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 "
+                + "                          WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN crS.fecha8 " // note crS or cr
                 + "                          WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab END END "
                 + "      ELSE CASE WHEN c.fPle IS NOT NULL THEN "
                 + "                CASE WHEN c.fPle != '' THEN "
@@ -141,8 +121,11 @@ public class LoginProcesosRepository {
                 + "                                         WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 "
                 + "                                         WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 "
                 + "                                         WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab END END END "
-                + "      END END AS fVencimiento "
-                + " FROM cliente c "
+                + "      END END ";
+    }
+
+    private String getBaseFromAndWhere() {
+        return " FROM cliente c "
                 + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
                 + " LEFT JOIN signerNiveles s ON c.ruc = s.idCliente "
                 + " LEFT JOIN signerNivelesCategorias nc ON s.idCategoria = nc.id "
@@ -173,6 +156,31 @@ public class LoginProcesosRepository {
                 + "   AND (CAST(p.stAnioHasta + p.stMesHasta + '01' as date) >= :startDate OR p.stAnioHasta IS NULL) ";
     }
 
+    private String getBaseSelect() {
+        return "SELECT c.idEstado, cE.descripcion AS estado, "
+                + " s.idCategoria, nc.abreviatura as abrCategoria, nc.descripcion as descCategoria, "
+                + " CASE WHEN cso.idCliente IS NOT NULL THEN 1 ELSE 0 END AS categoriaStore, "
+                + " c.idGrupoEconomico, ge.descripcion as descGrupoEconomico, "
+                + " c.ruc, c.y, c.razonSocial, c.nombreCorto AS nombreCortoSigner, "
+                + " grt.idRegimenTributario AS gestionRegimenTributario, rt.abreviatura AS abrGestionRegimenTributario, "
+                + " (SELECT TOP 1 CONCAT(acAnioPeriodoInicio, '-', acMesPeriodoInicio) FROM clienteAltaCom y WHERE y.idCliente = c.ruc ORDER BY acAnioPeriodoInicio DESC, acMesPeriodoInicio DESC) AS periodoInicioCom, "
+                + " lp.movimiento, lp.anio, lp.mes, "
+                + " lv.confirmacion as confirmacionVentas, lv.confirmacionUsuario as confirmacionUsuarioVentas, lv.confirmacionFecha as confirmacionFechaVentas, "
+                + " lc.confirmacion as confirmacionCompras, lc.confirmacionUsuario as confirmacionUsuarioCompras, lc.confirmacionFecha as confirmacionFechaCompras, "
+                + " lp.idPropuestaVentas, lp.idPropuestaCompras, "
+                + " lp.preLiquidacion, lp.preLiquidacionFecha, lp.preLiquidacionUsuario, lp.preLiquidacionHora, "
+                + " lp.confirmacion, lp.confirmacionFecha, lp.confirmacionUsuario, lp.confirmacionHora, "
+                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, "
+                + " si.idCliente AS rucSire, siData.registrado AS sireCV, "
+                + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
+                + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
+                + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
+                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
+                + " lp.version, "
+                + getFVencimientoSql() + " AS fVencimiento "
+                + getBaseFromAndWhere();
+    }
+
     private void bindBaseParameters(Query query, String anio, String mes) {
         int lastAnio = Integer.parseInt(anio) - 1;
         int anioMesInt = Integer.parseInt(anio + mes);
@@ -183,6 +191,22 @@ public class LoginProcesosRepository {
         query.setParameter("lastAnio", lastAnio);
         query.setParameter("anioMesInt", anioMesInt);
         query.setParameter("startDate", startDate);
+    }
+    
+    public String[] getVencimientoLimits(String anio, String mes) {
+        String sql = "SELECT MIN(v.fVencimiento), MAX(v.fVencimiento) FROM ( SELECT " 
+                   + getFVencimientoSql() + " AS fVencimiento "
+                   + getBaseFromAndWhere() + " ) v "
+                   + " WHERE v.fVencimiento IS NOT NULL AND LEN(v.fVencimiento) > 0";
+
+        Query query = em.createNativeQuery(sql);
+        bindBaseParameters(query, anio, mes);
+        
+        Object[] result = (Object[]) query.getSingleResult();
+        String min = result[0] != null ? result[0].toString() : "";
+        String max = result[1] != null ? result[1].toString() : "";
+        
+        return new String[]{min, max};
     }
 
     @SuppressWarnings("unchecked")
