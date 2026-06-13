@@ -351,6 +351,13 @@ public class LoginProcesosService {
             LoginProcesosId id = new LoginProcesosId(lp.getRuc(), lp.getAnio(), lp.getMes());
             lp.setId(id);
 
+            if (lp.getPropuestaVentas() != null) {
+                lp.setIdPropuestaVentas(lp.getPropuestaVentas().getId());
+            }
+            if (lp.getPropuestaCompras() != null) {
+                lp.setIdPropuestaCompras(lp.getPropuestaCompras().getId());
+            }
+
             boolean exists = loginProcesosJpaRepository.existsById(id);
 
             if (exists) {
