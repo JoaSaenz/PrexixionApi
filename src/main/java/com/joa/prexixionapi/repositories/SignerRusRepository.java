@@ -74,12 +74,12 @@ public class SignerRusRepository {
         StringBuilder sql = new StringBuilder(getBaseSelect());
         appendFilters(sql, req);
         sql.append(buildOrderClause(req.getSortKey(), req.getSortDir()));
-        sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
+        // sql.append(" OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY");
 
         Query query = em.createNativeQuery(sql.toString(), Tuple.class);
         setFilterParams(query, req);
-        query.setParameter("offset", req.getStart());
-        query.setParameter("limit", req.getLength());
+        // query.setParameter("offset", req.getStart());
+        // query.setParameter("limit", req.getLength());
 
         return mapTuples((List<Tuple>) query.getResultList());
     }
