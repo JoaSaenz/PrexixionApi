@@ -14,7 +14,7 @@ public interface NotificacionRepository extends JpaRepository<Notificacion, Long
         List<Notificacion> findByJobStatusIdOrderByFechaDesc(Long jobStatusId);
 
         @org.springframework.data.jpa.repository.Query(value = """
-                        SELECT n.*, ce.descripcion as estadoCliente
+                        SELECT n.*, ce.descripcion as estadoCliente, c.razonSocial as razonSocial, c.y as y, c.idEstado as idEstado
                         FROM sunatBuzonNotificacion n
                         LEFT JOIN cliente c ON n.ruc = c.ruc
                         LEFT JOIN clientsEstados ce ON c.idEstado = ce.id

@@ -20,4 +20,14 @@ public interface NotificacionProjection {
     Long getJobStatusId();
 
     String getEstadoCliente();
+
+    String getTipo();
+
+    String getNombreCorto();
+
+    String getY();
+
+    String getRazonSocial();
+
+    Integer getIdEstado();
 }

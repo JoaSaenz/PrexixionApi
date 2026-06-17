@@ -39,6 +39,15 @@ public class Notificacion {
     @jakarta.persistence.Transient
     private String estadoCliente;
 
+    @jakarta.persistence.Transient
+    private String y;
+
+    @jakarta.persistence.Transient
+    private String razonSocial;
+
+    @jakarta.persistence.Transient
+    private Integer idEstado;
+
     @Column(name = "jobStatusId")
     private Long jobStatusId;
 
@@ -57,6 +66,30 @@ public class Notificacion {
 
     public void setEstadoCliente(String estadoCliente) {
         this.estadoCliente = estadoCliente;
+    }
+
+    public String getY() {
+        return y;
+    }
+
+    public void setY(String y) {
+        this.y = y;
+    }
+
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+
+    public Integer getIdEstado() {
+        return idEstado;
+    }
+
+    public void setIdEstado(Integer idEstado) {
+        this.idEstado = idEstado;
     }
 
     public Long getId() {

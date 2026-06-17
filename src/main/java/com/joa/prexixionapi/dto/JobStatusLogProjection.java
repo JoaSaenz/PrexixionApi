@@ -20,4 +20,8 @@ public interface JobStatusLogProjection {
     Integer getNuevasNotificaciones();
 
     String getEstadoCliente();
+
+    String getRazonSocial();
+
+    Integer getIdEstado();
 }

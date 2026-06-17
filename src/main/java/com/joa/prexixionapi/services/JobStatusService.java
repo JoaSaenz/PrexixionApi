@@ -58,6 +58,8 @@ public class JobStatusService {
             logEntry.setFechaRegistro(p.getFechaRegistro());
             logEntry.setNuevasNotificaciones(p.getNuevasNotificaciones());
             logEntry.setEstadoCliente(p.getEstadoCliente());
+            logEntry.setRazonSocial(p.getRazonSocial());
+            logEntry.setIdEstado(p.getIdEstado());
             return logEntry;
         }).collect(java.util.stream.Collectors.toList());
     }
@@ -76,6 +78,11 @@ public class JobStatusService {
             n.setFecha(p.getFecha());
             n.setJobStatusId(p.getJobStatusId());
             n.setEstadoCliente(p.getEstadoCliente());
+            n.setTipo(p.getTipo());
+            n.setNombreCorto(p.getNombreCorto());
+            n.setY(p.getY());
+            n.setRazonSocial(p.getRazonSocial());
+            n.setIdEstado(p.getIdEstado());
             return n;
         }).collect(java.util.stream.Collectors.toList());
     }

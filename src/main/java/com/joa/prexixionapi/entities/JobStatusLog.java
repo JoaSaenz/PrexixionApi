@@ -18,6 +18,12 @@ public class JobStatusLog {
     @Transient
     private String estadoCliente;
 
+    @Transient
+    private String razonSocial;
+
+    @Transient
+    private Integer idEstado;
+
     private String ruc;
     private String y;
     private String resultado; // OK, ERROR, CREDENCIALES_INVALIDAS, etc

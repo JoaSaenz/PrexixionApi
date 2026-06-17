@@ -1,13 +1,10 @@
 package com.joa.prexixionapi.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.joa.prexixionapi.entities.Cliente;
 import com.joa.prexixionapi.services.ClienteCuentaBancariaExcelService;
 import com.joa.prexixionapi.services.ClienteClavesExcelService;
 import com.joa.prexixionapi.services.ClienteExcelService;
@@ -41,8 +38,6 @@ public class ClienteController {
     @Autowired
     ClienteCuentaBancariaExcelService clienteCuentaBancariaExcelService;
 
-
-
     @GetMapping("/server-side")
     public ClienteDataTablesResponse listServerSide(ClienteDataTablesRequest req) {
         try {
@@ -62,7 +57,8 @@ public class ClienteController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Clientes.xlsx\"")
                     .contentType(
-                            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                            MediaType.parseMediaType(
+                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(excelBytes);
         } catch (Exception e) {
             log.error("Error al descargar excel de clientes - Estados: {}, Grupos: {}", estados, grupos, e);
@@ -79,7 +75,8 @@ public class ClienteController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Clientes_Claves.xlsx\"")
                     .contentType(
-                            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                            MediaType.parseMediaType(
+                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(excelBytes);
         } catch (Exception e) {
             log.error("Error al descargar excel de claves - Estados: {}, Grupos: {}", estados, grupos, e);
@@ -96,7 +93,8 @@ public class ClienteController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Signers_Personal.xlsx\"")
                     .contentType(
-                            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                            MediaType.parseMediaType(
+                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(excelBytes);
         } catch (Exception e) {
             log.error("Error al descargar excel de personal - Estados: {}, Grupos: {}", estados, grupos, e);
@@ -113,7 +111,8 @@ public class ClienteController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ReporteCCI.xlsx\"")
                     .contentType(
-                            MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                            MediaType.parseMediaType(
+                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(excelBytes);
         } catch (Exception e) {
             log.error("Error al descargar excel de CCI - Estados: {}, Grupos: {}", estados, grupos, e);

@@ -15,7 +15,7 @@ public interface JobStatusLogRepository extends JpaRepository<JobStatusLog, Long
     List<JobStatusLog> findByJobStatusOrderByFechaRegistroAsc(JobStatus jobStatus);
 
     @org.springframework.data.jpa.repository.Query(value = """
-            SELECT jsl.*, ce.descripcion as estadoCliente
+            SELECT jsl.*, ce.descripcion as estadoCliente, c.razonSocial as razonSocial, c.idEstado as idEstado
             FROM jobStatusLog jsl
             LEFT JOIN cliente c ON jsl.ruc = c.ruc
             LEFT JOIN clientsEstados ce ON c.idEstado = ce.id
