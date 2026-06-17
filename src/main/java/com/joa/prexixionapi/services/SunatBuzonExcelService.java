@@ -45,6 +45,17 @@ public class SunatBuzonExcelService {
             XSSFCellStyle estiloDatoCentro = styleManager.getFondoWhiteStyleCenter();
             XSSFCellStyle estiloDatoIzquierda = styleManager.getFondoWhiteStyleLeft();
 
+            // --- ESTILOS ADICIONALES ---
+            XSSFCellStyle dataLeftStyleGreen = styleManager.getCustomStyle(
+                    ExcelStyleManager.WHITE_RGB, ExcelStyleManager.GREEN_RGB, 9, false, 
+                    HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+            XSSFCellStyle dataLeftStyleRed = styleManager.getCustomStyle(
+                    ExcelStyleManager.WHITE_RGB, ExcelStyleManager.RED_RGB, 9, false, 
+                    HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+            XSSFCellStyle dataLeftStyleBlue = styleManager.getCustomStyle(
+                    ExcelStyleManager.WHITE_RGB, ExcelStyleManager.BLUE_RGB, 9, false, 
+                    HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+
             // --- HOJA 1: LOGS ---
             Sheet sheetLogs = wb.createSheet("Logs de Ejecución");
             int rowNum = 0;
@@ -54,7 +65,7 @@ public class SunatBuzonExcelService {
             Cell cellCabecera = cabeceraRow.createCell(0);
             cellCabecera.setCellStyle(estiloCabecera);
             cellCabecera.setCellValue("SINCRONIZACIÓN IBOX - DETALLE");
-            sheetLogs.addMergedRegion(new CellRangeAddress(0, 0, 0, 8));
+            sheetLogs.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
 
             // Fila 2: Detalle de Ejecución
             Row detalleRow = sheetLogs.createRow(rowNum++);
@@ -63,39 +74,72 @@ public class SunatBuzonExcelService {
             String info = "Fecha: " + (job.getHoraInicio() != null ? job.getHoraInicio().format(DATE_TIME_FORMATTER) : "-") 
                     + " | Estado: " + job.getEstado() + " | Mensaje: " + job.getMensaje();
             cellDetalle.setCellValue(info);
-            sheetLogs.addMergedRegion(new CellRangeAddress(1, 1, 0, 8));
+            sheetLogs.addMergedRegion(new CellRangeAddress(1, 1, 0, 9));
 
             // Fila 3: Headers
             Row headerRow = sheetLogs.createRow(rowNum++);
-            String[] headers = {"N°", "ESTADO", "RUC", "Y", "RESULTADO", "MENSAJE", "DURACIÓN (s)", "FECHA REVISIÓN", "NUEVAS NOTIF."};
+            String[] headers = {"N°", "ESTADO", "RUC", "Y", "Razón Social", "RESULTADO", "MENSAJE", "DURACIÓN (s)", "FECHA REVISIÓN", "NUEVAS NOTIF."};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
                 cell.setCellValue(headers[i]);
                 cell.setCellStyle(estiloSubCabecera);
             }
 
+            int inicioFilt1 = rowNum;
+
             // Datos
             int contador = 1;
             for (JobStatusLogProjection log : logs) {
                 Row dataRow = sheetLogs.createRow(rowNum++);
-                int col = 0;
+                int colNum = 0;
                 
-                dataRow.createCell(col++).setCellValue(contador++);
-                dataRow.createCell(col++).setCellValue(log.getEstadoCliente() != null ? log.getEstadoCliente() : "");
-                dataRow.createCell(col++).setCellValue(log.getRuc());
-                dataRow.createCell(col++).setCellValue(log.getY() != null ? log.getY() : "");
-                dataRow.createCell(col++).setCellValue(log.getResultado());
-                dataRow.createCell(col++).setCellValue(log.getMensaje());
-                dataRow.createCell(col++).setCellValue(log.getDuracionMs() != null ? TimeUnit.MILLISECONDS.toSeconds(log.getDuracionMs()) : 0);
-                dataRow.createCell(col++).setCellValue(log.getFechaRegistro() != null ? log.getFechaRegistro().format(DATE_TIME_FORMATTER) : "");
-                dataRow.createCell(col++).setCellValue(log.getNuevasNotificaciones() != null ? log.getNuevasNotificaciones() : 0);
+                Cell cellNum = dataRow.createCell(colNum++);
+                cellNum.setCellValue(contador++);
+                cellNum.setCellStyle(estiloDatoCentro);
+                
+                Cell cellEstado = dataRow.createCell(colNum++);
+                cellEstado.setCellValue(log.getEstadoCliente() != null ? log.getEstadoCliente() : "");
+                int estadoId1 = log.getIdEstado() != null ? log.getIdEstado() : -1;
+                if (estadoId1 == 1) cellEstado.setCellStyle(dataLeftStyleGreen);
+                else if (estadoId1 == 2) cellEstado.setCellStyle(dataLeftStyleRed);
+                else if (estadoId1 == 3) cellEstado.setCellStyle(dataLeftStyleBlue);
+                else cellEstado.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellRuc = dataRow.createCell(colNum++);
+                cellRuc.setCellValue(log.getRuc());
+                cellRuc.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellY = dataRow.createCell(colNum++);
+                cellY.setCellValue(log.getY() != null ? log.getY() : "");
+                cellY.setCellStyle(estiloDatoIzquierda);
 
-                // Aplicar estilos a las celdas de datos
-                for (int j = 0; j < col; j++) {
-                    dataRow.getCell(j).setCellStyle(j == 0 || j == 6 || j == 8 ? estiloDatoCentro : estiloDatoIzquierda);
-                }
+                Cell cellRazonSocial = dataRow.createCell(colNum++);
+                cellRazonSocial.setCellValue(log.getRazonSocial() != null ? log.getRazonSocial() : "");
+                cellRazonSocial.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellRes = dataRow.createCell(colNum++);
+                cellRes.setCellValue(log.getResultado());
+                cellRes.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellMsj = dataRow.createCell(colNum++);
+                cellMsj.setCellValue(log.getMensaje());
+                cellMsj.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellDur = dataRow.createCell(colNum++);
+                cellDur.setCellValue(log.getDuracionMs() != null ? TimeUnit.MILLISECONDS.toSeconds(log.getDuracionMs()) : 0);
+                cellDur.setCellStyle(estiloDatoCentro);
+                
+                Cell cellFec = dataRow.createCell(colNum++);
+                cellFec.setCellValue(log.getFechaRegistro() != null ? log.getFechaRegistro().format(DATE_TIME_FORMATTER) : "");
+                cellFec.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellNuevas = dataRow.createCell(colNum++);
+                cellNuevas.setCellValue(log.getNuevasNotificaciones() != null ? log.getNuevasNotificaciones() : 0);
+                cellNuevas.setCellStyle(estiloDatoCentro);
             }
 
+            int finFilt1 = rowNum - 1;
+            sheetLogs.setAutoFilter(new CellRangeAddress(inicioFilt1, finFilt1, 0, 9));
             for (int i = 0; i < headers.length; i++) sheetLogs.autoSizeColumn(i);
             sheetLogs.createFreezePane(0, 3);
 
@@ -108,35 +152,80 @@ public class SunatBuzonExcelService {
             Cell cellCabeceraNotif = cabeceraNotifRow.createCell(0);
             cellCabeceraNotif.setCellStyle(estiloCabecera);
             cellCabeceraNotif.setCellValue("SINCRONIZACIÓN IBOX - NOTIFICACIONES");
-            sheetNotif.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+            sheetNotif.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
 
             // Fila 2: Headers
             Row headerNotifRow = sheetNotif.createRow(rowNum++);
-            String[] headersNotif = {"N°", "ESTADO", "RUC", "ID SUNAT", "TÍTULO", "FECHA"};
+            String[] headersNotif = {"N°", "ESTADO", "RUC", "Y", "Razón Social", "ID SUNAT", "Tipo", "Nombre Corto", "Título", "Fecha"};
             for (int i = 0; i < headersNotif.length; i++) {
                 Cell cell = headerNotifRow.createCell(i);
                 cell.setCellValue(headersNotif[i]);
                 cell.setCellStyle(estiloSubCabecera);
             }
 
+            int inicioFilt2 = rowNum;
+
             // Datos
             contador = 1;
             for (NotificacionProjection notif : notificaciones) {
                 Row dataRow = sheetNotif.createRow(rowNum++);
-                int col = 0;
+                int colNum = 0;
                 
-                dataRow.createCell(col++).setCellValue(contador++);
-                dataRow.createCell(col++).setCellValue(notif.getEstadoCliente() != null ? notif.getEstadoCliente() : "");
-                dataRow.createCell(col++).setCellValue(notif.getRuc());
-                dataRow.createCell(col++).setCellValue(notif.getIdSunat());
-                dataRow.createCell(col++).setCellValue(notif.getTitulo());
-                dataRow.createCell(col++).setCellValue(notif.getFecha() != null ? notif.getFecha().format(DATE_TIME_FORMATTER) : "");
+                Cell cellNum = dataRow.createCell(colNum++);
+                cellNum.setCellValue(contador++);
+                cellNum.setCellStyle(estiloDatoCentro);
+                
+                Cell cellEstado = dataRow.createCell(colNum++);
+                cellEstado.setCellValue(notif.getEstadoCliente() != null ? notif.getEstadoCliente() : "");
+                int estadoId2 = notif.getIdEstado() != null ? notif.getIdEstado() : -1;
+                if (estadoId2 == 1) cellEstado.setCellStyle(dataLeftStyleGreen);
+                else if (estadoId2 == 2) cellEstado.setCellStyle(dataLeftStyleRed);
+                else if (estadoId2 == 3) cellEstado.setCellStyle(dataLeftStyleBlue);
+                else cellEstado.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellRuc = dataRow.createCell(colNum++);
+                cellRuc.setCellValue(notif.getRuc());
+                cellRuc.setCellStyle(estiloDatoIzquierda);
 
-                for (int j = 0; j < col; j++) {
-                    dataRow.getCell(j).setCellStyle(j == 0 || j == 3 || j == 5 ? estiloDatoCentro : estiloDatoIzquierda);
+                Cell cellY = dataRow.createCell(colNum++);
+                cellY.setCellValue(notif.getY() != null ? notif.getY() : "");
+                cellY.setCellStyle(estiloDatoIzquierda);
+                
+                Cell cellRazonSocial = dataRow.createCell(colNum++);
+                cellRazonSocial.setCellValue(notif.getRazonSocial() != null ? notif.getRazonSocial() : "");
+                cellRazonSocial.setCellStyle(estiloDatoIzquierda);
+
+                Cell cellIdSunat = dataRow.createCell(colNum++);
+                cellIdSunat.setCellValue(notif.getIdSunat() != null ? notif.getIdSunat() : "");
+                cellIdSunat.setCellStyle(estiloDatoIzquierda);
+
+                Cell cellTipo = dataRow.createCell(colNum++);
+                String tipoVal = notif.getTipo() != null ? notif.getTipo() : "";
+                String nombreCortoVal = notif.getNombreCorto() != null ? notif.getNombreCorto() : "";
+                cellTipo.setCellValue(tipoVal);
+                if (nombreCortoVal.toLowerCase().contains("coactiva")) {
+                    cellTipo.setCellStyle(dataLeftStyleRed);
+                } else if (tipoVal.equalsIgnoreCase("Fiscalizaciones")) {
+                    cellTipo.setCellStyle(dataLeftStyleBlue);
+                } else {
+                    cellTipo.setCellStyle(estiloDatoIzquierda);
                 }
+
+                Cell cellNombreCorto = dataRow.createCell(colNum++);
+                cellNombreCorto.setCellValue(notif.getNombreCorto() != null ? notif.getNombreCorto() : "");
+                cellNombreCorto.setCellStyle(estiloDatoIzquierda);
+
+                Cell cellTitulo = dataRow.createCell(colNum++);
+                cellTitulo.setCellValue(notif.getTitulo() != null ? notif.getTitulo() : "");
+                cellTitulo.setCellStyle(estiloDatoIzquierda);
+
+                Cell cellFecha = dataRow.createCell(colNum++);
+                cellFecha.setCellValue(notif.getFecha() != null ? notif.getFecha().format(DATE_TIME_FORMATTER) : "");
+                cellFecha.setCellStyle(estiloDatoIzquierda);
             }
 
+            int finFilt2 = rowNum - 1;
+            sheetNotif.setAutoFilter(new CellRangeAddress(inicioFilt2, finFilt2, 0, 9));
             for (int i = 0; i < headersNotif.length; i++) sheetNotif.autoSizeColumn(i);
             sheetNotif.createFreezePane(0, 2);
 

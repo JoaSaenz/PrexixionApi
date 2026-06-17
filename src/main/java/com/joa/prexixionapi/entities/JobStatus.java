@@ -35,4 +35,13 @@ public class JobStatus {
     @JsonIgnore
     @OneToMany(mappedBy = "jobStatus", fetch = FetchType.LAZY)
     private List<JobStatusLog> logs;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("formattedHoraInicio")
+    public String getFormattedHoraInicio() {
+        if (this.horaInicio != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            return this.horaInicio.format(formatter);
+        }
+        return "";
+    }
 }
