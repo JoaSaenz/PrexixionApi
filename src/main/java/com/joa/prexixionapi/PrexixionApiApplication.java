@@ -9,5 +9,4 @@ public class PrexixionApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PrexixionApiApplication.class, args);
 	}
-
 }

@@ -30,16 +30,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        String authHeader = request.getHeader("Authorization");
+        String jwt = null;
         final String usernameDni;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else {
+            // Soporte para paso de token por Query Parameter (útil para descarga de archivos)
+            String tokenParam = request.getParameter("token");
+            if (tokenParam != null && !tokenParam.isEmpty()) {
+                jwt = tokenParam;
+            }
+        }
+
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7);
         usernameDni = jwtService.extractUsername(jwt);
 
         if (usernameDni != null && SecurityContextHolder.getContext().getAuthentication() == null) {
