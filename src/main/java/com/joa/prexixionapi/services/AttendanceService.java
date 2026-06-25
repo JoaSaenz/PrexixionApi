@@ -363,7 +363,7 @@ public class AttendanceService {
                        pu.descripcion as puesto
                 FROM bty.dbo.personal p
                 LEFT JOIN bty.dbo.areas a ON p.idArea = a.id
-                LEFT JOIN bty.dbo.puestos pu ON p.idPuesto = pu.id
+                LEFT JOIN bty.dbo.personalPuestos pu ON p.idPuesto = pu.id
                 WHERE p.dni LIKE ?
                    OR p.nombres LIKE ?
                    OR p.apellidos LIKE ?
