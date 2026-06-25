@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class ReunionDataTablesResponse {
-    private long recordsTotal;
-    private long recordsFiltered;
-    private List<ReunionDTO> data;
+    private List<ReunionListDTO> data;
+    private java.util.Map<Integer, Integer> summaryEstados;
 }

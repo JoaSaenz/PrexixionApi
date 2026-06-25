@@ -11,10 +11,11 @@ public class ExcelStyleManager {
     private final Map<String, XSSFCellStyle> styleCache = new ConcurrentHashMap<>();
     private final Map<String, XSSFFont> fontCache = new ConcurrentHashMap<>();
 
-    // --- COLORES ---
-    public static final byte[] GERENCIA_BLUE_RGB = {(byte) 0, (byte) 51, (byte) 204};
-    public static final byte[] GERENCIA_GREY_RGB = {(byte) 214, (byte) 220, (byte) 228};
-    public static final byte[] MATTE_BLACK_RGB = {(byte) 43, (byte) 43, (byte) 43};
+    // --- COLORES MODERNOS (GRISES) ---
+    // Usamos los mismos nombres de variables para no romper otros servicios, pero internamente mapeados a la paleta moderna
+    public static final byte[] GERENCIA_BLUE_RGB = {(byte) 64, (byte) 64, (byte) 64}; // Dark Grey
+    public static final byte[] GERENCIA_GREY_RGB = {(byte) 255, (byte) 255, (byte) 255}; // White background for data
+    public static final byte[] MATTE_BLACK_RGB = {(byte) 64, (byte) 64, (byte) 64}; // Dark Grey text
     public static final byte[] LIGHT_GREY_RGB = {(byte) 242, (byte) 242, (byte) 242};
 
     public static final byte[] CELESTE_RGB = {(byte) 138, (byte) 193, (byte) 255};
@@ -269,7 +270,8 @@ public class ExcelStyleManager {
 
     private XSSFCellStyle createBaseStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, HorizontalAlignment alignment, BorderStyle borderStyle, IndexedColors borderColor) {
         String fontKey = java.util.Arrays.toString(fontColor) + "_" + fontSize + "_" + bold;
-        XSSFFont font = fontCache.computeIfAbsent(fontKey, k -> PoiUtils.fuente(workbook, getColor(fontColor), fontSize, bold));
+        // Centralizamos a fuente Aptos Narrow (fuenteAN) para toda la plataforma
+        XSSFFont font = fontCache.computeIfAbsent(fontKey, k -> PoiUtils.fuenteAN(workbook, getColor(fontColor), fontSize, bold));
         
         XSSFCellStyle style = PoiUtils.createCellStyle(workbook, alignment, getColor(bgColor), font);
         PoiUtils.addBorders(style, borderStyle, borderColor);

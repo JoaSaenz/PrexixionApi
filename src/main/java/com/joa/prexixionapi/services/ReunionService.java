@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.joa.prexixionapi.dto.ReunionDTO;
+import com.joa.prexixionapi.dto.ReunionListDTO;
 import com.joa.prexixionapi.dto.ReunionDataTablesRequest;
 import com.joa.prexixionapi.dto.ReunionDataTablesResponse;
-import com.joa.prexixionapi.entities.Gclass;
 import com.joa.prexixionapi.repositories.ReunionRepository;
-import com.joa.prexixionapi.dto.ReunionAreaDTO;
-import com.joa.prexixionapi.dto.ReunionAcuerdoDTO;
 
 @Service
 public class ReunionService {
@@ -21,73 +19,44 @@ public class ReunionService {
     @Autowired
     private ReunionRepository reunionRepository;
 
-    public ReunionDataTablesResponse listServerSide(ReunionDataTablesRequest req) {
-        List<ReunionDTO> data = reunionRepository.listServerSide(req);
+    public ReunionDataTablesResponse list(ReunionDataTablesRequest req) {
+        List<ReunionListDTO> data = reunionRepository.list(req);
 
         if (!data.isEmpty()) {
-            List<Integer> ids = data.stream().map(ReunionDTO::getId).collect(Collectors.toList());
+            List<Integer> ids = data.stream().map(ReunionListDTO::getId).collect(Collectors.toList());
 
-            // Batch fetch related data
-            var temas = reunionRepository.fetchTemas(ids).stream()
-                    .collect(Collectors.groupingBy(t -> t.getIdReunion()));
-            var partExt = reunionRepository.fetchParticipantesExternos(ids).stream()
-                    .collect(Collectors.groupingBy(p -> p.getIdReunion()));
-            var partInt = reunionRepository.fetchParticipantesInternos(ids).stream()
-                    .collect(Collectors.groupingBy(p -> p.getIdReunion()));
-            var areasMap = reunionRepository.fetchAreas(ids).stream()
-                    .collect(Collectors.groupingBy(ReunionAreaDTO::getIdReunion));
-            var acuerdosMap = reunionRepository.fetchAcuerdos(ids).stream()
-                    .collect(Collectors.groupingBy(ReunionAcuerdoDTO::getIdReunion));
+            // Batch fetch related lightweight data
+            var temasMap = reunionRepository.fetchTemasStrings(ids);
+            var areasMap = reunionRepository.fetchAreasStrings(ids);
 
             // Assign sub-items to DTOs
             data.forEach(r -> {
-                r.setTemas(temas.getOrDefault(r.getId(), new ArrayList<>()));
-                r.setParticipantesExternos(partExt.getOrDefault(r.getId(), new ArrayList<>()));
-                r.setParticipantesInternos(partInt.getOrDefault(r.getId(), new ArrayList<>()));
-
-                if (areasMap.containsKey(r.getId())) {
-                    r.setAreas(areasMap.get(r.getId()).stream()
-                            .map(m -> new Gclass(m.getId(), m.getDescripcion()))
-                            .collect(Collectors.toList()));
-                } else {
-                    r.setAreas(new ArrayList<>());
-                }
-
-                if (acuerdosMap.containsKey(r.getId())) {
-                    r.setAcuerdos(acuerdosMap.get(r.getId()).stream()
-                            .map(m -> new Gclass(m.getId(), m.getAcuerdo()))
-                            .collect(Collectors.toList()));
-                } else {
-                    r.setAcuerdos(new ArrayList<>());
-                }
+                r.setTemas(temasMap.getOrDefault(r.getId(), new ArrayList<>()));
+                r.setAreas(areasMap.getOrDefault(r.getId(), new ArrayList<>()));
             });
         }
 
-        long filtered = reunionRepository.countServerSide(req);
-        long total = reunionRepository.countTotal();
-
         return ReunionDataTablesResponse.builder()
-                .recordsTotal(total)
-                .recordsFiltered(filtered)
                 .data(data)
+                .summaryEstados(reunionRepository.getSummaryEstados(req))
                 .build();
     }
 
-    public ReunionDTO getReunion(int idReunion) {
-        return reunionRepository.getReunion(idReunion);
+    public ReunionDTO getById(int idReunion) {
+        return reunionRepository.getById(idReunion);
     }
 
-    public ReunionDTO insertUpdate(ReunionDTO reunion) {
+    public ReunionDTO save(ReunionDTO reunion) {
         if (reunion.getId() == 0) {
-            int newId = reunionRepository.insertReunion(reunion);
+            int newId = reunionRepository.insert(reunion);
             reunion.setId(newId);
         } else {
-            reunionRepository.updateReunion(reunion);
+            reunionRepository.update(reunion);
         }
         return reunion;
     }
 
-    public void deleteReunion(int idReunion) {
-        reunionRepository.deleteReunion(idReunion);
+    public void delete(int idReunion) {
+        reunionRepository.delete(idReunion);
     }
 }

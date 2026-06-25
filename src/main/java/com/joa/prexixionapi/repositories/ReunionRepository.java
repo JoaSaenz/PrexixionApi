@@ -1,14 +1,20 @@
 package com.joa.prexixionapi.repositories;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.joa.prexixionapi.dto.ReunionDTO;
+import com.joa.prexixionapi.dto.ReunionListDTO;
 import com.joa.prexixionapi.dto.ReunionDataTablesRequest;
+import com.joa.prexixionapi.dto.ReunionExcelDTO;
 import com.joa.prexixionapi.dto.ReunionParticipanteExternoDTO;
 import com.joa.prexixionapi.dto.ReunionParticipanteInternoDTO;
 import com.joa.prexixionapi.dto.ReunionTemaDTO;
@@ -17,309 +23,371 @@ import com.joa.prexixionapi.dto.ReunionAcuerdoDTO;
 import com.joa.prexixionapi.entities.Cliente;
 import com.joa.prexixionapi.entities.Gclass;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-import jakarta.persistence.Tuple;
-
 @Repository
 public class ReunionRepository {
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private NamedParameterJdbcTemplate jdbcTemplate;
 
+    // ==========================================
+    // 1. CONSTANTS & QUERY BUILDERS
+    // ==========================================
     private String getBaseSelect() {
-        return """
-                    SELECT r.id, r.idCliente, r.razonSocial, r.tipo, r.fecha, r.horaI, r.horaF, r.idEstado, re.descripcion as estado, r.otros
-                    FROM reuniones r
-                    INNER JOIN reunionesEstados re ON r.idEstado = re.id
-                    WHERE 1=1
-                """;
+        return "SELECT r.id, r.idCliente, r.razonSocial, r.tipo, r.fecha, r.horaI, r.horaF, r.idEstado, re.descripcion as estado, r.otros "
+                +
+                "FROM reuniones r " +
+                "INNER JOIN reunionesEstados re ON r.idEstado = re.id " +
+                "WHERE 1=1 ";
     }
 
-    @SuppressWarnings("unchecked")
-    public List<ReunionDTO> listServerSide(ReunionDataTablesRequest req) {
+    private void appendFilters(StringBuilder sql, ReunionDataTablesRequest req) {
+        if (req.getEstados() != null && !req.getEstados().trim().isEmpty()) {
+            sql.append(" AND r.idEstado IN (").append(req.getEstados()).append(") ");
+        }
+    }
+
+    // ==========================================
+    // 2. READ METHODS (LIST & AGGREGATE)
+    // ==========================================
+    public List<ReunionListDTO> list(ReunionDataTablesRequest req) {
         StringBuilder sql = new StringBuilder(getBaseSelect());
+        appendFilters(sql, req);
+        sql.append(" ORDER BY r.fecha DESC, r.horaI DESC ");
+
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
+            return ReunionListDTO.builder()
+                    .id(rs.getInt("id"))
+                    .clienteRuc(rs.getString("idCliente"))
+                    .clienteRazonSocial(rs.getString("razonSocial"))
+                    .tipo(rs.getString("tipo"))
+                    .fecha(rs.getString("fecha"))
+                    .horaI(rs.getString("horaI"))
+                    .horaF(rs.getString("horaF"))
+                    .estadoId(rs.getInt("idEstado"))
+                    .estadoDescripcion(rs.getString("estado"))
+                    .build();
+        });
+    }
+
+    public List<ReunionExcelDTO> listExcel(ReunionDataTablesRequest req) {
+        StringBuilder sql = new StringBuilder(
+                "SELECT r.id, r.idCliente, r.razonSocial, r.tipo, r.fecha, r.horaI, r.horaF, r.idEstado, re.descripcion as estado, r.otros, "
+                        +
+                        "(SELECT STRING_AGG(tema, ', ') FROM reunionesTemas rt WHERE rt.idReunion = r.id) as temas, " +
+                        "(SELECT STRING_AGG(a.descripcion, ', ') FROM reunionesAreas ra JOIN areas a ON ra.idArea = a.id WHERE ra.idReunion = r.id) as areas, "
+                        +
+                        "(SELECT STRING_AGG(nombres, ', ') FROM reunionesParticipantesExternos rpe WHERE rpe.idReunion = r.id) as participantesExternos, "
+                        +
+                        "(SELECT STRING_AGG(p.apellidos + ' ' + p.nombres, ', ') FROM reunionesParticipantesInternos rpi JOIN personal p ON rpi.dni = p.dni WHERE rpi.idReunion = r.id) as participantesInternos, "
+                        +
+                        "(SELECT STRING_AGG(acuerdo, ', ') FROM reunionesAcuerdos rac WHERE rac.idReunion = r.id) as acuerdos "
+                        +
+                        "FROM reuniones r " +
+                        "INNER JOIN reunionesEstados re ON r.idEstado = re.id " +
+                        "WHERE 1=1 ");
+
         appendFilters(sql, req);
 
         sql.append(" ORDER BY r.fecha DESC, r.horaI DESC ");
 
-        Query query = em.createNativeQuery(sql.toString(), Tuple.class);
-
-        setFilterParameters(query, req);
-
-        return mapTuples((List<Tuple>) query.getResultList());
-    }
-
-    public long countServerSide(ReunionDataTablesRequest req) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM reuniones r WHERE 1=1 ");
-        appendFilters(sql, req);
-        Query query = em.createNativeQuery(sql.toString());
-        setFilterParameters(query, req);
-        return ((Number) query.getSingleResult()).longValue();
-    }
-
-    public long countTotal() {
-        return ((Number) em.createNativeQuery("SELECT COUNT(*) FROM reuniones").getSingleResult()).longValue();
-    }
-
-    private void appendFilters(StringBuilder sql, ReunionDataTablesRequest req) {
-        if (req.getEstados() != null && !req.getEstados().isEmpty()) {
-            sql.append(" AND r.idEstado IN (").append(req.getEstados()).append(") ");
-        }
-        if (req.getSearch() != null && !req.getSearch().isEmpty()) {
-            sql.append(" AND (r.razonSocial LIKE :search OR r.idCliente LIKE :search OR r.otros LIKE :search) ");
-        }
-    }
-
-    private void setFilterParameters(Query query, ReunionDataTablesRequest req) {
-        if (req.getSearch() != null && !req.getSearch().isEmpty()) {
-            query.setParameter("search", "%" + req.getSearch() + "%");
-        }
-    }
-
-    private List<ReunionDTO> mapTuples(List<Tuple> tuples) {
-        List<ReunionDTO> list = new ArrayList<>();
-        for (Tuple tuple : tuples) {
-            Cliente clie = new Cliente();
-            clie.setRuc(tuple.get("idCliente", String.class));
-            clie.setRazonSocial(tuple.get("razonSocial", String.class));
-
-            ReunionDTO obj = ReunionDTO.builder()
-                    .id(tuple.get("id", Integer.class))
-                    .cliente(clie)
-                    .tipo(tuple.get("tipo", String.class))
-                    .fecha(tuple.get("fecha", String.class))
-                    .horaI(tuple.get("horaI", String.class))
-                    .horaF(tuple.get("horaF", String.class))
-                    .estado(new Gclass(tuple.get("idEstado", Integer.class), tuple.get("estado", String.class)))
-                    .otros(tuple.get("otros", String.class))
+        return jdbcTemplate.query(sql.toString(), (rs, rowNum) -> {
+            return ReunionExcelDTO.builder()
+                    .id(rs.getInt("id"))
+                    .clienteRuc(rs.getString("idCliente"))
+                    .clienteRazonSocial(rs.getString("razonSocial"))
+                    .tipo(rs.getString("tipo"))
+                    .fecha(rs.getString("fecha"))
+                    .horaI(rs.getString("horaI"))
+                    .horaF(rs.getString("horaF"))
+                    .estadoId(rs.getInt("idEstado"))
+                    .estadoDescripcion(rs.getString("estado"))
+                    .otros(rs.getString("otros"))
+                    .temas(rs.getString("temas") != null ? rs.getString("temas") : "")
+                    .areas(rs.getString("areas") != null ? rs.getString("areas") : "")
+                    .participantesExternos(
+                            rs.getString("participantesExternos") != null ? rs.getString("participantesExternos") : "")
+                    .participantesInternos(
+                            rs.getString("participantesInternos") != null ? rs.getString("participantesInternos") : "")
+                    .acuerdos(rs.getString("acuerdos") != null ? rs.getString("acuerdos") : "")
                     .build();
-            list.add(obj);
-        }
-        return list;
+        });
     }
 
-    @SuppressWarnings("unchecked")
+    public Map<Integer, Integer> getSummaryEstados(ReunionDataTablesRequest req) {
+        StringBuilder sql = new StringBuilder("SELECT r.idEstado, COUNT(r.id) AS cantidad FROM reuniones r WHERE 1=1 ");
+        appendFilters(sql, req);
+        sql.append(" GROUP BY r.idEstado");
+
+        Map<Integer, Integer> summary = new HashMap<>();
+        jdbcTemplate.query(sql.toString(), rs -> {
+            summary.put(rs.getInt("idEstado"), rs.getInt("cantidad"));
+        });
+        return summary;
+    }
+
+    // ==========================================
+    // 3. READ METHODS (SINGLE & BATCH FETCHERS)
+    // ==========================================
+    public ReunionDTO getById(int idReunion) {
+        String sql = getBaseSelect() + " AND r.id = :id";
+
+        List<ReunionDTO> result = jdbcTemplate.query(sql, new MapSqlParameterSource("id", idReunion), (rs, rowNum) -> {
+            Cliente clie = new Cliente();
+            clie.setRuc(rs.getString("idCliente"));
+            clie.setRazonSocial(rs.getString("razonSocial"));
+
+            return ReunionDTO.builder()
+                    .id(rs.getInt("id"))
+                    .cliente(clie)
+                    .tipo(rs.getString("tipo"))
+                    .fecha(rs.getString("fecha"))
+                    .horaI(rs.getString("horaI"))
+                    .horaF(rs.getString("horaF"))
+                    .estado(new Gclass(rs.getInt("idEstado"), rs.getString("estado")))
+                    .otros(rs.getString("otros"))
+                    .build();
+        });
+
+        if (result.isEmpty())
+            return null;
+
+        ReunionDTO r = result.get(0);
+        List<Integer> ids = List.of(idReunion);
+
+        r.setTemas(fetchTemas(ids));
+        r.setParticipantesExternos(fetchParticipantesExternos(ids));
+        r.setParticipantesInternos(fetchParticipantesInternos(ids));
+
+        List<Gclass> areas = new ArrayList<>();
+        for (ReunionAreaDTO a : fetchAreas(ids)) {
+            areas.add(new Gclass(a.getId(), a.getDescripcion()));
+        }
+        r.setAreas(areas);
+
+        List<Gclass> acuerdos = new ArrayList<>();
+        for (ReunionAcuerdoDTO a : fetchAcuerdos(ids)) {
+            acuerdos.add(new Gclass(a.getId(), a.getAcuerdo()));
+        }
+        r.setAcuerdos(acuerdos);
+
+        return r;
+    }
+
     public List<ReunionTemaDTO> fetchTemas(List<Integer> ids) {
         if (ids.isEmpty())
             return new ArrayList<>();
         String sql = "SELECT idReunion, idTema, tema, acuerdoTema FROM reunionesTemas WHERE idReunion IN (:ids)";
-        return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
-                .setParameter("ids", ids)
-                .getResultList()).stream()
-                .map(t -> ReunionTemaDTO.builder()
-                        .idReunion(t.get("idReunion", Integer.class))
-                        .id(t.get("idTema", Integer.class))
-                        .tema(t.get("tema", String.class))
-                        .acuerdoTema(t.get("acuerdoTema", String.class))
-                        .build())
-                .collect(Collectors.toList());
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids), (rs, rowNum) -> ReunionTemaDTO.builder()
+                .idReunion(rs.getInt("idReunion"))
+                .id(rs.getInt("idTema"))
+                .tema(rs.getString("tema"))
+                .acuerdoTema(rs.getString("acuerdoTema"))
+                .build());
     }
 
-    @SuppressWarnings("unchecked")
+    public Map<Integer, List<String>> fetchTemasStrings(List<Integer> ids) {
+        if (ids.isEmpty())
+            return new HashMap<>();
+        String sql = "SELECT idReunion, tema FROM reunionesTemas WHERE idReunion IN (:ids)";
+
+        Map<Integer, List<String>> map = new HashMap<>();
+        jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids), rs -> {
+            map.computeIfAbsent(rs.getInt("idReunion"), k -> new ArrayList<>()).add(rs.getString("tema"));
+        });
+        return map;
+    }
+
+    public List<ReunionAreaDTO> fetchAreas(List<Integer> ids) {
+        if (ids.isEmpty())
+            return new ArrayList<>();
+        String sql = "SELECT ra.idReunion, a.id, a.descripcion " +
+                "FROM reunionesAreas ra " +
+                "INNER JOIN areas a ON ra.idArea = a.id " +
+                "WHERE ra.idReunion IN (:ids)";
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids), (rs, rowNum) -> ReunionAreaDTO.builder()
+                .idReunion(rs.getInt("idReunion"))
+                .id(rs.getInt("id"))
+                .descripcion(rs.getString("descripcion"))
+                .build());
+    }
+
+    public Map<Integer, List<String>> fetchAreasStrings(List<Integer> ids) {
+        if (ids.isEmpty())
+            return new HashMap<>();
+        String sql = "SELECT ra.idReunion, a.descripcion FROM reunionesAreas ra INNER JOIN areas a ON ra.idArea = a.id WHERE ra.idReunion IN (:ids)";
+
+        Map<Integer, List<String>> map = new HashMap<>();
+        jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids), rs -> {
+            map.computeIfAbsent(rs.getInt("idReunion"), k -> new ArrayList<>()).add(rs.getString("descripcion"));
+        });
+        return map;
+    }
+
     public List<ReunionParticipanteExternoDTO> fetchParticipantesExternos(List<Integer> ids) {
         if (ids.isEmpty())
             return new ArrayList<>();
         String sql = "SELECT idReunion, nombres, cargo FROM reunionesParticipantesExternos WHERE idReunion IN (:ids)";
-        return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
-                .setParameter("ids", ids)
-                .getResultList()).stream()
-                .map(t -> ReunionParticipanteExternoDTO.builder()
-                        .idReunion(t.get("idReunion", Integer.class))
-                        .nombres(t.get("nombres", String.class))
-                        .cargo(t.get("cargo", String.class))
-                        .build())
-                .collect(Collectors.toList());
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids),
+                (rs, rowNum) -> ReunionParticipanteExternoDTO.builder()
+                        .idReunion(rs.getInt("idReunion"))
+                        .nombres(rs.getString("nombres"))
+                        .cargo(rs.getString("cargo"))
+                        .build());
     }
 
-    @SuppressWarnings("unchecked")
     public List<ReunionParticipanteInternoDTO> fetchParticipantesInternos(List<Integer> ids) {
         if (ids.isEmpty())
             return new ArrayList<>();
-        String sql = """
-                    SELECT rpi.idReunion, p.dni, p.apellidos, p.nombres, pu.descripcion as puesto
-                    FROM reunionesParticipantesInternos rpi
-                    INNER JOIN personal p ON rpi.dni = p.dni
-                    LEFT JOIN personalPuestos pu ON p.idPuesto = pu.id
-                    WHERE rpi.idReunion IN (:ids)
-                """;
-        return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
-                .setParameter("ids", ids)
-                .getResultList()).stream()
-                .map(t -> ReunionParticipanteInternoDTO.builder()
-                        .idReunion(t.get("idReunion", Integer.class))
-                        .dni(t.get("dni", String.class))
-                        .apellidos(t.get("apellidos", String.class))
-                        .nombres(t.get("nombres", String.class))
-                        .puesto(t.get("puesto", String.class))
-                        .build())
-                .collect(Collectors.toList());
+        String sql = "SELECT rpi.idReunion, p.dni, p.apellidos, p.nombres, pu.descripcion as puesto " +
+                "FROM reunionesParticipantesInternos rpi " +
+                "INNER JOIN personal p ON rpi.dni = p.dni " +
+                "LEFT JOIN personalPuestos pu ON p.idPuesto = pu.id " +
+                "WHERE rpi.idReunion IN (:ids)";
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids),
+                (rs, rowNum) -> ReunionParticipanteInternoDTO.builder()
+                        .idReunion(rs.getInt("idReunion"))
+                        .dni(rs.getString("dni"))
+                        .apellidos(rs.getString("apellidos"))
+                        .nombres(rs.getString("nombres"))
+                        .puesto(rs.getString("puesto"))
+                        .build());
     }
 
-    @SuppressWarnings("unchecked")
-    public List<ReunionAreaDTO> fetchAreas(List<Integer> ids) {
-        if (ids.isEmpty())
-            return new ArrayList<>();
-        String sql = """
-                    SELECT ra.idReunion, a.id, a.descripcion
-                    FROM reunionesAreas ra
-                    INNER JOIN areas a ON ra.idArea = a.id
-                    WHERE ra.idReunion IN (:ids)
-                """;
-        return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
-                .setParameter("ids", ids)
-                .getResultList()).stream()
-                .map(t -> ReunionAreaDTO.builder()
-                        .idReunion(t.get("idReunion", Integer.class))
-                        .id(t.get("id", Integer.class))
-                        .descripcion(t.get("descripcion", String.class))
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unchecked")
     public List<ReunionAcuerdoDTO> fetchAcuerdos(List<Integer> ids) {
         if (ids.isEmpty())
             return new ArrayList<>();
         String sql = "SELECT idReunion, idAcuerdo, acuerdo FROM reunionesAcuerdos WHERE idReunion IN (:ids)";
-        return ((List<Tuple>) em.createNativeQuery(sql, Tuple.class)
-                .setParameter("ids", ids)
-                .getResultList()).stream()
-                .map(t -> ReunionAcuerdoDTO.builder()
-                        .idReunion(t.get("idReunion", Integer.class))
-                        .id(t.get("idAcuerdo", Integer.class))
-                        .acuerdo(t.get("acuerdo", String.class))
-                        .build())
-                .collect(Collectors.toList());
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("ids", ids),
+                (rs, rowNum) -> ReunionAcuerdoDTO.builder()
+                        .idReunion(rs.getInt("idReunion"))
+                        .id(rs.getInt("idAcuerdo"))
+                        .acuerdo(rs.getString("acuerdo"))
+                        .build());
     }
 
-    public ReunionDTO getReunion(int idReunion) {
-        String sql = getBaseSelect() + " AND r.id = :id";
-        Query query = em.createNativeQuery(sql, Tuple.class);
-        query.setParameter("id", idReunion);
-        
-        @SuppressWarnings("unchecked")
-        List<Tuple> result = query.getResultList();
-        if (result.isEmpty()) return null;
-        
-        ReunionDTO r = mapTuples(result).get(0);
-        List<Integer> ids = List.of(idReunion);
-        
-        r.setTemas(fetchTemas(ids));
-        r.setParticipantesExternos(fetchParticipantesExternos(ids));
-        r.setParticipantesInternos(fetchParticipantesInternos(ids));
-        
-        var areasMap = fetchAreas(ids);
-        r.setAreas(areasMap.stream().map(m -> new Gclass(m.getId(), m.getDescripcion())).collect(Collectors.toList()));
-        
-        var acuerdosMap = fetchAcuerdos(ids);
-        r.setAcuerdos(acuerdosMap.stream().map(m -> new Gclass(m.getId(), m.getAcuerdo())).collect(Collectors.toList()));
-        
-        return r;
-    }
-
+    // ==========================================
+    // 4. WRITE METHODS (CUD)
+    // ==========================================
     @Transactional
-    public int insertReunion(ReunionDTO r) {
+    public int insert(ReunionDTO r) {
         String query = "INSERT INTO reuniones(idCliente, razonSocial, tipo, fecha, horaI, horaF, idEstado, otros) " +
-                       "OUTPUT INSERTED.id " +
-                       "VALUES (:idCliente, :razonSocial, :tipo, :fecha, :horaI, :horaF, :idEstado, :otros)";
-        
-        Integer generatedId = (Integer) em.createNativeQuery(query)
-            .setParameter("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null)
-            .setParameter("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null)
-            .setParameter("tipo", r.getTipo())
-            .setParameter("fecha", r.getFecha())
-            .setParameter("horaI", r.getHoraI())
-            .setParameter("horaF", r.getHoraF())
-            .setParameter("idEstado", r.getEstado() != null ? r.getEstado().getId() : null)
-            .setParameter("otros", r.getOtros())
-            .getSingleResult();
-            
+                "OUTPUT INSERTED.id " +
+                "VALUES (:idCliente, :razonSocial, :tipo, :fecha, :horaI, :horaF, :idEstado, :otros)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null);
+        params.addValue("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null);
+        params.addValue("tipo", r.getTipo());
+        params.addValue("fecha", r.getFecha());
+        params.addValue("horaI", r.getHoraI());
+        params.addValue("horaF", r.getHoraF());
+        params.addValue("idEstado", r.getEstado() != null ? r.getEstado().getId() : null);
+        params.addValue("otros", r.getOtros());
+
+        Integer generatedId = jdbcTemplate.queryForObject(query, params, Integer.class);
+
         r.setId(generatedId);
         insertSubEntities(r);
         return generatedId;
     }
-    
+
     @Transactional
-    public void updateReunion(ReunionDTO r) {
+    public void update(ReunionDTO r) {
         String query = "UPDATE reuniones SET idCliente = :idCliente, razonSocial = :razonSocial, tipo = :tipo, " +
-                       "fecha = :fecha, horaI = :horaI, horaF = :horaF, idEstado = :idEstado, otros = :otros " +
-                       "WHERE id = :id";
-        em.createNativeQuery(query)
-            .setParameter("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null)
-            .setParameter("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null)
-            .setParameter("tipo", r.getTipo())
-            .setParameter("fecha", r.getFecha())
-            .setParameter("horaI", r.getHoraI())
-            .setParameter("horaF", r.getHoraF())
-            .setParameter("idEstado", r.getEstado() != null ? r.getEstado().getId() : null)
-            .setParameter("otros", r.getOtros())
-            .setParameter("id", r.getId())
-            .executeUpdate();
-            
+                "fecha = :fecha, horaI = :horaI, horaF = :horaF, idEstado = :idEstado, otros = :otros " +
+                "WHERE id = :id";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("idCliente", r.getCliente() != null ? r.getCliente().getRuc() : null);
+        params.addValue("razonSocial", r.getCliente() != null ? r.getCliente().getRazonSocial() : null);
+        params.addValue("tipo", r.getTipo());
+        params.addValue("fecha", r.getFecha());
+        params.addValue("horaI", r.getHoraI());
+        params.addValue("horaF", r.getHoraF());
+        params.addValue("idEstado", r.getEstado() != null ? r.getEstado().getId() : null);
+        params.addValue("otros", r.getOtros());
+        params.addValue("id", r.getId());
+
+        jdbcTemplate.update(query, params);
+
         // Delete sub-entities
         int idReunion = r.getId();
-        em.createNativeQuery("DELETE FROM reunionesTemas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesAreas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesAcuerdos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        
+        MapSqlParameterSource deleteParams = new MapSqlParameterSource("id", idReunion);
+        jdbcTemplate.update("DELETE FROM reunionesTemas WHERE idReunion = :id", deleteParams);
+        jdbcTemplate.update("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id", deleteParams);
+        jdbcTemplate.update("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id", deleteParams);
+        jdbcTemplate.update("DELETE FROM reunionesAreas WHERE idReunion = :id", deleteParams);
+        jdbcTemplate.update("DELETE FROM reunionesAcuerdos WHERE idReunion = :id", deleteParams);
+
         insertSubEntities(r);
     }
 
     @Transactional
-    public void deleteReunion(int idReunion) {
-        em.createNativeQuery("DELETE FROM reunionesTemas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesAreas WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reunionesAcuerdos WHERE idReunion = :id").setParameter("id", idReunion).executeUpdate();
-        em.createNativeQuery("DELETE FROM reuniones WHERE id = :id").setParameter("id", idReunion).executeUpdate();
+    public void delete(int idReunion) {
+        MapSqlParameterSource params = new MapSqlParameterSource("id", idReunion);
+        jdbcTemplate.update("DELETE FROM reunionesTemas WHERE idReunion = :id", params);
+        jdbcTemplate.update("DELETE FROM reunionesParticipantesExternos WHERE idReunion = :id", params);
+        jdbcTemplate.update("DELETE FROM reunionesParticipantesInternos WHERE idReunion = :id", params);
+        jdbcTemplate.update("DELETE FROM reunionesAreas WHERE idReunion = :id", params);
+        jdbcTemplate.update("DELETE FROM reunionesAcuerdos WHERE idReunion = :id", params);
+        jdbcTemplate.update("DELETE FROM reuniones WHERE id = :id", params);
     }
-    
+
+    // ==========================================
+    // 5. PRIVATE HELPERS
+    // ==========================================
+
     private void insertSubEntities(ReunionDTO r) {
         int generatedId = r.getId();
+
         if (r.getTemas() != null) {
             int i = 1;
+            String sql = "INSERT INTO reunionesTemas (idReunion, idTema, tema, acuerdoTema) VALUES (:idR, :idT, :t, :a)";
             for (ReunionTemaDTO tema : r.getTemas()) {
-                em.createNativeQuery("INSERT INTO reunionesTemas (idReunion, idTema, tema, acuerdoTema) VALUES (:idR, :idT, :t, :a)")
-                    .setParameter("idR", generatedId).setParameter("idT", i++)
-                    .setParameter("t", tema.getTema()).setParameter("a", tema.getAcuerdoTema())
-                    .executeUpdate();
+                MapSqlParameterSource p = new MapSqlParameterSource()
+                        .addValue("idR", generatedId).addValue("idT", i++)
+                        .addValue("t", tema.getTema()).addValue("a", tema.getAcuerdoTema());
+                jdbcTemplate.update(sql, p);
             }
         }
+
         if (r.getParticipantesExternos() != null) {
             int i = 1;
+            String sql = "INSERT INTO reunionesParticipantesExternos (idReunion, id, nombres, cargo) VALUES (:idR, :idP, :n, :c)";
             for (ReunionParticipanteExternoDTO p : r.getParticipantesExternos()) {
-                em.createNativeQuery("INSERT INTO reunionesParticipantesExternos (idReunion, id, nombres, cargo) VALUES (:idR, :idP, :n, :c)")
-                    .setParameter("idR", generatedId).setParameter("idP", i++)
-                    .setParameter("n", p.getNombres()).setParameter("c", p.getCargo())
-                    .executeUpdate();
+                MapSqlParameterSource params = new MapSqlParameterSource()
+                        .addValue("idR", generatedId).addValue("idP", i++)
+                        .addValue("n", p.getNombres()).addValue("c", p.getCargo());
+                jdbcTemplate.update(sql, params);
             }
         }
+
         if (r.getParticipantesInternos() != null) {
+            String sql = "INSERT INTO reunionesParticipantesInternos (idReunion, dni) VALUES (:idR, :dni)";
             for (ReunionParticipanteInternoDTO p : r.getParticipantesInternos()) {
-                em.createNativeQuery("INSERT INTO reunionesParticipantesInternos (idReunion, dni) VALUES (:idR, :dni)")
-                    .setParameter("idR", generatedId).setParameter("dni", p.getDni())
-                    .executeUpdate();
+                MapSqlParameterSource params = new MapSqlParameterSource()
+                        .addValue("idR", generatedId).addValue("dni", p.getDni());
+                jdbcTemplate.update(sql, params);
             }
         }
+
         if (r.getAreas() != null) {
+            String sql = "INSERT INTO reunionesAreas (idReunion, idArea) VALUES (:idR, :idA)";
             for (Gclass a : r.getAreas()) {
-                em.createNativeQuery("INSERT INTO reunionesAreas (idReunion, idArea) VALUES (:idR, :idA)")
-                    .setParameter("idR", generatedId).setParameter("idA", a.getId())
-                    .executeUpdate();
+                MapSqlParameterSource params = new MapSqlParameterSource()
+                        .addValue("idR", generatedId).addValue("idA", a.getId());
+                jdbcTemplate.update(sql, params);
             }
         }
+
         if (r.getAcuerdos() != null) {
             int i = 1;
+            String sql = "INSERT INTO reunionesAcuerdos (idReunion, idAcuerdo, acuerdo) VALUES (:idR, :idA, :a)";
             for (Gclass a : r.getAcuerdos()) {
-                em.createNativeQuery("INSERT INTO reunionesAcuerdos (idReunion, idAcuerdo, acuerdo) VALUES (:idR, :idA, :a)")
-                    .setParameter("idR", generatedId).setParameter("idA", i++)
-                    .setParameter("a", a.getDescripcion())
-                    .executeUpdate();
+                MapSqlParameterSource params = new MapSqlParameterSource()
+                        .addValue("idR", generatedId).addValue("idA", i++)
+                        .addValue("a", a.getDescripcion());
+                jdbcTemplate.update(sql, params);
             }
         }
     }
