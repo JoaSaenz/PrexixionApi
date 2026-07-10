@@ -41,6 +41,7 @@ public class Cliente {
     private int administracion;
 
     private String periodoInicioCom;
+    private String periodoFinCom;
 
     // Login Ventas
     private LoginVenta loginVenta;
@@ -308,6 +309,14 @@ public class Cliente {
 
     public void setPeriodoInicioCom(String periodoInicioCom) {
         this.periodoInicioCom = periodoInicioCom;
+    }
+
+    public String getPeriodoFinCom() {
+        return periodoFinCom;
+    }
+
+    public void setPeriodoFinCom(String periodoFinCom) {
+        this.periodoFinCom = periodoFinCom;
     }
 
     public LoginVenta getLoginVenta() {

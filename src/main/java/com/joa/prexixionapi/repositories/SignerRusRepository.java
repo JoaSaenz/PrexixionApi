@@ -40,12 +40,12 @@ public class SignerRusRepository {
                         cl.idTipoServicio, cts.abreviatura AS abrServicio, cts.descripcion AS descServicio,
                         cl.rTMypeTributario, cl.rTRus, cl.rTEspecial, cl.rTGeneral, cl.rTAmazonico, cl.rTAgrario,
                         cl.rT1ra, cl.rT2da, cl.rT3ra, cl.rT4ta, cl.rT5ta,
-                        (SELECT TOP 1 CONCAT(stAnioDesde, '-', stMesDesde) FROM clienteServiciosTributarios y
-                            WHERE y.stIdServicioTributario = 17 AND y.idCliente = cl.ruc
-                            ORDER BY stAnioDesde DESC, stMesDesde DESC) AS periodoIEnvoyRus,
-                        (SELECT TOP 1 CONCAT(stAnioHasta, '-', stMesHasta) FROM clienteServiciosTributarios y
-                            WHERE y.stIdServicioTributario = 17 AND y.idCliente = cl.ruc
-                            ORDER BY stAnioDesde DESC, stMesDesde DESC) AS periodoFEnvoyRus
+                        (SELECT TOP 1 CONCAT(anioDesde, '-', mesDesde) FROM fitRus y
+                            WHERE y.idServicio = 1 AND y.idCliente = cl.ruc
+                            ORDER BY anioDesde DESC, mesDesde DESC) AS periodoIEnvoyRus,
+                        (SELECT TOP 1 CONCAT(anioHasta, '-', mesHasta) FROM fitRus y
+                            WHERE y.idServicio = 1 AND y.idCliente = cl.ruc
+                            ORDER BY anioDesde DESC, mesDesde DESC) AS periodoFEnvoyRus
                     FROM cliente cl
                         INNER JOIN clientsEstados ce ON cl.idEstado = ce.id
                         LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente
