@@ -16,23 +16,10 @@ public class SignerRusService {
     @Autowired
     SignerRusRepository signerRusRepository;
 
-    /** Listado completo (sin paginación). */
-    public List<Cliente> list() {
-        return signerRusRepository.list();
-    }
-
-    /** Server-side: paginado, filtrado y con resumen de estados. */
-    public SignerRusResponse listServerSide(SignerRusRequest req) {
+    public SignerRusResponse list(SignerRusRequest req) {
         SignerRusResponse response = new SignerRusResponse();
-        response.setDraw(req.getDraw());
-
-        int total = signerRusRepository.countServerSide(req);
-        response.setRecordsTotal(total);
-        response.setRecordsFiltered(total);
-
-        response.setData(signerRusRepository.listServerSide(req));
+        response.setData(signerRusRepository.list(req));
         response.setSummaryEstados(signerRusRepository.getSummaryEstados(req));
-
         return response;
     }
 }

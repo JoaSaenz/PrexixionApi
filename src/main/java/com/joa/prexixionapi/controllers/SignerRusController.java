@@ -22,24 +22,12 @@ public class SignerRusController {
     @Autowired
     SignerRusService signerRusService;
 
-    /** Listado completo (sin paginación). */
     @GetMapping
-    public List<Cliente> list() {
+    public SignerRusResponse list(SignerRusRequest req) {
         try {
-            return signerRusService.list();
+            return signerRusService.list(req);
         } catch (Exception e) {
             log.error("Error al listar Signers RUS", e);
-            throw e;
-        }
-    }
-
-    /** Server-side: paginado + filtros + resumen de estados. */
-    @GetMapping("/server-side")
-    public SignerRusResponse listServerSide(SignerRusRequest req) {
-        try {
-            return signerRusService.listServerSide(req);
-        } catch (Exception e) {
-            log.error("Error en server-side SignerRus para req: {}", req, e);
             throw e;
         }
     }
