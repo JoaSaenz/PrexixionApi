@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @Builder
@@ -59,7 +60,10 @@ public class Pdt621ReportAnualDTO {
     private double mesAnteriorRenta;
     private double anualRenta;
     private double saldoFavorExportador;
-    private double citanRenta;
+
+    @JsonProperty("cItanRenta")
+    private double cItanRenta;
+
     private double ajusteRenta;
     private double totalDeudaTributariaRenta;
     private double rentaPorPagar;

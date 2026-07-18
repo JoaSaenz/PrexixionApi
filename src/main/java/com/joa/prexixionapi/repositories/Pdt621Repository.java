@@ -73,7 +73,7 @@ public class Pdt621Repository {
                     .mesAnteriorRenta(toDouble(rs.get("rentaAFavor")))
                     .anualRenta(toDouble(rs.get("rentaAnual")))
                     .saldoFavorExportador(toDouble(rs.get("saldoFavorExportador")))
-                    .citanRenta(toDouble(rs.get("rentaCItan")))
+                    .cItanRenta(toDouble(rs.get("rentaCItan")))
                     .ajusteRenta(toDouble(rs.get("rentaAjuste")))
                     .totalDeudaTributariaRenta(toDouble(rs.get("rentaSaldo")))
                     .rentaPorPagar(toDouble(rs.get("rentaPorPagar")))
@@ -117,6 +117,8 @@ public class Pdt621Repository {
         q.setParameter("ruc", ruc);
         q.setParameter("anio", anio);
 
+        System.out.println(query);
+
         List<Tuple> results = q.getResultList();
         List<Pdt621ReportAnualDTO> list = new ArrayList<>();
         for (Tuple rs : results) {
@@ -156,7 +158,7 @@ public class Pdt621Repository {
                     .mesAnteriorRenta(toDouble(rs.get("mesAnteriorRenta")))
                     .anualRenta(toDouble(rs.get("anualRenta")))
                     .saldoFavorExportador(toDouble(rs.get("saldoFavorExportador")))
-                    .citanRenta(toDouble(rs.get("cItanRenta")))
+                    .cItanRenta(toDouble(rs.get("cItanRenta")))
                     .ajusteRenta(toDouble(rs.get("ajusteRenta")))
                     .totalDeudaTributariaRenta(toDouble(rs.get("totalDeudaTributariaRenta")))
                     .rentaPorPagar(toDouble(rs.get("rentaPorPagar")))
