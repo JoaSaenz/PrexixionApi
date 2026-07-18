@@ -17,12 +17,12 @@ public class TradeCliente {
     private String estadoDescripcion;
     private String fRegistro;
     private String fTermino;
-    
+
     private TradeClienteBudget budget;
     private String tcContactoNombre;
     private String tcContactoTelefono;
     private String tcContactoCorreo;
-    
+
     private String coFecha;
     private String coNumero;
     private String coIdsTipoServicio;
@@ -39,7 +39,7 @@ public class TradeCliente {
     private int reIdEstadoR;
     private String reEstadoDescripcion;
     private String reObservacion;
-    
+
     private String fAlta;
     private int idEstadoSigner;
     private String descEstadoSigner;
@@ -77,18 +77,11 @@ public class TradeCliente {
     private String afpC;
     private String sisU;
     private String sisC;
-    private int taxReview;
-    private int actualizacion;
-    private String desdeActualizacion;
-    private String anioDesdeActualizacion;
-    private String mesDesdeActualizacion;
-    private String hastaActualizacion;
-    private String anioHastaActualizacion;
-    private String mesHastaActualizacion;
+
     private String observacionSigner;
-    
-    private String codigoClienteClie; 
-    
+
+    private String codigoClienteClie;
+
     private int rlAcreditado;
     private int rlNoAcreditado;
 
