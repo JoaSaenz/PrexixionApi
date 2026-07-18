@@ -62,6 +62,7 @@ public class ClienteRepository {
                     cl.solU, cl.solC, cl.upsU, cl.upsC, cl.soldierU, cl.soldierC,  cl.signerU, cl.signerC,
                     (SELECT TOP 1 acInicioCom FROM clienteAltaCom x WHERE x.idCliente = cl.ruc ORDER BY acInicioCom DESC) as altaCom,
                     (SELECT TOP 1 CONCAT(acAnioPeriodoInicio, '-', acMesPeriodoInicio)periodoI FROM clienteAltaCom y WHERE y.idCliente = cl.ruc ORDER BY acAnioPeriodoInicio DESC, acMesPeriodoInicio DESC) AS periodoInicioCom,
+                    (SELECT TOP 1 CONCAT(acAnioPeriodoFin, '-', acMesPeriodoFin)periodoF FROM clienteAltaCom y WHERE y.idCliente = cl.ruc ORDER BY acAnioPeriodoInicio DESC, acMesPeriodoInicio DESC) AS periodoFinCom,
                     cl.fInscripcion, cl.fRetiro,
                     (SELECT SUBSTRING((SELECT ',' + ccbCuenta AS 'data()' FROM  clienteCuentasBancarias cb WHERE cb.idCliente = cl.ruc AND cb.ccbIdTipoCtBancaria = 3 FOR XML  PATH('')), 2, 9999) AS CbCuenta) AS ccbCuenta,
                     (SELECT SUBSTRING((SELECT ',' + ccbUsuario AS 'data()' FROM  clienteCuentasBancarias cb WHERE cb.idCliente = cl.ruc AND cb.ccbIdTipoCtBancaria = 3 FOR XML  PATH('')), 2, 9999) AS CbUsuario) AS ccbUsuario,
@@ -83,8 +84,6 @@ public class ClienteRepository {
                     WHERE 1=1
                 """;
     }
-
-
 
     @SuppressWarnings("unchecked")
     public List<Cliente> listServerSide(ClienteDataTablesRequest req) {
@@ -334,6 +333,7 @@ public class ClienteRepository {
             obj.setRazonSocial(rs);
             obj.setNombreCorto(tuple.get("nombreCorto", String.class));
             obj.setPeriodoInicioCom(tuple.get("periodoInicioCom", String.class));
+            obj.setPeriodoFinCom(tuple.get("periodoFinCom", String.class));
             obj.setPeriodoI621(tuple.get("periodoI", String.class));
             obj.setPeriodoF621(tuple.get("periodoF", String.class));
             obj.setTaxReview(tuple.get("taxReview", Integer.class) == null ? 0 : tuple.get("taxReview", Integer.class));

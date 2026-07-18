@@ -27,25 +27,33 @@ public class SignerRusRepository {
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     private String getBaseSelect() {
-        return "SELECT cl.idEstado, ce.descripcion AS estado, cl.y, cl.ruc, cl.razonSocial, " +
-               "s.idNivelF, sf.abreviatura AS abrNivelF, sf.descripcion AS descNivelF, " +
-               "s.idNivelX3, st.abreviatura AS abrNivelX3, st.descripcion AS descNivelX3, " +
-               "cl.idGrupoEconomico, ge.descripcion AS descGrupoEconomico, " +
-               "cl.idTipoServicio, cts.abreviatura AS abrServicio, cts.descripcion AS descServicio, " +
-               "cl.rTMypeTributario, cl.rTRus, cl.rTEspecial, cl.rTGeneral, cl.rTAmazonico, cl.rTAgrario, " +
-               "cl.rT1ra, cl.rT2da, cl.rT3ra, cl.rT4ta, cl.rT5ta, " +
-               "(SELECT TOP 1 CONCAT(stAnioDesde, '-', stMesDesde) FROM clienteServiciosTributarios y " +
-               " WHERE y.stIdServicioTributario = 17 AND y.idCliente = cl.ruc ORDER BY stAnioDesde DESC, stMesDesde DESC) AS periodoIEnvoyRus, " +
-               "(SELECT TOP 1 CONCAT(stAnioHasta, '-', stMesHasta) FROM clienteServiciosTributarios y " +
-               " WHERE y.stIdServicioTributario = 17 AND y.idCliente = cl.ruc ORDER BY stAnioDesde DESC, stMesDesde DESC) AS periodoFEnvoyRus " +
-               "FROM cliente cl " +
-               "INNER JOIN clientsEstados ce ON cl.idEstado = ce.id " +
-               "LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente " +
-               "LEFT JOIN signerNivelesFijos sf ON s.idNivelF = sf.id " +
-               "LEFT JOIN signerNivelesTemperatura st ON s.idNivelX3 = st.id " +
-               "LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id " +
-               "LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id " +
-               "WHERE cl.rtRus = 1";
+        return """
+                    SELECT
+                        cl.idEstado, ce.descripcion AS estado,
+                        cl.y,
+                        cl.ruc,
+                        cl.razonSocial,
+                        s.idNivelF, sf.abreviatura AS abrNivelF, sf.descripcion AS descNivelF,
+                        s.idNivelX3, st.abreviatura AS abrNivelX3, st.descripcion AS descNivelX3,
+                        cl.idGrupoEconomico, ge.descripcion AS descGrupoEconomico,
+                        cl.idTipoServicio, cts.abreviatura AS abrServicio, cts.descripcion AS descServicio,
+                        cl.rTMypeTributario, cl.rTRus, cl.rTEspecial, cl.rTGeneral, cl.rTAmazonico, cl.rTAgrario,
+                        cl.rT1ra, cl.rT2da, cl.rT3ra, cl.rT4ta, cl.rT5ta,
+                        (SELECT TOP 1 CONCAT(anioDesde, '-', mesDesde) FROM fitRus y
+                            WHERE y.idServicio = 1 AND y.idCliente = cl.ruc
+                            ORDER BY anioDesde DESC, mesDesde DESC) AS periodoIEnvoyRus,
+                        (SELECT TOP 1 CONCAT(anioHasta, '-', mesHasta) FROM fitRus y
+                            WHERE y.idServicio = 1 AND y.idCliente = cl.ruc
+                            ORDER BY anioDesde DESC, mesDesde DESC) AS periodoFEnvoyRus
+                    FROM cliente cl
+                        INNER JOIN clientsEstados ce ON cl.idEstado = ce.id
+                        LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente
+                        LEFT JOIN signerNivelesFijos sf ON s.idNivelF = sf.id
+                        LEFT JOIN signerNivelesTemperatura st ON s.idNivelX3 = st.id
+                        LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id
+                        LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id
+                    WHERE cl.rtRus = 1
+                """;
     }
 
     public List<Cliente> list(SignerRusRequest req) {
@@ -59,15 +67,14 @@ public class SignerRusRepository {
 
     public Map<Integer, Integer> getSummaryEstados(SignerRusRequest req) {
         StringBuilder sql = new StringBuilder(
-            "SELECT cl.idEstado, COUNT(*) AS cantidad FROM cliente cl " +
-            "INNER JOIN clientsEstados ce ON cl.idEstado = ce.id " +
-            "LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente " +
-            "LEFT JOIN signerNivelesFijos sf ON s.idNivelF = sf.id " +
-            "LEFT JOIN signerNivelesTemperatura st ON s.idNivelX3 = st.id " +
-            "LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id " +
-            "LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id " +
-            "WHERE cl.rtRus = 1"
-        );
+                "SELECT cl.idEstado, COUNT(*) AS cantidad FROM cliente cl " +
+                        "INNER JOIN clientsEstados ce ON cl.idEstado = ce.id " +
+                        "LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente " +
+                        "LEFT JOIN signerNivelesFijos sf ON s.idNivelF = sf.id " +
+                        "LEFT JOIN signerNivelesTemperatura st ON s.idNivelX3 = st.id " +
+                        "LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id " +
+                        "LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id " +
+                        "WHERE cl.rtRus = 1");
         MapSqlParameterSource params = new MapSqlParameterSource();
         appendFilters(sql, params, req);
         sql.append(" GROUP BY cl.idEstado");
@@ -87,32 +94,40 @@ public class SignerRusRepository {
 
         String grupos = req.getGruposString();
         if (grupos != null && !grupos.trim().isEmpty()) {
-            List<String> list = Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toList());
-            if(!list.isEmpty()){
+            List<String> list = Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            if (!list.isEmpty()) {
                 sql.append(" AND cl.y IN (:grupos)");
                 params.addValue("grupos", list);
             }
         }
     }
 
-    private void appendIntCsvFilter(StringBuilder sql, MapSqlParameterSource params, String col, String csv, String param) {
-        if (csv == null || csv.trim().isEmpty()) return;
+    private void appendIntCsvFilter(StringBuilder sql, MapSqlParameterSource params, String col, String csv,
+            String param) {
+        if (csv == null || csv.trim().isEmpty())
+            return;
         List<Integer> nonZero = new ArrayList<>();
         boolean includeZero = false;
         for (String part : csv.split(",")) {
             String t = part.trim();
-            if (t.isEmpty()) continue;
+            if (t.isEmpty())
+                continue;
             int v = Integer.parseInt(t);
-            if (v == 0) includeZero = true;
-            else nonZero.add(v);
+            if (v == 0)
+                includeZero = true;
+            else
+                nonZero.add(v);
         }
-        if (!includeZero && nonZero.isEmpty()) return;
+        if (!includeZero && nonZero.isEmpty())
+            return;
 
         sql.append(" AND (");
         if (!nonZero.isEmpty()) {
             sql.append(col).append(" IN (:").append(param).append(")");
             params.addValue(param, nonZero);
-            if (includeZero) sql.append(" OR ");
+            if (includeZero)
+                sql.append(" OR ");
         }
         if (includeZero) {
             sql.append("(").append(col).append(" IS NULL OR ").append(col).append(" = 0)");
@@ -129,7 +144,8 @@ public class SignerRusRepository {
             String y = rs.getString("y");
             obj.setY(y);
             obj.setRazonSocial(rs.getString("razonSocial"));
-            obj.setServicio(new Gclass(rs.getInt("idTipoServicio"), rs.getString("abrServicio"), rs.getString("descServicio")));
+            obj.setServicio(
+                    new Gclass(rs.getInt("idTipoServicio"), rs.getString("abrServicio"), rs.getString("descServicio")));
 
             SignerNivel sn = new SignerNivel();
             sn.setNivelFijo(new Gclass(rs.getInt("idNivelF"), rs.getString("abrNivelF"), rs.getString("descNivelF")));
@@ -153,12 +169,18 @@ public class SignerRusRepository {
             int rT5ta = rs.getInt("rT5ta");
 
             if (rT3ra != 0) {
-                if (rs.getInt("rTMypeTributario") != 0) rTs.add("MYPE Tributario");
-                if (rs.getInt("rTRus") != 0) rTs.add("RUS");
-                if (rs.getInt("rTEspecial") != 0) rTs.add("Especial");
-                if (rs.getInt("rTGeneral") != 0) rTs.add("General");
-                if (rs.getInt("rTAmazonico") != 0) rTs.add("Amazónico");
-                if (rs.getInt("rTAgrario") != 0) rTs.add("Agrario");
+                if (rs.getInt("rTMypeTributario") != 0)
+                    rTs.add("MYPE Tributario");
+                if (rs.getInt("rTRus") != 0)
+                    rTs.add("RUS");
+                if (rs.getInt("rTEspecial") != 0)
+                    rTs.add("Especial");
+                if (rs.getInt("rTGeneral") != 0)
+                    rTs.add("General");
+                if (rs.getInt("rTAmazonico") != 0)
+                    rTs.add("Amazónico");
+                if (rs.getInt("rTAgrario") != 0)
+                    rTs.add("Agrario");
             } else if (rT1ra != 0) {
                 rTs.add("1ra");
             } else if (rT2da != 0) {

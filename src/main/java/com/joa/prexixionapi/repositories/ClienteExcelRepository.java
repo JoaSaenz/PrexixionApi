@@ -32,7 +32,7 @@ public interface ClienteExcelRepository extends JpaRepository<ClienteExcelEntity
         (SELECT SUBSTRING 
         ((SELECT ',' + ISNULL(atBaja,'') AS 'data()' FROM  clienteActividadesTributarias at WHERE at.idCliente = cl.ruc FOR XML  PATH('')), 2, 9999)) AS atBaja, 
         cl.fRetiro, cl.fPle, cl.fPrico, cl.fBuc, cl.fAgentePer, cl.fAgenteRet, 
-        cl.fEmElec, cl.fPortSunat, cl.fSistCont, 
+        cl.fEmElec, cl.fPortSunat, cl.fSistCont, cl.iboxSunat, 
         (SELECT SUBSTRING 
         ((SELECT ',' + ISNULL(ccbCuenta,'') AS 'data()' FROM  clienteCuentasBancarias cb WHERE cb.idCliente = cl.ruc AND cb.ccbIdTipoCtBancaria = 3 FOR XML  PATH('')), 2, 9999)) AS ccbCuenta, 
         (SELECT SUBSTRING 

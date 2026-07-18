@@ -26,7 +26,8 @@ public class ClienteExcelService {
 
         public byte[] exportarExcelCliente(String estados, String grupos) {
                 java.util.List<Integer> listEstados = (estados == null || estados.isBlank()) ? java.util.List.of()
-                                : java.util.Arrays.stream(estados.split(",")).map(String::trim).filter(s -> !s.isBlank())
+                                : java.util.Arrays.stream(estados.split(",")).map(String::trim)
+                                                .filter(s -> !s.isBlank())
                                                 .map(Integer::valueOf).toList();
                 java.util.List<Integer> listGrupos = (grupos == null || grupos.isBlank()) ? java.util.List.of()
                                 : java.util.Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isBlank())
@@ -790,6 +791,11 @@ public class ClienteExcelService {
                                 cabeceraGEconomico.setCellValue("G. Económico");
                                 colNum++;
 
+                                Cell cabeceraIboxSunat = cabecera.createCell(colNum);
+                                cabeceraIboxSunat.setCellStyle(estiloSubCabeceraCentroAzulNegrita);
+                                cabeceraIboxSunat.setCellValue("IBOX SUNAT");
+                                colNum++;
+
                                 Cell cabeceraPFinCom = cabecera.createCell(colNum);
                                 cabeceraPFinCom.setCellStyle(estiloSubCabeceraCentroAzulNegrita);
                                 cabeceraPFinCom.setCellValue("P. Fin.Com");
@@ -1184,6 +1190,12 @@ public class ClienteExcelService {
                                         Cell dataGEconomico = data.createCell(colNum);
                                         dataGEconomico.setCellStyle(estiloDatosCentroGrisNegrita);
                                         dataGEconomico.setCellValue(c.getDescGrupoEconomico());
+                                        colNum++;
+
+                                        Cell dataIboxSunat = data.createCell(colNum);
+                                        dataIboxSunat.setCellStyle(estiloDatosCentroGrisNegrita);
+                                        dataIboxSunat.setCellValue(
+                                                        c.getIboxSunat() == null || c.getIboxSunat() == 0 ? "" : "SI");
                                         colNum++;
 
                                         Cell dataPFinCom = data.createCell(colNum);
