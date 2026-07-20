@@ -272,6 +272,15 @@ public class LoginProcesos {
     @Transient
     private String inventario;
 
+    @Transient
+    private String descPago;
+
+    @Transient
+    private String descBancoPdt621;
+
+    @Transient
+    private String descPagarImpuesto;
+
     // --- Constructor ---
     public LoginProcesos() {
     }
@@ -966,6 +975,30 @@ public class LoginProcesos {
 
     public void setInventario(String inventario) {
         this.inventario = inventario;
+    }
+
+    public String getDescPago() {
+        return descPago;
+    }
+
+    public void setDescPago(String descPago) {
+        this.descPago = descPago;
+    }
+
+    public String getDescBancoPdt621() {
+        return descBancoPdt621;
+    }
+
+    public void setDescBancoPdt621(String descBancoPdt621) {
+        this.descBancoPdt621 = descBancoPdt621;
+    }
+
+    public String getDescPagarImpuesto() {
+        return descPagarImpuesto;
+    }
+
+    public void setDescPagarImpuesto(String descPagarImpuesto) {
+        this.descPagarImpuesto = descPagarImpuesto;
     }
 
     public int getAvance() {

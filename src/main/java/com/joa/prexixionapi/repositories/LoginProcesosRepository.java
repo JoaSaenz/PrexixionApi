@@ -32,7 +32,10 @@ public class LoginProcesosRepository {
                 + "                          WHEN c.y = '9' THEN crS.fecha9 END "
                 + "                ELSE CASE WHEN c.y = '0' THEN cr.fecha0 WHEN c.y = '1' THEN cr.fecha1 WHEN c.y = '2' THEN cr.fecha2 "
                 + "                          WHEN c.y = '3' THEN cr.fecha3 WHEN c.y = '4' THEN cr.fecha4 WHEN c.y = '5' THEN cr.fecha5 "
-                + "                          WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN crS.fecha8 " // note crS or cr
+                + "                          WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN crS.fecha8 " // note
+                                                                                                                                          // crS
+                                                                                                                                          // or
+                                                                                                                                          // cr
                 + "                          WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab END END "
                 + "      ELSE CASE WHEN c.fPle IS NOT NULL THEN "
                 + "                CASE WHEN c.fPle != '' THEN "
@@ -147,6 +150,7 @@ public class LoginProcesosRepository {
                 + " LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = :anio AND lv.mes = :mes "
                 + " LEFT JOIN loginCompras lc ON c.ruc = lc.idCliente AND lc.anio = :anio AND lc.mes = :mes "
                 + " LEFT JOIN pdt621DataNew pDataN ON lp.ruc = pDataN.idCliente AND lp.anio = pDataN.anio AND lp.mes = pDataN.mes "
+                + " LEFT JOIN Pdt621Bancos pb ON pDataN.idBancoPdt621 = pb.id "
                 + " LEFT JOIN sireData siData ON c.ruc = siData.idCliente AND siData.anio = :anio AND siData.mes = :mes "
                 + " LEFT JOIN pdt621registros pR ON p.idCliente = pR.idCliente AND pR.anio = :anio AND pR.mes = :mes "
                 + "      AND pR.id = (select MAX(id) from pdt621Registros x where x.idCliente = c.ruc AND x.anio = :anio AND x.mes = :mes AND x.idTipo IN (3,4,5) ) "
@@ -175,7 +179,7 @@ public class LoginProcesosRepository {
                 + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
                 + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
                 + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
-                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
+                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, pDataN.pago, pDataN.idBancoPdt621, pb.descripcion AS descBancoPdt621, pDataN.pagarImpuestos, "
                 + " lp.version, "
                 + getFVencimientoSql() + " AS fVencimiento "
                 + getBaseFromAndWhere();
@@ -192,21 +196,21 @@ public class LoginProcesosRepository {
         query.setParameter("anioMesInt", anioMesInt);
         query.setParameter("startDate", startDate);
     }
-    
+
     public String[] getVencimientoLimits(String anio, String mes) {
-        String sql = "SELECT MIN(v.fVencimiento), MAX(v.fVencimiento) FROM ( SELECT " 
-                   + getFVencimientoSql() + " AS fVencimiento "
-                   + getBaseFromAndWhere() + " ) v "
-                   + " WHERE v.fVencimiento IS NOT NULL AND LEN(v.fVencimiento) > 0";
+        String sql = "SELECT MIN(v.fVencimiento), MAX(v.fVencimiento) FROM ( SELECT "
+                + getFVencimientoSql() + " AS fVencimiento "
+                + getBaseFromAndWhere() + " ) v "
+                + " WHERE v.fVencimiento IS NOT NULL AND LEN(v.fVencimiento) > 0";
 
         Query query = em.createNativeQuery(sql);
         bindBaseParameters(query, anio, mes);
-        
+
         Object[] result = (Object[]) query.getSingleResult();
         String min = result[0] != null ? result[0].toString() : "";
         String max = result[1] != null ? result[1].toString() : "";
-        
-        return new String[]{min, max};
+
+        return new String[] { min, max };
     }
 
     @SuppressWarnings("unchecked")
@@ -543,6 +547,26 @@ public class LoginProcesosRepository {
             obj.setComprasTotales(getDoubleSafely(tuple, "totalCompras"));
             obj.setIgvPorPagar(getDoubleSafely(tuple, "igvPorPagar"));
             obj.setRentaPorPagar(getDoubleSafely(tuple, "rentaPorPagar"));
+
+            Integer pagoVal = getIntegerSafely(tuple, "pago");
+            String descPago = "-";
+            if (pagoVal == 1) {
+                descPago = "SI";
+            } else if (pagoVal == 2) {
+                descPago = "NO";
+            }
+            obj.setDescPago(descPago);
+
+            obj.setDescBancoPdt621(getStringSafely(tuple, "descBancoPdt621"));
+
+            Integer pagarImpuestoVal = getIntegerSafely(tuple, "pagarImpuestos");
+            String descPagarImpuesto = "-";
+            if (pagarImpuestoVal == 1) {
+                descPagarImpuesto = "CLIENTE";
+            } else {
+                descPagarImpuesto = "G.COM";
+            }
+            obj.setDescPagarImpuesto(descPagarImpuesto);
 
             // VARIABLES LOGIN VENTAS
             obj.setConfirmacionVentas(getIntegerSafely(tuple, "confirmacionVentas"));
