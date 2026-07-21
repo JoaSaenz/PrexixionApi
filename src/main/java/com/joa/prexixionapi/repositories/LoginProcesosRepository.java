@@ -179,7 +179,7 @@ public class LoginProcesosRepository {
                 + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
                 + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
                 + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
-                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, pDataN.pago, pDataN.idBancoPdt621, pb.descripcion AS descBancoPdt621, pDataN.pagarImpuestos, "
+                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, pDataN.igvJusto, pDataN.pago, pDataN.idBancoPdt621, pb.descripcion AS descBancoPdt621, pDataN.pagarImpuestos, "
                 + " lp.version, "
                 + getFVencimientoSql() + " AS fVencimiento "
                 + getBaseFromAndWhere();
@@ -547,6 +547,15 @@ public class LoginProcesosRepository {
             obj.setComprasTotales(getDoubleSafely(tuple, "totalCompras"));
             obj.setIgvPorPagar(getDoubleSafely(tuple, "igvPorPagar"));
             obj.setRentaPorPagar(getDoubleSafely(tuple, "rentaPorPagar"));
+
+            Integer igvJustoVal = getIntegerSafely(tuple, "igvJusto");
+            String descIgvJusto = "-";
+            if (igvJustoVal == 1) {
+                descIgvJusto = "SI";
+            } else {
+                descIgvJusto = "NO";
+            }
+            obj.setDescIgvJusto(descIgvJusto);
 
             Integer pagoVal = getIntegerSafely(tuple, "pago");
             String descPago = "-";

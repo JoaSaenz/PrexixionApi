@@ -273,6 +273,9 @@ public class LoginProcesos {
     private String inventario;
 
     @Transient
+    private String descIgvJusto;
+
+    @Transient
     private String descPago;
 
     @Transient
@@ -407,7 +410,8 @@ public class LoginProcesos {
     }
 
     public String getRuc() {
-        if (id != null && ruc == null) return id.getRuc();
+        if (id != null && ruc == null)
+            return id.getRuc();
         return ruc;
     }
 
@@ -416,7 +420,8 @@ public class LoginProcesos {
     }
 
     public String getAnio() {
-        if (id != null && anio == null) return id.getAnio();
+        if (id != null && anio == null)
+            return id.getAnio();
         return anio;
     }
 
@@ -425,7 +430,8 @@ public class LoginProcesos {
     }
 
     public String getMes() {
-        if (id != null && mes == null) return id.getMes();
+        if (id != null && mes == null)
+            return id.getMes();
         return mes;
     }
 
@@ -975,6 +981,14 @@ public class LoginProcesos {
 
     public void setInventario(String inventario) {
         this.inventario = inventario;
+    }
+
+    public String getDescIgvJusto() {
+        return descIgvJusto;
+    }
+
+    public void setDescIgvJusto(String descIgvJusto) {
+        this.descIgvJusto = descIgvJusto;
     }
 
     public String getDescPago() {
