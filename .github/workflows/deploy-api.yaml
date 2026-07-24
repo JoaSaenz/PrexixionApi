@@ -44,24 +44,31 @@ jobs:
 
       - name: Desplegar API
         run: |
+          if [ ! -f /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar ]; then
+            echo "No existe JAR actual para backup"
+            exit 1
+          fi
+
+          echo "Creando backup del JAR actual..."
+
+          cp /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar \
+             /opt/api/backups/PrexixionApi-$(date +%Y%m%d_%H%M%S).jar
+
           echo "Copiando nueva versión..."
-          cp PrexixionApi-0.0.1-SNAPSHOT.jar /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar
 
-      - name: Diagnóstico runner
-        run: |
-          echo "Usuario:"
-          whoami
-
-          echo "PATH:"
-          echo $PATH
-
-          echo "Systemctl:"
-          which systemctl
-
-          echo "Sudo permisos:"
-          sudo -l
+          cp PrexixionApi-0.0.1-SNAPSHOT.jar \
+             /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar
 
           echo "Reiniciando servicio..."
+
           sudo /usr/bin/systemctl restart api.service
 
-          echo "Servicio reiniciado correctamente"
+          echo "Esperando inicio..."
+
+          sleep 10
+
+          echo "Validando estado del servicio..."
+
+          systemctl is-active --quiet api.service
+
+          echo "API desplegada correctamente"
