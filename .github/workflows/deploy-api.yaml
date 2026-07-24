@@ -48,7 +48,7 @@ jobs:
           cp PrexixionApi-0.0.1-SNAPSHOT.jar /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar
 
           echo "Reiniciando servicio..."
-          sudo systemctl restart api.service
+          sudo /usr/bin/systemctl restart api.service
 
           echo "Estado del servicio:"
-          sudo systemctl status api.service --no-pager
+          sudo /usr/bin/systemctl status api.service --no-pager
