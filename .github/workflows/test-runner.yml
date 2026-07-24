@@ -1,0 +1,21 @@
+name: Test Self Hosted Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on:
+      - self-hosted
+      - deploy
+
+    steps:
+      - name: Información del servidor
+        run: |
+          echo "Runner funcionando correctamente"
+          echo "Hostname:"
+          hostname
+          echo "Usuario:"
+          whoami
+          echo "Java:"
+          java -version
