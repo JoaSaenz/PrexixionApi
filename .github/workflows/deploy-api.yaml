@@ -47,8 +47,21 @@ jobs:
           echo "Copiando nueva versión..."
           cp PrexixionApi-0.0.1-SNAPSHOT.jar /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar
 
+                - name: Diagnóstico runner
+        run: |
+          echo "Usuario:"
+          whoami
+
+          echo "PATH:"
+          echo $PATH
+
+          echo "Systemctl:"
+          which systemctl
+
+          echo "Sudo permisos:"
+          sudo -l
+
           echo "Reiniciando servicio..."
           sudo /usr/bin/systemctl restart api.service
 
-          echo "Estado del servicio:"
-          sudo /usr/bin/systemctl status api.service --no-pager
+          echo "Servicio reiniciado correctamente"
