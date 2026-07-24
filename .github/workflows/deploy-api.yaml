@@ -47,7 +47,7 @@ jobs:
           echo "Copiando nueva versión..."
           cp PrexixionApi-0.0.1-SNAPSHOT.jar /opt/api/PrexixionApi-0.0.1-SNAPSHOT.jar
 
-                - name: Diagnóstico runner
+      - name: Diagnóstico runner
         run: |
           echo "Usuario:"
           whoami
