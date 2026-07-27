@@ -27,4 +27,8 @@ public class ClienteService {
         
         return response;
     }
+    
+    public List<java.util.Map<String, Object>> getEmpresasSelector() {
+        return clienteRepository.getEmpresasSelector();
+    }
 }

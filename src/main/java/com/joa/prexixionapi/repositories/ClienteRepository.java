@@ -98,22 +98,37 @@ public class ClienteRepository {
     }
 
     public int countServerSide(ClienteDataTablesRequest req) {
-        StringBuilder sql = new StringBuilder(
-                """
-                            SELECT COUNT(*) FROM cliente cl
-                            LEFT JOIN clientsEstados ce ON cl.idEstado = ce.id
-                            LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id
-                            LEFT JOIN clientesTiposContribuyente ctc ON cl.idContribuyente = ctc.id
-                            LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente
-                            LEFT JOIN signerNivelesCategorias nc ON s.idCategoria = nc.id
-                            LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id
-                            LEFT JOIN (SELECT DISTINCT idCliente FROM clienteServiciosOtros WHERE soIdServicioOtro = 6) cso ON cl.ruc = cso.idCliente
-                            WHERE 1=1
-                        """);
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM cliente cl ");
+        sql.append("LEFT JOIN clientsEstados ce ON cl.idEstado = ce.id ");
+        sql.append("LEFT JOIN clientsTipoServicio cts ON cl.idTipoServicio = cts.id ");
+        sql.append("LEFT JOIN clientesTiposContribuyente ctc ON cl.idContribuyente = ctc.id ");
+        sql.append("LEFT JOIN signerNiveles s ON cl.ruc = s.idCliente ");
+        sql.append("LEFT JOIN signerNivelesCategorias nc ON s.idCategoria = nc.id ");
+        sql.append("LEFT JOIN gruposEconomicos ge ON cl.idGrupoEconomico = ge.id ");
+        sql.append("LEFT JOIN (SELECT DISTINCT idCliente FROM clienteServiciosOtros WHERE soIdServicioOtro = 6) cso ON cl.ruc = cso.idCliente ");
+        sql.append("WHERE 1=1 ");
+        
         appendFilters(sql, req);
+
         Query query = em.createNativeQuery(sql.toString());
         setFilterParams(query, req);
+
         return ((Number) query.getSingleResult()).intValue();
+    }
+    
+    public List<Map<String, Object>> getEmpresasSelector() {
+        String sql = "SELECT ruc, razonSocial FROM cliente ORDER BY razonSocial";
+        Query query = em.createNativeQuery(sql);
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Object[] row : results) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("ruc", row[0]);
+            map.put("razonSocial", row[1]);
+            list.add(map);
+        }
+        return list;
     }
 
     public Map<Integer, Integer> getSummaryEstadosServerSide(ClienteDataTablesRequest req) {

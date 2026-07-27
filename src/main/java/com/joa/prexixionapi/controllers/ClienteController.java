@@ -48,6 +48,11 @@ public class ClienteController {
         }
     }
 
+    @GetMapping("/selector/empresas")
+    public ResponseEntity<java.util.List<java.util.Map<String, Object>>> getEmpresasSelector() {
+        return ResponseEntity.ok(clienteService.getEmpresasSelector());
+    }
+
     @GetMapping("/excel-download")
     public ResponseEntity<byte[]> downloadExcel(@RequestParam(required = false) String estados,
             @RequestParam(required = false) String grupos) {
