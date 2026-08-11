@@ -284,6 +284,18 @@ public class LoginProcesos {
     @Transient
     private String descPagarImpuesto;
 
+    @Transient
+    private String descRenta3Categoria;
+
+    @Transient
+    private String descRentaPago;
+
+    @Transient
+    private String descRentaBanco;
+
+    @Transient
+    private String descRentaPagarImpuesto;
+
     // --- Constructor ---
     public LoginProcesos() {
     }
@@ -1013,6 +1025,38 @@ public class LoginProcesos {
 
     public void setDescPagarImpuesto(String descPagarImpuesto) {
         this.descPagarImpuesto = descPagarImpuesto;
+    }
+
+    public String getDescRenta3Categoria() {
+        return descRenta3Categoria;
+    }
+
+    public void setDescRenta3Categoria(String descRenta3Categoria) {
+        this.descRenta3Categoria = descRenta3Categoria;
+    }
+
+    public String getDescRentaPago() {
+        return descRentaPago;
+    }
+
+    public void setDescRentaPago(String descRentaPago) {
+        this.descRentaPago = descRentaPago;
+    }
+
+    public String getDescRentaBanco() {
+        return descRentaBanco;
+    }
+
+    public void setDescRentaBanco(String descRentaBanco) {
+        this.descRentaBanco = descRentaBanco;
+    }
+
+    public String getDescRentaPagarImpuesto() {
+        return descRentaPagarImpuesto;
+    }
+
+    public void setDescRentaPagarImpuesto(String descRentaPagarImpuesto) {
+        this.descRentaPagarImpuesto = descRentaPagarImpuesto;
     }
 
     public int getAvance() {

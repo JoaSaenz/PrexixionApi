@@ -151,6 +151,7 @@ public class LoginProcesosRepository {
                 + " LEFT JOIN loginCompras lc ON c.ruc = lc.idCliente AND lc.anio = :anio AND lc.mes = :mes "
                 + " LEFT JOIN pdt621DataNew pDataN ON lp.ruc = pDataN.idCliente AND lp.anio = pDataN.anio AND lp.mes = pDataN.mes "
                 + " LEFT JOIN Pdt621Bancos pb ON pDataN.idBancoPdt621 = pb.id "
+                + " LEFT JOIN Pdt621Bancos pbRenta ON pDataN.rentaBanco = pbRenta.id "
                 + " LEFT JOIN sireData siData ON c.ruc = siData.idCliente AND siData.anio = :anio AND siData.mes = :mes "
                 + " LEFT JOIN pdt621registros pR ON p.idCliente = pR.idCliente AND pR.anio = :anio AND pR.mes = :mes "
                 + "      AND pR.id = (select MAX(id) from pdt621Registros x where x.idCliente = c.ruc AND x.anio = :anio AND x.mes = :mes AND x.idTipo IN (3,4,5) ) "
@@ -179,7 +180,9 @@ public class LoginProcesosRepository {
                 + " pR.idTipo as idTipoRegistro, pR.fecha as fechaRegistro, pR.nroOrden as nroOrdenRegistro, "
                 + " COALESCE(pDataN.ventasG, 0) + COALESCE(pDataN.ventasNetas10,0) + COALESCE(pDataN.ventasNg,0) + COALESCE(pDataN.expFactPer,0) + COALESCE(pDataN.expEmbrPer,0) + COALESCE(pDataN.ivapVentasGravadas,0) AS totalVentas, "
                 + " COALESCE(pDataN.comprasG, 0) + COALESCE(pDataN.comprasNetas10,0) + COALESCE(pDataN.comprasMixtas,0) + COALESCE(pDataN.comprasNgE,0) + COALESCE(pDataN.impComprasG,0) + COALESCE(pDataN.comprasNg,0) AS totalCompras, "
-                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, pDataN.igvJusto, pDataN.pago, pDataN.idBancoPdt621, pb.descripcion AS descBancoPdt621, pDataN.pagarImpuestos, "
+                + " pDataN.igvPorPagar, pDataN.rentaPorPagar, "
+                + " pDataN.igvJusto, pDataN.pago, pDataN.idBancoPdt621, pb.descripcion AS descBancoPdt621, pDataN.pagarImpuestos, "
+                + " pDataN.renta3Categoria, pDataN.rentaPago, pDataN.rentaBanco, pbRenta.descripcion AS descRentaBanco, pDataN.rentaPagarImpuestos, "
                 + " lp.version, "
                 + getFVencimientoSql() + " AS fVencimiento "
                 + getBaseFromAndWhere();
@@ -548,6 +551,7 @@ public class LoginProcesosRepository {
             obj.setIgvPorPagar(getDoubleSafely(tuple, "igvPorPagar"));
             obj.setRentaPorPagar(getDoubleSafely(tuple, "rentaPorPagar"));
 
+            // IGV
             Integer igvJustoVal = getIntegerSafely(tuple, "igvJusto");
             String descIgvJusto = "-";
             if (igvJustoVal == 1) {
@@ -576,6 +580,36 @@ public class LoginProcesosRepository {
                 descPagarImpuesto = "G.COM";
             }
             obj.setDescPagarImpuesto(descPagarImpuesto);
+
+            // RENTA
+            Integer renta3CategoriaVal = getIntegerSafely(tuple, "renta3Categoria");
+            String descRenta3Categoria = "-";
+            if (renta3CategoriaVal == 1) {
+                descRenta3Categoria = "SI";
+            } else {
+                descRenta3Categoria = "NO";
+            }
+            obj.setDescRenta3Categoria(descRenta3Categoria);
+
+            Integer rentaPagoVal = getIntegerSafely(tuple, "rentaPago");
+            String descRentaPago = "-";
+            if (rentaPagoVal == 1) {
+                descRentaPago = "SI";
+            } else if (rentaPagoVal == 2) {
+                descRentaPago = "NO";
+            }
+            obj.setDescRentaPago(descRentaPago);
+
+            obj.setDescRentaBanco(getStringSafely(tuple, "descRentaBanco"));
+
+            Integer rentaPagarImpuestoVal = getIntegerSafely(tuple, "rentaPagarImpuestos");
+            String descRentaPagarImpuesto = "-";
+            if (rentaPagarImpuestoVal == 1) {
+                descRentaPagarImpuesto = "CLIENTE";
+            } else {
+                descRentaPagarImpuesto = "G.COM";
+            }
+            obj.setDescRentaPagarImpuesto(descRentaPagarImpuesto);
 
             // VARIABLES LOGIN VENTAS
             obj.setConfirmacionVentas(getIntegerSafely(tuple, "confirmacionVentas"));
