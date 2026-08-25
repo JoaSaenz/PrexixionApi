@@ -13,5 +13,6 @@ public class BiBecomHeaderDTO {
     private String responsableNombre;
     private String fechaEmision;
     private String periodoNombre;
+    private String anio;
     private String ecosistemaAreas;
 }

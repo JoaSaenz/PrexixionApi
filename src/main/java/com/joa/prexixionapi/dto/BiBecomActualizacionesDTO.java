@@ -15,7 +15,8 @@ public class BiBecomActualizacionesDTO {
     private int totalTerminados;
     private int totalEnProceso;
     private int totalPendientes;
-    private int totalRetiradosSinPago;
+    private int casosActivos;
+    private int casosRetirados;
     private List<BiBecomActualizacionItemDTO> activosList;
     private List<BiBecomActualizacionItemDTO> retiradosList;
 }

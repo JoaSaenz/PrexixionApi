@@ -17,6 +17,7 @@ public class BiBecomDevolucionesDTO {
     private BigDecimal tasaAprobacionPct;
     private BigDecimal montoAprobado;
     private BigDecimal casosFinalizadosPct;
+    private int casosDenegados;
     private int casosPendientes;
     private int antiguedadPromedioDias;
     private BigDecimal montoTotalDenegado;
