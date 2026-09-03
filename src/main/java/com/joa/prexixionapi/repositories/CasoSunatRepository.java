@@ -48,29 +48,21 @@ public class CasoSunatRepository {
             sql += " AND c.idEmpresa = :idEmpresa ";
             params.addValue("idEmpresa", request.getIdEmpresa().trim());
         }
-        if (request.getIdTipoCaso() != null && request.getIdTipoCaso() > 0) {
-            sql += " AND c.idTipoCaso = :idTipoCaso ";
-            params.addValue("idTipoCaso", request.getIdTipoCaso());
+        if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
+            sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
-        if (request.getIdModalidad() != null && request.getIdModalidad() > 0) {
-            sql += " AND c.idModalidad = :idModalidad ";
-            params.addValue("idModalidad", request.getIdModalidad());
+        if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
+            sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
         }
-        if (request.getIdTributo() != null && request.getIdTributo() > 0) {
-            sql += " AND c.idTributo = :idTributo ";
-            params.addValue("idTributo", request.getIdTributo());
+        if (request.getTributosString() != null && !request.getTributosString().isEmpty()) {
+            sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
         }
-        if (request.getIdTipoPeriodo() != null && request.getIdTipoPeriodo() > 0) {
-            sql += " AND c.idTipoPeriodo = :idTipoPeriodo ";
-            params.addValue("idTipoPeriodo", request.getIdTipoPeriodo());
+        if (request.getTiposPeriodoString() != null && !request.getTiposPeriodoString().isEmpty()) {
+            sql += " AND c.idTipoPeriodo IN (" + request.getTiposPeriodoString() + ") ";
         }
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
             sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
             params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
-        }
-        if (request.getAvance() != null && request.getAvance().doubleValue() > 0) {
-            sql += " AND c.avance >= :avance ";
-            params.addValue("avance", request.getAvance());
         }
 
         sql += " ORDER BY c.id DESC ";
