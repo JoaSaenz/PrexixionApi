@@ -445,4 +445,126 @@ public class CasoSunatRepository {
         String sql = "DELETE FROM casoSunat WHERE id = :idCaso";
         return jdbcTemplate.update(sql, new MapSqlParameterSource("idCaso", idCaso));
     }
+
+    // =========================================================================
+    // MÉTODOS PARA ACTUALIZACIÓN DIFERENCIAL (UPSERT - RETENER IDs REALES)
+    // =========================================================================
+
+    public List<Integer> getAuditorIdsByCaso(Integer idCaso) {
+        String sql = "SELECT id FROM casoSunatAuditor WHERE idCaso = :idCaso";
+        return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
+    }
+
+    public List<Integer> getDocumentoIdsByCaso(Integer idCaso) {
+        String sql = "SELECT id FROM casoSunatDocumento WHERE idCaso = :idCaso";
+        return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
+    }
+
+    public List<Integer> getEventoIdsByCaso(Integer idCaso) {
+        String sql = "SELECT id FROM casoSunatDocumentoEvento WHERE idCaso = :idCaso";
+        return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
+    }
+
+    public List<Integer> getRelacionIdsByCaso(Integer idCaso) {
+        String sql = "SELECT id FROM casoSunatDocumentoRelacion WHERE idCaso = :idCaso";
+        return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
+    }
+
+    public void updateAuditor(CasoSunatAuditorDTO dto, Integer realId) {
+        String sql = """
+                UPDATE casoSunatAuditor
+                SET nombresApellidos = :nombresApellidos, fechaInicio = :fechaInicio, fechaFin = :fechaFin
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", realId)
+                .addValue("nombresApellidos", dto.getNombresApellidos())
+                .addValue("fechaInicio", dto.getFechaInicio())
+                .addValue("fechaFin", dto.getFechaFin());
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void updateDocumento(CasoSunatDocumentoDTO dto, Integer realId) {
+        String sql = """
+                UPDATE casoSunatDocumento
+                SET idTipoDocumento = :idTipoDocumento, nroDocumento = :nroDocumento,
+                    fechaRecepcion = :fechaRecepcion, fechaEnvio = :fechaEnvio,
+                    fechaPresentacion = :fechaPresentacion, hora = :hora,
+                    fechaResultado = :fechaResultado, idEstado = :idEstado,
+                    importeObservado = :importeObservado, rectificatoria = :rectificatoria,
+                    importeRectificado = :importeRectificado
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", realId)
+                .addValue("idTipoDocumento", dto.getIdTipoDocumento())
+                .addValue("nroDocumento", dto.getNroDocumento())
+                .addValue("fechaRecepcion", dto.getFechaRecepcion())
+                .addValue("fechaEnvio", dto.getFechaEnvio())
+                .addValue("fechaPresentacion", dto.getFechaPresentacion())
+                .addValue("hora", dto.getHora())
+                .addValue("fechaResultado", dto.getFechaResultado())
+                .addValue("idEstado", dto.getIdEstado())
+                .addValue("importeObservado", dto.getImporteObservado())
+                .addValue("rectificatoria", dto.getRectificatoria() != null ? dto.getRectificatoria() : 0)
+                .addValue("importeRectificado", dto.getImporteRectificado());
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void updateEvento(CasoSunatDocumentoEventoDTO dto, Integer realId) {
+        String sql = """
+                UPDATE casoSunatDocumentoEvento
+                SET idDocumento = :idDocumento, idEmisor = :idEmisor, idTipoEvento = :idTipoEvento,
+                    idDocumentoCarta = :idDocumentoCarta, fecha = :fecha, observacion = :observacion
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", realId)
+                .addValue("idDocumento", dto.getIdDocumento())
+                .addValue("idEmisor", dto.getIdEmisor())
+                .addValue("idTipoEvento", dto.getIdEvento())
+                .addValue("idDocumentoCarta", dto.getIdDocumentoCarta())
+                .addValue("fecha", dto.getFecha())
+                .addValue("observacion", dto.getObservacion());
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void updateRelacion(CasoSunatDocumentoRelacionDTO dto, Integer realId) {
+        String sql = """
+                UPDATE casoSunatDocumentoRelacion
+                SET idDocumentoOrigen = :idDocumentoOrigen, idDocumentoDestino = :idDocumentoDestino,
+                    idTipoRelacion = :idTipoRelacion
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", realId)
+                .addValue("idDocumentoOrigen", dto.getIdDocumentoOrigen())
+                .addValue("idDocumentoDestino", dto.getIdDocumentoDestino())
+                .addValue("idTipoRelacion", dto.getIdTipoRelacion());
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void deleteAuditoresByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        jdbcTemplate.update("DELETE FROM casoSunatAuditor WHERE id IN (:ids)", params);
+    }
+
+    public void deleteDocumentosByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        jdbcTemplate.update("DELETE FROM casoSunatDocumento WHERE id IN (:ids)", params);
+    }
+
+    public void deleteEventosByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        jdbcTemplate.update("DELETE FROM casoSunatDocumentoEvento WHERE id IN (:ids)", params);
+    }
+
+    public void deleteRelacionesByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        jdbcTemplate.update("DELETE FROM casoSunatDocumentoRelacion WHERE id IN (:ids)", params);
+    }
 }
