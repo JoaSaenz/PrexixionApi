@@ -27,4 +27,13 @@ public class CasoSunatListDTO {
     private Integer coordinacionTax;
     private Integer coordinacionFir;
     private BigDecimal avance;
+
+    // Campos del último documento registrado
+    private Integer ultIdTipoDocumento;
+    private String descTipoDocumento;
+    private String fechaPresentacion;
+    private String hora;
+    private BigDecimal importeObservado;
+    private Integer idEstado;
+    private String descEstado;
 }

@@ -31,7 +31,14 @@ public class CasoSunatRepository {
                        c.idTipoPeriodo, tp.descripcion AS descTipoPeriodo,
                        c.anioPeriodoInicio, c.mesPeriodoInicio,
                        c.anioPeriodoFin, c.mesPeriodoFin,
-                       c.periodoTexto, c.coordinacionTax, c.coordinacionFir, c.avance
+                       c.periodoTexto, c.coordinacionTax, c.coordinacionFir, c.avance,
+                       ld.idTipoDocumento AS ultIdTipoDocumento,
+                       ltd.descripcion AS descTipoDocumento,
+                       ld.fechaPresentacion AS fechaPresentacion,
+                       ld.hora AS hora,
+                       ld.importeObservado AS importeObservado,
+                       ld.idEstado AS idEstado,
+                       led.descripcion AS descEstado
                 FROM casoSunat c
                 LEFT JOIN cliente cl ON c.idEmpresa = cl.ruc
                 LEFT JOIN casoSunatTipoCaso tc ON c.idTipoCaso = tc.id
@@ -39,6 +46,11 @@ public class CasoSunatRepository {
                 LEFT JOIN casoSunatTributo tr ON c.idTributo = tr.id
                 LEFT JOIN casoSunatMotivo mo ON c.idMotivo = mo.id
                 LEFT JOIN casoSunatTipoPeriodo tp ON c.idTipoPeriodo = tp.id
+                LEFT JOIN casoSunatDocumento ld ON ld.id = (
+                    SELECT MAX(d2.id) FROM casoSunatDocumento d2 WHERE d2.idCaso = c.id
+                )
+                LEFT JOIN casoSunatTipoDocumento ltd ON ld.idTipoDocumento = ltd.id
+                LEFT JOIN casoSunatEstadoDocumento led ON ld.idEstado = led.id
                 WHERE 1=1
                 """;
 
@@ -90,6 +102,15 @@ public class CasoSunatRepository {
             dto.setCoordinacionTax(rs.getObject("coordinacionTax") != null ? rs.getInt("coordinacionTax") : 0);
             dto.setCoordinacionFir(rs.getObject("coordinacionFir") != null ? rs.getInt("coordinacionFir") : 0);
             dto.setAvance(rs.getBigDecimal("avance"));
+            
+            // Campos del último documento
+            dto.setUltIdTipoDocumento(rs.getObject("ultIdTipoDocumento") != null ? rs.getInt("ultIdTipoDocumento") : null);
+            dto.setDescTipoDocumento(rs.getString("descTipoDocumento"));
+            dto.setFechaPresentacion(rs.getString("fechaPresentacion"));
+            dto.setHora(rs.getString("hora"));
+            dto.setImporteObservado(rs.getBigDecimal("importeObservado"));
+            dto.setIdEstado(rs.getObject("idEstado") != null ? rs.getInt("idEstado") : null);
+            dto.setDescEstado(rs.getString("descEstado"));
             return dto;
         });
     }
