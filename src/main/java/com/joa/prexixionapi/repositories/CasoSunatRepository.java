@@ -63,18 +63,21 @@ public class CasoSunatRepository {
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
+        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
+            sql += " AND ld.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
+        }
         if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
             sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
         }
         if (request.getTributosString() != null && !request.getTributosString().isEmpty()) {
             sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
         }
-        if (request.getTiposPeriodoString() != null && !request.getTiposPeriodoString().isEmpty()) {
-            sql += " AND c.idTipoPeriodo IN (" + request.getTiposPeriodoString() + ") ";
-        }
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
             sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
             params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+        }
+        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
+            sql += " AND ld.idEstado IN (" + request.getEstadosString() + ") ";
         }
 
         sql += " ORDER BY c.id DESC ";
