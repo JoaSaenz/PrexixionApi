@@ -41,6 +41,11 @@ public class ExcelStyleManager {
     public static final byte[] VERY_LIGHT_YELLOW_RGB = {(byte) 254, (byte) 249, (byte) 231};
     public static final byte[] VERY_LIGHT_GREEN_RGB = {(byte) 244, (byte) 251, (byte) 235};
 
+    public static final byte[] SKYBLUE_GREY_RGB = {(byte) 217, (byte) 225, (byte) 242}; // #D9E1F2 Cabecera Celeste
+    public static final byte[] NAVY_BLUE_HEADER_RGB = {(byte) 27, (byte) 54, (byte) 93}; // #1B365D Azul Oscuro Totales
+    public static final byte[] DARK_GREEN_TEXT_RGB = {(byte) 55, (byte) 86, (byte) 35}; // #375623 Verde Texto SI
+    public static final byte[] DARK_RED_TEXT_RGB = {(byte) 192, (byte) 0, (byte) 0}; // #C00000 Rojo Texto PENDIENTE
+
     public ExcelStyleManager(XSSFWorkbook workbook) {
         this.workbook = workbook;
     }
@@ -245,6 +250,18 @@ public class ExcelStyleManager {
         if (style == null) {
             style = createBaseStyle(bgColor, fontColor, fontSize, bold, HorizontalAlignment.CENTER, BorderStyle.THIN, borderColor);
             style.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("dd/MM/yyyy"));
+            styleCache.put(key, style);
+        }
+        return style;
+    }
+
+    public XSSFCellStyle getPercentStyle(byte[] bgColor, byte[] fontColor, int fontSize, boolean bold, IndexedColors borderColor) {
+        String key = "percent_" + java.util.Arrays.toString(bgColor) + "_" + java.util.Arrays.toString(fontColor) + "_" + fontSize + "_" + bold + "_" + borderColor.name();
+        
+        XSSFCellStyle style = styleCache.get(key);
+        if (style == null) {
+            style = createBaseStyle(bgColor, fontColor, fontSize, bold, HorizontalAlignment.CENTER, BorderStyle.THIN, borderColor);
+            style.setDataFormat(workbook.getCreationHelper().createDataFormat().getFormat("0%"));
             styleCache.put(key, style);
         }
         return style;

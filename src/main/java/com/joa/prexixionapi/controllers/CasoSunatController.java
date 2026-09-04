@@ -67,7 +67,7 @@ public class CasoSunatController {
         byte[] excelBytes = excelService.exportarExcel(request);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDispositionFormData("attachment", "Gestion_Fiscalizaciones_CasoSUNAT.xlsx");
+        headers.setContentDispositionFormData("attachment", "REPORTE DE FISCALIZACIONES.xlsx");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }
