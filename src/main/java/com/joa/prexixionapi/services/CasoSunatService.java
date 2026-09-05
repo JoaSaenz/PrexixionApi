@@ -20,6 +20,10 @@ public class CasoSunatService {
         return repository.listForDataTable(request);
     }
 
+    public List<CasoSunatSeguimientoDTO> listSeguimiento(CasoSunatRequest request) {
+        return repository.getReporteSeguimientoData(request);
+    }
+
     public CasoSunatDTO getOne(Integer id) {
         return repository.getOne(id);
     }

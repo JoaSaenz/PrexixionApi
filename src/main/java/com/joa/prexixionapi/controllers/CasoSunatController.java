@@ -71,4 +71,14 @@ public class CasoSunatController {
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }
+
+    @GetMapping("/excel-seguimiento")
+    public ResponseEntity<byte[]> listExcelSeguimiento(CasoSunatRequest request) {
+        byte[] excelBytes = excelService.exportarExcelSeguimiento(request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "REPORTE DE SEGUIMIENTO.xlsx");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
+    }
 }

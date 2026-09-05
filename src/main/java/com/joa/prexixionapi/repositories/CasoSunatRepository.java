@@ -583,4 +583,94 @@ public class CasoSunatRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoRelacion WHERE id IN (:ids)", params);
     }
+
+    public List<CasoSunatSeguimientoDTO> getReporteSeguimientoData(CasoSunatRequest request) {
+        String sql = """
+                SELECT c.id AS idCaso, c.idEmpresa, COALESCE(cl.razonSocial, 'EMPRESA REGISTRADA') AS razonSocial,
+                       c.idTipoCaso, tc.descripcion AS descTipoCaso,
+                       c.idModalidad, m.descripcion AS descModalidad,
+                       c.idTributo, tr.descripcion AS descTributo,
+                       c.idMotivo, mo.descripcion AS descMotivo,
+                       c.periodoTexto, c.coordinacionTax, c.coordinacionFir,
+                       (SELECT a.nombresApellidos FROM casoSunatAuditor a WHERE a.idCaso = c.id ORDER BY a.id DESC LIMIT 1) AS ultimoAuditor,
+                       d.id AS idDocumento,
+                       d.idTipoDocumento, td.descripcion AS descTipoDocumento,
+                       d.nroDocumento, d.fechaRecepcion, d.fechaEnvio, d.fechaPresentacion, d.hora, d.fechaResultado,
+                       d.idEstado, ed.descripcion AS descEstado,
+                       d.importeObservado, d.rectificatoria, d.importeRectificado
+                FROM casoSunat c
+                LEFT JOIN cliente cl ON c.idEmpresa = cl.ruc
+                LEFT JOIN casoSunatTipoCaso tc ON c.idTipoCaso = tc.id
+                LEFT JOIN casoSunatModalidad m ON c.idModalidad = m.id
+                LEFT JOIN casoSunatTributo tr ON c.idTributo = tr.id
+                LEFT JOIN casoSunatMotivo mo ON c.idMotivo = mo.id
+                LEFT JOIN casoSunatDocumento d ON d.idCaso = c.id
+                LEFT JOIN casoSunatTipoDocumento td ON d.idTipoDocumento = td.id
+                LEFT JOIN casoSunatEstadoDocumento ed ON d.idEstado = ed.id
+                WHERE 1=1
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
+            sql += " AND c.idEmpresa = :idEmpresa ";
+            params.addValue("idEmpresa", request.getIdEmpresa().trim());
+        }
+        if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
+            sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
+        }
+        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
+            sql += " AND d.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
+        }
+        if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
+            sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
+        }
+        if (request.getTributosString() != null && !request.getTributosString().isEmpty()) {
+            sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
+        }
+        if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
+            sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
+            params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+        }
+        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
+            sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
+        }
+
+        sql += " ORDER BY c.id DESC, d.id ASC ";
+
+        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            CasoSunatSeguimientoDTO dto = new CasoSunatSeguimientoDTO();
+            dto.setIdCaso(rs.getInt("idCaso"));
+            dto.setIdEmpresa(rs.getString("idEmpresa"));
+            dto.setRazonSocial(rs.getString("razonSocial"));
+            dto.setIdTipoCaso(rs.getInt("idTipoCaso"));
+            dto.setDescTipoCaso(rs.getString("descTipoCaso"));
+            dto.setIdModalidad(rs.getInt("idModalidad"));
+            dto.setDescModalidad(rs.getString("descModalidad"));
+            dto.setIdTributo(rs.getInt("idTributo"));
+            dto.setDescTributo(rs.getString("descTributo"));
+            dto.setIdMotivo(rs.getObject("idMotivo") != null ? rs.getInt("idMotivo") : null);
+            dto.setDescMotivo(rs.getString("descMotivo"));
+            dto.setPeriodoTexto(rs.getString("periodoTexto"));
+            dto.setCoordinacionTax(rs.getObject("coordinacionTax") != null ? rs.getInt("coordinacionTax") : 0);
+            dto.setCoordinacionFir(rs.getObject("coordinacionFir") != null ? rs.getInt("coordinacionFir") : 0);
+            dto.setUltimoAuditor(rs.getString("ultimoAuditor"));
+
+            dto.setIdDocumento(rs.getObject("idDocumento") != null ? rs.getInt("idDocumento") : null);
+            dto.setIdTipoDocumento(rs.getObject("idTipoDocumento") != null ? rs.getInt("idTipoDocumento") : null);
+            dto.setDescTipoDocumento(rs.getString("descTipoDocumento"));
+            dto.setNroDocumento(rs.getString("nroDocumento"));
+            dto.setFechaRecepcion(rs.getString("fechaRecepcion"));
+            dto.setFechaEnvio(rs.getString("fechaEnvio"));
+            dto.setFechaPresentacion(rs.getString("fechaPresentacion"));
+            dto.setHora(rs.getString("hora"));
+            dto.setFechaResultado(rs.getString("fechaResultado"));
+            dto.setIdEstado(rs.getObject("idEstado") != null ? rs.getInt("idEstado") : null);
+            dto.setDescEstado(rs.getString("descEstado"));
+            dto.setImporteObservado(rs.getBigDecimal("importeObservado"));
+            dto.setRectificatoria(rs.getObject("rectificatoria") != null ? rs.getInt("rectificatoria") : 0);
+            dto.setImporteRectificado(rs.getBigDecimal("importeRectificado"));
+            return dto;
+        });
+    }
 }
