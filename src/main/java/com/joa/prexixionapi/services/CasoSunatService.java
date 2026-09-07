@@ -24,6 +24,10 @@ public class CasoSunatService {
         return repository.getReporteSeguimientoData(request);
     }
 
+    public List<CasoSunatMemoriaDTO> listMemoria(CasoSunatRequest request) {
+        return repository.getReporteMemoriaData(request);
+    }
+
     public CasoSunatDTO getOne(Integer id) {
         return repository.getOne(id);
     }

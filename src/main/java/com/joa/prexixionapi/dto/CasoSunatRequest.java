@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CasoSunatRequest {
+    private Integer idCaso;
     private String idEmpresa;
     private String tiposCasoString;
     private String documentosString;

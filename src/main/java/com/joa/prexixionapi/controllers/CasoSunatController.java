@@ -81,4 +81,14 @@ public class CasoSunatController {
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
     }
+
+    @GetMapping("/excel-memoria")
+    public ResponseEntity<byte[]> listExcelMemoria(CasoSunatRequest request) {
+        byte[] excelBytes = excelService.exportarExcelMemoria(request);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "INFORME MEMORIA.xlsx");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
+        return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
+    }
 }

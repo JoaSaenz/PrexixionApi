@@ -1,6 +1,7 @@
 package com.joa.prexixionapi.services;
 
 import com.joa.prexixionapi.dto.CasoSunatListDTO;
+import com.joa.prexixionapi.dto.CasoSunatMemoriaDTO;
 import com.joa.prexixionapi.dto.CasoSunatRequest;
 import com.joa.prexixionapi.dto.CasoSunatSeguimientoDTO;
 import com.joa.prexixionapi.utils.ExcelStyleManager;
@@ -44,6 +45,10 @@ public class CasoSunatExcelService {
             byte[] greenText = ExcelStyleManager.DARK_GREEN_TEXT_RGB;
             byte[] redBg = ExcelStyleManager.VERY_LIGHT_RED_RGB;
             byte[] redText = ExcelStyleManager.DARK_RED_TEXT_RGB;
+            byte[] celesteBg = { (byte) 222, (byte) 235, (byte) 247 }; // #DEEBF7
+            byte[] celesteText = { (byte) 31, (byte) 78, (byte) 121 }; // #1F4E79
+            byte[] yellowPastelBg = { (byte) 255, (byte) 242, (byte) 204 }; // #FFF2CC
+            byte[] orangeText = { (byte) 198, (byte) 89, (byte) 17 }; // #C65911
 
             // Header Title Style (Row 1) - 11pt Bold
             XSSFCellStyle titleStyle = styleManager.getCustomStyle(
@@ -80,10 +85,24 @@ public class CasoSunatExcelService {
                     greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
                     IndexedColors.GREY_25_PERCENT);
 
-            XSSFCellStyle noStyle = dataCenterStyle;
+            XSSFCellStyle noStyle = styleManager.getCustomStyle(
+                    redBg, redText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle estadoPendienteStyle = styleManager.getCustomStyle(
                     redBg, redText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+
+            XSSFCellStyle estadoPresentadoStyle = styleManager.getCustomStyle(
+                    greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+
+            XSSFCellStyle estadoCerradoStyle = styleManager.getCustomStyle(
+                    celesteBg, celesteText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+
+            XSSFCellStyle estadoClienteRespondeStyle = styleManager.getCustomStyle(
+                    yellowPastelBg, orangeText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
                     IndexedColors.GREY_25_PERCENT);
 
             // Footer Total Styles - 8pt Bold
@@ -220,8 +239,20 @@ public class CasoSunatExcelService {
 
                 // ESTADO
                 String estadoStr = obj.getDescEstado() != null ? obj.getDescEstado() : "";
-                boolean isPendiente = "PENDIENTE".equalsIgnoreCase(estadoStr);
-                createCell(dataRow, c++, estadoStr, isPendiente ? estadoPendienteStyle : dataCenterStyle);
+                Integer idEst = obj.getIdEstado();
+                XSSFCellStyle estStyle = dataCenterStyle;
+                if (idEst != null) {
+                    if (idEst == 1) {
+                        estStyle = estadoPendienteStyle;
+                    } else if (idEst == 2) {
+                        estStyle = estadoPresentadoStyle;
+                    } else if (idEst == 3) {
+                        estStyle = estadoCerradoStyle;
+                    } else if (idEst == 4) {
+                        estStyle = estadoClienteRespondeStyle;
+                    }
+                }
+                createCell(dataRow, c++, estadoStr, estStyle);
 
                 // COMPLETO (%)
                 double avanceVal = obj.getAvance() != null ? obj.getAvance().doubleValue() / 100.0 : 0.0;
@@ -261,13 +292,13 @@ public class CasoSunatExcelService {
             sheet.setAutoFilter(new CellRangeAddress(filterRowIdx, filterRowIdx, 0, 15));
             sheet.createFreezePane(0, filterRowIdx + 1);
 
-            // 8. AUTO SIZE COLUMNS con padding y ancho mínimo para evitar recorte en
-            // cabeceras combinadas
+            // 8. AUTO SIZE COLUMNS ignorando cabeceras combinadas para un ajuste ultra
+            // compacto
             for (int j = 0; j < 16; j++) {
-                sheet.autoSizeColumn(j);
+                sheet.autoSizeColumn(j, true);
                 int currentWidth = sheet.getColumnWidth(j);
-                int minWidth = 3200;
-                sheet.setColumnWidth(j, Math.max(currentWidth + 768, minWidth));
+                int minWidth = 1600;
+                sheet.setColumnWidth(j, Math.max(currentWidth + 128, minWidth));
             }
 
             wb.write(out);
@@ -282,7 +313,7 @@ public class CasoSunatExcelService {
         List<CasoSunatSeguimientoDTO> list = casoSunatService.listSeguimiento(request);
 
         try (ByteArrayOutputStream out = new ByteArrayOutputStream();
-             XSSFWorkbook wb = new XSSFWorkbook()) {
+                XSSFWorkbook wb = new XSSFWorkbook()) {
 
             ExcelStyleManager styleManager = new ExcelStyleManager(wb);
 
@@ -298,87 +329,118 @@ public class CasoSunatExcelService {
             byte[] redText = ExcelStyleManager.DARK_RED_TEXT_RGB;
 
             // Colores específicos por Tipo de Documento
-            byte[] celesteBg = {(byte) 222, (byte) 235, (byte) 247}; // #DEEBF7
-            byte[] celesteText = {(byte) 31, (byte) 78, (byte) 121}; // #1F4E79
-            byte[] redPastelBg = {(byte) 252, (byte) 228, (byte) 228}; // #FCE4E4
-            byte[] yellowPastelBg = {(byte) 255, (byte) 242, (byte) 204}; // #FFF2CC
-            byte[] orangeText = {(byte) 198, (byte) 89, (byte) 17}; // #C65911
+            byte[] celesteBg = { (byte) 222, (byte) 235, (byte) 247 }; // #DEEBF7
+            byte[] celesteText = { (byte) 31, (byte) 78, (byte) 121 }; // #1F4E79
+            byte[] redPastelBg = { (byte) 252, (byte) 228, (byte) 228 }; // #FCE4E4
+            byte[] yellowPastelBg = { (byte) 255, (byte) 242, (byte) 204 }; // #FFF2CC
+            byte[] orangeText = { (byte) 198, (byte) 89, (byte) 17 }; // #C65911
 
             // Estilos generales de cabecera
             XSSFCellStyle titleStyle = styleManager.getCustomStyle(
-                    darkBlueBg, whiteRgb, 11, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    darkBlueBg, whiteRgb, 11, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle subHeaderStyle = styleManager.getCustomStyle(
-                    skyBlueBg, blackRgb, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    skyBlueBg, blackRgb, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle filterRowStyle = styleManager.getCustomStyle(
-                    whiteRgb, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             // Estilos estáticos de la parte "Caso" (Cols A-E)
             XSSFCellStyle casoCenterStyle = styleManager.getCustomStyle(
-                    whiteRgb, blackRgb, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle casoLeftStyle = styleManager.getCustomStyle(
-                    whiteRgb, blackRgb, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, blackRgb, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle siStyle = styleManager.getCustomStyle(
-                    greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
-            XSSFCellStyle noStyle = casoCenterStyle;
+            XSSFCellStyle noStyle = styleManager.getCustomStyle(
+                    redBg, redText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             // Estilos para ESTADO
             XSSFCellStyle estadoPendienteStyle = styleManager.getCustomStyle(
-                    redBg, redText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    redBg, redText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle estadoPresentadoStyle = styleManager.getCustomStyle(
-                    greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    greenBg, greenText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+
+            XSSFCellStyle estadoCerradoStyle = styleManager.getCustomStyle(
+                    celesteBg, celesteText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
+
+            XSSFCellStyle estadoClienteRespondeStyle = styleManager.getCustomStyle(
+                    yellowPastelBg, orangeText, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             XSSFCellStyle estadoDefaultStyle = styleManager.getCustomStyle(
-                    whiteRgb, matteBlackRgb, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, matteBlackRgb, 8, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
 
             // Estilos dinámicos por tipo de documento
             // 1. Celeste (Carta de Presentación y Esquela)
             XSSFCellStyle celesteDocTextStyle = styleManager.getCustomStyle(
-                    celesteBg, celesteText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, celesteText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle celesteCenterStyle = styleManager.getCustomStyle(
-                    celesteBg, matteBlackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle celesteLeftStyle = styleManager.getCustomStyle(
-                    celesteBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle celesteMoneyStyle = styleManager.getMoneyStyle(
-                    celesteBg, matteBlackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
+                    celesteBg, blackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
 
             // 2. Rojo Pastel (Reclamo)
             XSSFCellStyle redDocTextStyle = styleManager.getCustomStyle(
-                    redPastelBg, redText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    redPastelBg, redText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle redCenterStyle = styleManager.getCustomStyle(
-                    redPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    redPastelBg, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle redLeftStyle = styleManager.getCustomStyle(
-                    redPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    redPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle redMoneyStyle = styleManager.getMoneyStyle(
-                    redPastelBg, matteBlackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
+                    redPastelBg, blackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
 
             // 3. Amarillo Pastel (Apelación)
             XSSFCellStyle yellowDocTextStyle = styleManager.getCustomStyle(
-                    yellowPastelBg, orangeText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    yellowPastelBg, orangeText, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle yellowCenterStyle = styleManager.getCustomStyle(
-                    yellowPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    yellowPastelBg, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle yellowLeftStyle = styleManager.getCustomStyle(
-                    yellowPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    yellowPastelBg, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle yellowMoneyStyle = styleManager.getMoneyStyle(
-                    yellowPastelBg, matteBlackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
+                    yellowPastelBg, blackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
 
             // 4. Default White
             XSSFCellStyle whiteDocTextStyle = styleManager.getCustomStyle(
-                    whiteRgb, matteBlackRgb, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, matteBlackRgb, 8, true, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle whiteCenterStyle = styleManager.getCustomStyle(
-                    whiteRgb, matteBlackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle whiteLeftStyle = styleManager.getCustomStyle(
-                    whiteRgb, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, matteBlackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.GREY_25_PERCENT);
             XSSFCellStyle whiteMoneyStyle = styleManager.getMoneyStyle(
-                    whiteRgb, matteBlackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
+                    whiteRgb, blackRgb, 8, false, IndexedColors.GREY_25_PERCENT);
 
             // --- HOJA Y CABECERA ---
-            Sheet sheet = wb.createSheet("REPORTE DE SEGUIMIENTO");
+            Sheet sheet = wb.createSheet("SEGUIMIENTO");
             sheet.setDisplayGridlines(true);
 
             int rowNum = 0;
@@ -418,7 +480,8 @@ public class CasoSunatExcelService {
             headerRow2.getCell(2).setCellValue("FIR");
 
             // Cols 3 a 11 (D a L) -> Merge vertical
-            String[] headersMid1 = {"RAZÓN SOCIAL", "TIPO CASO", "DOCUMENTO", "N° DE DOCUMENTO", "MODALIDAD", "TRIBUTO", "MOTIVO", "PERIODO", "AUDITOR"};
+            String[] headersMid1 = { "RAZÓN SOCIAL", "TIPO CASO", "DOCUMENTO", "N° DE DOCUMENTO", "MODALIDAD",
+                    "TRIBUTO", "MOTIVO", "PERIODO", "AUDITOR" };
             for (int i = 0; i < headersMid1.length; i++) {
                 int colIdx = 3 + i;
                 headerRow1.getCell(colIdx).setCellValue(headersMid1[i]);
@@ -428,14 +491,14 @@ public class CasoSunatExcelService {
             // Cols 12-16 (M a Q): FECHAS
             headerRow1.getCell(12).setCellValue("FECHAS");
             sheet.addMergedRegion(new CellRangeAddress(headerRowStart, headerRowStart, 12, 16));
-            headerRow2.getCell(12).setCellValue("F. RECEPCION");
+            headerRow2.getCell(12).setCellValue("F. RECEP.");
             headerRow2.getCell(13).setCellValue("F. ENVIO");
-            headerRow2.getCell(14).setCellValue("F. PRESENTACON");
+            headerRow2.getCell(14).setCellValue("F. PRESEN.");
             headerRow2.getCell(15).setCellValue("HORA");
-            headerRow2.getCell(16).setCellValue("R. RESULTADO");
+            headerRow2.getCell(16).setCellValue("R. RESULT.");
 
             // Cols 17 a 20 (R a U) -> Merge vertical
-            String[] headersEnd = {"ESTADO", "IMP. OBSERVADO", "RECTIFIC.", "IMP. RECTIFIC."};
+            String[] headersEnd = { "ESTADO", "IMP. OBS.", "RECT.", "IMP. REC." };
             for (int i = 0; i < headersEnd.length; i++) {
                 int colIdx = 17 + i;
                 headerRow1.getCell(colIdx).setCellValue(headersEnd[i]);
@@ -454,7 +517,8 @@ public class CasoSunatExcelService {
 
             // 4. AGRUPACIÓN Y LLENADO DE DATOS POR CASO
             Map<Integer, List<CasoSunatSeguimientoDTO>> groupedMap = list.stream()
-                    .collect(Collectors.groupingBy(CasoSunatSeguimientoDTO::getIdCaso, LinkedHashMap::new, Collectors.toList()));
+                    .collect(Collectors.groupingBy(CasoSunatSeguimientoDTO::getIdCaso, LinkedHashMap::new,
+                            Collectors.toList()));
 
             int itemNum = 1;
 
@@ -486,26 +550,28 @@ public class CasoSunatExcelService {
                     // Col 4: TIPO CASO
                     createCell(dataRow, c++, dto.getDescTipoCaso(), casoCenterStyle);
 
-                    // Determinar estilos según Tipo de Documento
+                    // Determinar estilos según Tipo de Documento (idTipoDocumento)
+                    // 1: CARTA, 2: REQUERIMIENTO, 3: RECLAMO, 4: APELACION, 5: ESQUELA, 6: ESQUELA
+                    // REITERATIVA, 7: RD, 8: RM
+                    Integer idTipoDoc = dto.getIdTipoDocumento();
                     String descDoc = dto.getDescTipoDocumento() != null ? dto.getDescTipoDocumento() : "";
-                    String descDocUpper = descDoc.toUpperCase().trim();
 
                     XSSFCellStyle rowDocTextStyle;
                     XSSFCellStyle rowCenterStyle;
                     XSSFCellStyle rowLeftStyle;
                     XSSFCellStyle rowMoneyStyle;
 
-                    if (descDocUpper.contains("CARTA DE PRESENTACIÓN") || descDocUpper.contains("CARTA DE PRESENTACION") || descDocUpper.contains("ESQUELA")) {
+                    if (idTipoDoc != null && (idTipoDoc == 1 || idTipoDoc == 5)) {
                         rowDocTextStyle = celesteDocTextStyle;
                         rowCenterStyle = celesteCenterStyle;
                         rowLeftStyle = celesteLeftStyle;
                         rowMoneyStyle = celesteMoneyStyle;
-                    } else if (descDocUpper.contains("RECLAMO")) {
+                    } else if (idTipoDoc != null && idTipoDoc == 3) {
                         rowDocTextStyle = redDocTextStyle;
                         rowCenterStyle = redCenterStyle;
                         rowLeftStyle = redLeftStyle;
                         rowMoneyStyle = redMoneyStyle;
-                    } else if (descDocUpper.contains("APELACION") || descDocUpper.contains("APELACIÓN")) {
+                    } else if (idTipoDoc != null && idTipoDoc == 4) {
                         rowDocTextStyle = yellowDocTextStyle;
                         rowCenterStyle = yellowCenterStyle;
                         rowLeftStyle = yellowLeftStyle;
@@ -545,11 +611,11 @@ public class CasoSunatExcelService {
                     String hora = dto.getHora() != null ? dto.getHora() : "-";
                     String fResultado = dto.getFechaResultado() != null ? dto.getFechaResultado() : "-";
 
-                    if (descDocUpper.contains("CARTA DE PRESENTACIÓN") || descDocUpper.contains("CARTA DE PRESENTACION")) {
+                    if (idTipoDoc != null && idTipoDoc == 1) {
                         fEnvio = "NO APLICA";
                         fPresentacion = "NO APLICA";
                         fResultado = "NO APLICA";
-                    } else if (descDocUpper.contains("RECLAMO") || descDocUpper.contains("APELACION") || descDocUpper.contains("APELACIÓN")) {
+                    } else if (idTipoDoc != null && (idTipoDoc == 3 || idTipoDoc == 4)) {
                         fRecepcion = "NO APLICA";
                         fEnvio = "NO APLICA";
                     }
@@ -571,11 +637,18 @@ public class CasoSunatExcelService {
 
                     // Col 17: ESTADO
                     String descEst = dto.getDescEstado() != null ? dto.getDescEstado() : "";
+                    Integer idEst = dto.getIdEstado();
                     XSSFCellStyle estStyle = estadoDefaultStyle;
-                    if ("PENDIENTE".equalsIgnoreCase(descEst)) {
-                        estStyle = estadoPendienteStyle;
-                    } else if ("PRESENTADO".equalsIgnoreCase(descEst)) {
-                        estStyle = estadoPresentadoStyle;
+                    if (idEst != null) {
+                        if (idEst == 1) {
+                            estStyle = estadoPendienteStyle;
+                        } else if (idEst == 2) {
+                            estStyle = estadoPresentadoStyle;
+                        } else if (idEst == 3) {
+                            estStyle = estadoCerradoStyle;
+                        } else if (idEst == 4) {
+                            estStyle = estadoClienteRespondeStyle;
+                        }
                     }
                     createCell(dataRow, c++, descEst, estStyle);
 
@@ -600,7 +673,8 @@ public class CasoSunatExcelService {
                     }
                 }
 
-                // Fusionar verticalmente columnas A a E si hay más de 1 documento para el Caso SUNAT
+                // Fusionar verticalmente columnas A a E si hay más de 1 documento para el Caso
+                // SUNAT
                 if (numDocs > 1) {
                     sheet.addMergedRegion(new CellRangeAddress(startRow, endRow, 0, 0));
                     sheet.addMergedRegion(new CellRangeAddress(startRow, endRow, 1, 1));
@@ -616,12 +690,13 @@ public class CasoSunatExcelService {
             sheet.setAutoFilter(new CellRangeAddress(filterRowIdx, filterRowIdx, 0, 20));
             sheet.createFreezePane(0, filterRowIdx + 1);
 
-            // 6. AUTO SIZE COLUMNS CON MARGEN DE SEGURIDAD
+            // 6. AUTO SIZE COLUMNS ignorando cabeceras combinadas para un ajuste ultra
+            // compacto
             for (int j = 0; j < 21; j++) {
-                sheet.autoSizeColumn(j);
+                sheet.autoSizeColumn(j, true);
                 int currentWidth = sheet.getColumnWidth(j);
-                int minWidth = 3200;
-                sheet.setColumnWidth(j, Math.max(currentWidth + 768, minWidth));
+                int minWidth = 1600;
+                sheet.setColumnWidth(j, Math.max(currentWidth + 128, minWidth));
             }
 
             wb.write(out);
@@ -629,6 +704,146 @@ public class CasoSunatExcelService {
 
         } catch (Exception e) {
             throw new RuntimeException("Error al generar el Reporte de Seguimiento Excel", e);
+        }
+    }
+
+    public byte[] exportarExcelMemoria(CasoSunatRequest request) {
+        List<CasoSunatMemoriaDTO> list = casoSunatService.listMemoria(request);
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream();
+                XSSFWorkbook wb = new XSSFWorkbook()) {
+
+            ExcelStyleManager styleManager = new ExcelStyleManager(wb);
+
+            byte[] whiteRgb = ExcelStyleManager.WHITE_RGB;
+            byte[] blackRgb = ExcelStyleManager.BLACK_RGB;
+
+            // 1. Estilo para la Cabecera Principal (Nombre de la Empresa) - Row 2 (B2:H2)
+            XSSFCellStyle companyHeaderStyle = styleManager.getCustomStyle(
+                    whiteRgb, blackRgb, 11, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.BLACK);
+
+            // 2. Estilo para la Subcabecera de Columnas - Row 4
+            XSSFCellStyle subHeaderStyle = styleManager.getCustomStyle(
+                    whiteRgb, blackRgb, 9, true, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.BLACK);
+
+            // 3. Estilos de Datos
+            XSSFCellStyle dataCenterStyle = styleManager.getCustomStyle(
+                    whiteRgb, blackRgb, 8, false, HorizontalAlignment.CENTER, BorderStyle.THIN,
+                    IndexedColors.BLACK);
+
+            XSSFCellStyle dataLeftStyle = styleManager.getCustomStyle(
+                    whiteRgb, blackRgb, 8, false, HorizontalAlignment.LEFT, BorderStyle.THIN,
+                    IndexedColors.BLACK);
+
+            // Nombre de la hoja
+            Sheet sheet = wb.createSheet("MEMORIA");
+            sheet.setDisplayGridlines(true);
+
+            // Obtener el Nombre de la Empresa (Razon Social)
+            String razonSocialStr = (list != null && !list.isEmpty()) ? list.get(0).getRazonSocial() : "EMPRESA";
+
+            int rowNum = 1; // Empezar en Fila 2 (0-indexed = 1)
+
+            // 1. CABECERA CON NOMBRE DE LA EMPRESA (Fila 2)
+            Row companyRow = sheet.createRow(rowNum++);
+            companyRow.setHeightInPoints(24);
+            Cell companyCell = companyRow.createCell(1); // Col B (1)
+            companyCell.setCellValue(razonSocialStr);
+            companyCell.setCellStyle(companyHeaderStyle);
+
+            for (int c = 2; c <= 7; c++) { // Cols C a H (2 a 7)
+                Cell cell = companyRow.createCell(c);
+                cell.setCellStyle(companyHeaderStyle);
+            }
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 1, 7)); // Merge B2:H2
+
+            rowNum++; // Fila 3 en blanco (separador)
+
+            // 2. SUBCABECERA DE TABLA (Fila 4)
+            int headerRowIdx = rowNum++;
+            Row subHeaderRow = sheet.createRow(headerRowIdx);
+
+            // Inicializar celdas B4 a H4 con subHeaderStyle
+            for (int c = 1; c <= 7; c++) {
+                Cell cell = subHeaderRow.createCell(c);
+                cell.setCellStyle(subHeaderStyle);
+            }
+
+            // Asignar textos
+            subHeaderRow.getCell(1).setCellValue("DESCRIPCION"); // Col B
+            subHeaderRow.getCell(3).setCellValue("N° REQUERIMIENTO"); // Col D
+            subHeaderRow.getCell(4).setCellValue("N° CARTA"); // Col E
+            subHeaderRow.getCell(5).setCellValue("F. NOTIFICACION"); // Col F
+            subHeaderRow.getCell(6).setCellValue("F. PRESENTACION"); // Col G
+            subHeaderRow.getCell(7).setCellValue("OBSERVACION"); // Col H
+
+            sheet.addMergedRegion(new CellRangeAddress(headerRowIdx, headerRowIdx, 1, 2)); // Merge B4:C4 (DESCRIPCION)
+
+            // 3. DATOS AGRUPADOS POR DOCUMENTO (CUADROS / BLOQUES)
+            Map<Integer, List<CasoSunatMemoriaDTO>> groupedMap = list.stream()
+                    .collect(Collectors.groupingBy(CasoSunatMemoriaDTO::getIdDocumento, LinkedHashMap::new,
+                            Collectors.toList()));
+
+            for (Map.Entry<Integer, List<CasoSunatMemoriaDTO>> entry : groupedMap.entrySet()) {
+                List<CasoSunatMemoriaDTO> eventList = entry.getValue();
+
+                for (CasoSunatMemoriaDTO dto : eventList) {
+                    Row dataRow = sheet.createRow(rowNum++);
+
+                    // Col B (1): Emisor
+                    createCell(dataRow, 1, dto.getDescEmisor(), dataCenterStyle);
+
+                    // Col C (2): Tipo Evento
+                    createCell(dataRow, 2, dto.getDescEvento(), dataCenterStyle);
+
+                    // Col D (3): N° REQUERIMIENTO
+                    createCell(dataRow, 3, dto.getNroDocumentoReq(), dataCenterStyle);
+
+                    // Col E (4): N° CARTA
+                    createCell(dataRow, 4, dto.getNroDocumentoCarta() != null ? dto.getNroDocumentoCarta() : "-",
+                            dataCenterStyle);
+
+                    // Regla de Fechas
+                    String descEvUpper = dto.getDescEvento() != null ? dto.getDescEvento().toUpperCase().trim() : "";
+                    Integer idEvt = dto.getIdTipoEvento();
+
+                    boolean isNotificaOrResultado = descEvUpper.contains("NOTIFI") || descEvUpper.contains("RESULTAD")
+                            || (idEvt != null && (idEvt == 1 || idEvt == 3));
+
+                    boolean isRespuesta = descEvUpper.contains("RESPUEST") || (idEvt != null && idEvt == 2);
+
+                    String fFecha = dto.getFecha() != null ? dto.getFecha() : "";
+
+                    // Col F (5): F. NOTIFICACION
+                    createCell(dataRow, 5, isNotificaOrResultado ? fFecha : "", dataCenterStyle);
+
+                    // Col G (6): F. PRESENTACION
+                    createCell(dataRow, 6, isRespuesta ? fFecha : "", dataCenterStyle);
+
+                    // Col H (7): OBSERVACION
+                    createCell(dataRow, 7, dto.getObservacion() != null ? dto.getObservacion() : "-", dataLeftStyle);
+                }
+
+                // Fila vacía entre cuadros de documentos diferentes (separador visual de nuevo
+                // cuadro)
+                rowNum++;
+            }
+
+            // Auto-ajustar ancho de columnas B a H (1 a 7) de forma ultra compacta
+            for (int j = 1; j <= 7; j++) {
+                sheet.autoSizeColumn(j, true);
+                int currentWidth = sheet.getColumnWidth(j);
+                int minWidth = 1600;
+                sheet.setColumnWidth(j, Math.max(currentWidth + 128, minWidth));
+            }
+
+            wb.write(out);
+            return out.toByteArray();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar el Informe Memoria Excel", e);
         }
     }
 

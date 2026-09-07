@@ -105,9 +105,10 @@ public class CasoSunatRepository {
             dto.setCoordinacionTax(rs.getObject("coordinacionTax") != null ? rs.getInt("coordinacionTax") : 0);
             dto.setCoordinacionFir(rs.getObject("coordinacionFir") != null ? rs.getInt("coordinacionFir") : 0);
             dto.setAvance(rs.getBigDecimal("avance"));
-            
+
             // Campos del último documento
-            dto.setUltIdTipoDocumento(rs.getObject("ultIdTipoDocumento") != null ? rs.getInt("ultIdTipoDocumento") : null);
+            dto.setUltIdTipoDocumento(
+                    rs.getObject("ultIdTipoDocumento") != null ? rs.getInt("ultIdTipoDocumento") : null);
             dto.setDescTipoDocumento(rs.getString("descTipoDocumento"));
             dto.setFechaPresentacion(rs.getString("fechaPresentacion"));
             dto.setHora(rs.getString("hora"));
@@ -119,7 +120,8 @@ public class CasoSunatRepository {
     }
 
     public boolean exist(Integer id) {
-        if (id == null || id <= 0) return false;
+        if (id == null || id <= 0)
+            return false;
         String sql = "SELECT COUNT(*) FROM casoSunat WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource().addValue("id", id);
         Integer count = jdbcTemplate.queryForObject(sql, params, Integer.class);
@@ -174,11 +176,12 @@ public class CasoSunatRepository {
             return dto;
         });
 
-        if (list.isEmpty()) return null;
+        if (list.isEmpty())
+            return null;
 
         CasoSunatDTO caso = list.get(0);
         caso.setAuditores(getAuditoresByCaso(id));
-        
+
         List<CasoSunatDocumentoDTO> docs = getDocumentosByCaso(id);
         Map<Integer, List<CasoSunatDocumentoEventoDTO>> eventosMap = getEventosByCasoMap(id);
         for (CasoSunatDocumentoDTO doc : docs) {
@@ -561,25 +564,29 @@ public class CasoSunatRepository {
     }
 
     public void deleteAuditoresByIds(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return;
+        if (ids == null || ids.isEmpty())
+            return;
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatAuditor WHERE id IN (:ids)", params);
     }
 
     public void deleteDocumentosByIds(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return;
+        if (ids == null || ids.isEmpty())
+            return;
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatDocumento WHERE id IN (:ids)", params);
     }
 
     public void deleteEventosByIds(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return;
+        if (ids == null || ids.isEmpty())
+            return;
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoEvento WHERE id IN (:ids)", params);
     }
 
     public void deleteRelacionesByIds(List<Integer> ids) {
-        if (ids == null || ids.isEmpty()) return;
+        if (ids == null || ids.isEmpty())
+            return;
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoRelacion WHERE id IN (:ids)", params);
     }
@@ -592,7 +599,7 @@ public class CasoSunatRepository {
                        c.idTributo, tr.descripcion AS descTributo,
                        c.idMotivo, mo.descripcion AS descMotivo,
                        c.periodoTexto, c.coordinacionTax, c.coordinacionFir,
-                       (SELECT a.nombresApellidos FROM casoSunatAuditor a WHERE a.idCaso = c.id ORDER BY a.id DESC LIMIT 1) AS ultimoAuditor,
+                       (SELECT TOP 1 a.nombresApellidos FROM casoSunatAuditor a WHERE a.idCaso = c.id ORDER BY a.id DESC ) AS ultimoAuditor,
                        d.id AS idDocumento,
                        d.idTipoDocumento, td.descripcion AS descTipoDocumento,
                        d.nroDocumento, d.fechaRecepcion, d.fechaEnvio, d.fechaPresentacion, d.hora, d.fechaResultado,
@@ -670,6 +677,80 @@ public class CasoSunatRepository {
             dto.setImporteObservado(rs.getBigDecimal("importeObservado"));
             dto.setRectificatoria(rs.getObject("rectificatoria") != null ? rs.getInt("rectificatoria") : 0);
             dto.setImporteRectificado(rs.getBigDecimal("importeRectificado"));
+            return dto;
+        });
+    }
+
+    public List<CasoSunatMemoriaDTO> getReporteMemoriaData(CasoSunatRequest request) {
+        String sql = """
+                SELECT c.id AS idCaso, c.idEmpresa, COALESCE(cl.razonSocial, 'EMPRESA REGISTRADA') AS razonSocial,
+                       d.id AS idDocumento, d.idTipoDocumento, td.descripcion AS descTipoDocumento,
+                       d.nroDocumento AS nroDocumentoReq,
+                       e.id AS idEvento, e.idEmisor, em.descripcion AS descEmisor,
+                       e.idTipoEvento, ev.descripcion AS descEvento,
+                       e.idDocumentoCarta, cd.nroDocumento AS nroDocumentoCarta,
+                       e.fecha, e.observacion
+                FROM casoSunat c
+                LEFT JOIN cliente cl ON c.idEmpresa = cl.ruc
+                JOIN casoSunatDocumento d ON d.idCaso = c.id
+                LEFT JOIN casoSunatTipoDocumento td ON d.idTipoDocumento = td.id
+                JOIN casoSunatDocumentoEvento e ON e.idDocumento = d.id
+                LEFT JOIN casoSunatEmisor em ON e.idEmisor = em.id
+                LEFT JOIN casoSunatEvento ev ON e.idTipoEvento = ev.id
+                LEFT JOIN casoSunatDocumento cd ON e.idDocumentoCarta = cd.id
+                WHERE d.idTipoDocumento IN (2, 6, 7, 8)
+                """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+
+        if (request.getIdCaso() != null && request.getIdCaso() > 0) {
+            sql += " AND c.id = :idCaso ";
+            params.addValue("idCaso", request.getIdCaso());
+        }
+        if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
+            sql += " AND c.idEmpresa = :idEmpresa ";
+            params.addValue("idEmpresa", request.getIdEmpresa().trim());
+        }
+        if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
+            sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
+        }
+        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
+            sql += " AND d.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
+        }
+        if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
+            sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
+        }
+        if (request.getTributosString() != null && !request.getTributosString().isEmpty()) {
+            sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
+        }
+        if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
+            sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
+            params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+        }
+        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
+            sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
+        }
+
+        sql += " ORDER BY c.id DESC, d.id ASC, e.id ASC ";
+
+        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            CasoSunatMemoriaDTO dto = new CasoSunatMemoriaDTO();
+            dto.setIdCaso(rs.getInt("idCaso"));
+            dto.setIdEmpresa(rs.getString("idEmpresa"));
+            dto.setRazonSocial(rs.getString("razonSocial"));
+            dto.setIdDocumento(rs.getInt("idDocumento"));
+            dto.setIdTipoDocumento(rs.getObject("idTipoDocumento") != null ? rs.getInt("idTipoDocumento") : null);
+            dto.setDescTipoDocumento(rs.getString("descTipoDocumento"));
+            dto.setNroDocumentoReq(rs.getString("nroDocumentoReq"));
+            dto.setIdEvento(rs.getInt("idEvento"));
+            dto.setIdEmisor(rs.getObject("idEmisor") != null ? rs.getInt("idEmisor") : null);
+            dto.setDescEmisor(rs.getString("descEmisor"));
+            dto.setIdTipoEvento(rs.getObject("idTipoEvento") != null ? rs.getInt("idTipoEvento") : null);
+            dto.setDescEvento(rs.getString("descEvento"));
+            dto.setIdDocumentoCarta(rs.getObject("idDocumentoCarta") != null ? rs.getInt("idDocumentoCarta") : null);
+            dto.setNroDocumentoCarta(rs.getString("nroDocumentoCarta"));
+            dto.setFecha(rs.getString("fecha"));
+            dto.setObservacion(rs.getString("observacion"));
             return dto;
         });
     }
