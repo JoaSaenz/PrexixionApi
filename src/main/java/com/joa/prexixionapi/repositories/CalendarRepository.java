@@ -405,6 +405,7 @@ public class CalendarRepository {
                 "	WHEN idArea = 4 THEN 'PAY' " +
                 "	WHEN idArea = 7 THEN 'UP' " +
                 "	WHEN idArea = 8 THEN 'BE' " +
+                "	WHEN idArea = 13 THEN 'NEX' " +
                 "END AS area " +
                 "FROM reunionesAreas WHERE idReunion = r.id) as area, " +
                 "CONCAT( " +

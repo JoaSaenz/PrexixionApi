@@ -80,7 +80,7 @@ public class CasoSunatRepository {
             sql += " AND ld.idEstado IN (" + request.getEstadosString() + ") ";
         }
 
-        sql += " ORDER BY c.id DESC ";
+        sql += " ORDER BY c.id ASC ";
 
         return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
             CasoSunatListDTO dto = new CasoSunatListDTO();
@@ -643,7 +643,7 @@ public class CasoSunatRepository {
             sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
         }
 
-        sql += " ORDER BY c.id DESC, d.id ASC ";
+        sql += " ORDER BY c.id ASC, d.id ASC ";
 
         return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
             CasoSunatSeguimientoDTO dto = new CasoSunatSeguimientoDTO();
@@ -698,7 +698,7 @@ public class CasoSunatRepository {
                 LEFT JOIN casoSunatEmisor em ON e.idEmisor = em.id
                 LEFT JOIN casoSunatEvento ev ON e.idTipoEvento = ev.id
                 LEFT JOIN casoSunatDocumento cd ON e.idDocumentoCarta = cd.id
-                WHERE d.idTipoDocumento IN (2, 6, 7, 8)
+                WHERE d.idTipoDocumento IN (2, 3, 4, 7)
                 """;
 
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -731,7 +731,7 @@ public class CasoSunatRepository {
             sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
         }
 
-        sql += " ORDER BY c.id DESC, d.id ASC, e.id ASC ";
+        sql += " ORDER BY c.id ASC, d.id ASC, e.id ASC ";
 
         return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
             CasoSunatMemoriaDTO dto = new CasoSunatMemoriaDTO();

@@ -528,6 +528,8 @@ public class CasoSunatExcelService {
                 int startRow = rowNum;
                 int endRow = rowNum + numDocs - 1;
 
+                boolean primeraEsquelaCitacion = true;
+
                 for (int dIdx = 0; dIdx < numDocs; dIdx++) {
                     CasoSunatSeguimientoDTO dto = docList.get(dIdx);
                     Row dataRow = sheet.createRow(rowNum++);
@@ -551,8 +553,7 @@ public class CasoSunatExcelService {
                     createCell(dataRow, c++, dto.getDescTipoCaso(), casoCenterStyle);
 
                     // Determinar estilos según Tipo de Documento (idTipoDocumento)
-                    // 1: CARTA, 2: REQUERIMIENTO, 3: RECLAMO, 4: APELACION, 5: ESQUELA, 6: ESQUELA
-                    // REITERATIVA, 7: RD, 8: RM
+                    // 1: CARTA, 2: REQUERIMIENTO, 3: RD, 4: RM, 5: RECLAMO, 6: APELACION, 7: ESQUELA DE CITACION
                     Integer idTipoDoc = dto.getIdTipoDocumento();
                     String descDoc = dto.getDescTipoDocumento() != null ? dto.getDescTipoDocumento() : "";
 
@@ -561,17 +562,30 @@ public class CasoSunatExcelService {
                     XSSFCellStyle rowLeftStyle;
                     XSSFCellStyle rowMoneyStyle;
 
-                    if (idTipoDoc != null && (idTipoDoc == 1 || idTipoDoc == 5)) {
+                    if (idTipoDoc != null && idTipoDoc == 1) {
                         rowDocTextStyle = celesteDocTextStyle;
                         rowCenterStyle = celesteCenterStyle;
                         rowLeftStyle = celesteLeftStyle;
                         rowMoneyStyle = celesteMoneyStyle;
-                    } else if (idTipoDoc != null && idTipoDoc == 3) {
+                    } else if (idTipoDoc != null && idTipoDoc == 7) {
+                        if (primeraEsquelaCitacion) {
+                            rowDocTextStyle = celesteDocTextStyle;
+                            rowCenterStyle = celesteCenterStyle;
+                            rowLeftStyle = celesteLeftStyle;
+                            rowMoneyStyle = celesteMoneyStyle;
+                            primeraEsquelaCitacion = false;
+                        } else {
+                            rowDocTextStyle = whiteDocTextStyle;
+                            rowCenterStyle = whiteCenterStyle;
+                            rowLeftStyle = whiteLeftStyle;
+                            rowMoneyStyle = whiteMoneyStyle;
+                        }
+                    } else if (idTipoDoc != null && idTipoDoc == 5) {
                         rowDocTextStyle = redDocTextStyle;
                         rowCenterStyle = redCenterStyle;
                         rowLeftStyle = redLeftStyle;
                         rowMoneyStyle = redMoneyStyle;
-                    } else if (idTipoDoc != null && idTipoDoc == 4) {
+                    } else if (idTipoDoc != null && idTipoDoc == 6) {
                         rowDocTextStyle = yellowDocTextStyle;
                         rowCenterStyle = yellowCenterStyle;
                         rowLeftStyle = yellowLeftStyle;
@@ -615,7 +629,7 @@ public class CasoSunatExcelService {
                         fEnvio = "NO APLICA";
                         fPresentacion = "NO APLICA";
                         fResultado = "NO APLICA";
-                    } else if (idTipoDoc != null && (idTipoDoc == 3 || idTipoDoc == 4)) {
+                    } else if (idTipoDoc != null && (idTipoDoc == 5 || idTipoDoc == 6)) {
                         fRecepcion = "NO APLICA";
                         fEnvio = "NO APLICA";
                     }
