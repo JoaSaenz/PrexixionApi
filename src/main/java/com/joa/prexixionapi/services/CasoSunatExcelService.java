@@ -553,7 +553,7 @@ public class CasoSunatExcelService {
                     createCell(dataRow, c++, dto.getDescTipoCaso(), casoCenterStyle);
 
                     // Determinar estilos según Tipo de Documento (idTipoDocumento)
-                    // 1: CARTA, 2: REQUERIMIENTO, 3: RD, 4: RM, 5: RECLAMO, 6: APELACION, 7: ESQUELA DE CITACION
+                    // 1: CARTA, 2: REQUERIMIENTO, 3: REQUERIMIENTO ART 75, 4: ESQUELA DE CITACION, 5: RECLAMO, 6: APELACION, 7: RD, 8: RM
                     Integer idTipoDoc = dto.getIdTipoDocumento();
                     String descDoc = dto.getDescTipoDocumento() != null ? dto.getDescTipoDocumento() : "";
 
@@ -567,7 +567,7 @@ public class CasoSunatExcelService {
                         rowCenterStyle = celesteCenterStyle;
                         rowLeftStyle = celesteLeftStyle;
                         rowMoneyStyle = celesteMoneyStyle;
-                    } else if (idTipoDoc != null && idTipoDoc == 7) {
+                    } else if (idTipoDoc != null && idTipoDoc == 4) {
                         if (primeraEsquelaCitacion) {
                             rowDocTextStyle = celesteDocTextStyle;
                             rowCenterStyle = celesteCenterStyle;

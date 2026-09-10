@@ -17,6 +17,8 @@ public class CasoSunatService {
     private final CasoSunatRepository repository;
 
     public List<CasoSunatListDTO> list(CasoSunatRequest request) {
+        System.out.println("Listando casos SUNAT...");
+        System.out.println("Caso Sunat: " + request.toString());
         return repository.listForDataTable(request);
     }
 
@@ -37,7 +39,8 @@ public class CasoSunatService {
     }
 
     private Integer parseRealId(Object idObj) {
-        if (idObj == null) return null;
+        if (idObj == null)
+            return null;
         try {
             if (idObj instanceof Number) {
                 long val = ((Number) idObj).longValue();
@@ -177,8 +180,10 @@ public class CasoSunatService {
                     realDestinoId = docIdMap.get(rel.getIdDocumentoDestino().toString());
                 }
 
-                if (realOrigenId != null) rel.setIdDocumentoOrigen(realOrigenId);
-                if (realDestinoId != null) rel.setIdDocumentoDestino(realDestinoId);
+                if (realOrigenId != null)
+                    rel.setIdDocumentoOrigen(realOrigenId);
+                if (realDestinoId != null)
+                    rel.setIdDocumentoDestino(realDestinoId);
 
                 Integer realRelId = parseRealId(rel.getId());
                 if (realRelId != null && existingRelacionIds.contains(realRelId)) {

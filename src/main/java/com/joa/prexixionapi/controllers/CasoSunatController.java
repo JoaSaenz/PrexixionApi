@@ -27,6 +27,8 @@ public class CasoSunatController {
 
     @GetMapping
     public ResponseEntity<List<CasoSunatListDTO>> list(CasoSunatRequest request) {
+        System.out.println("Listando casos SUNAT...");
+        System.out.println("Caso Sunat: " + request.toString());
         return ResponseEntity.ok(service.list(request));
     }
 
@@ -66,7 +68,8 @@ public class CasoSunatController {
     public ResponseEntity<byte[]> listExcel(CasoSunatRequest request) {
         byte[] excelBytes = excelService.exportarExcel(request);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentType(
+                MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "REPORTE DE FISCALIZACIONES.xlsx");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
@@ -76,7 +79,8 @@ public class CasoSunatController {
     public ResponseEntity<byte[]> listExcelSeguimiento(CasoSunatRequest request) {
         byte[] excelBytes = excelService.exportarExcelSeguimiento(request);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentType(
+                MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "REPORTE DE SEGUIMIENTO.xlsx");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);
@@ -86,7 +90,8 @@ public class CasoSunatController {
     public ResponseEntity<byte[]> listExcelMemoria(CasoSunatRequest request) {
         byte[] excelBytes = excelService.exportarExcelMemoria(request);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentType(
+                MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "INFORME MEMORIA.xlsx");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
         return new ResponseEntity<>(excelBytes, headers, HttpStatus.OK);

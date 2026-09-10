@@ -54,17 +54,15 @@ public class CasoSunatRepository {
                 WHERE 1=1
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-
         if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = :idEmpresa ";
-            params.addValue("idEmpresa", request.getIdEmpresa().trim());
+            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
         }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
         if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
-            sql += " AND ld.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
+            sql += " AND (ld.idTipoDocumento IN (" + request.getDocumentosString()
+                    + ") or ld.idTipoDocumento is null)  ";
         }
         if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
             sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
@@ -73,16 +71,16 @@ public class CasoSunatRepository {
             sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
         }
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
-            sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
-            params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+            sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
         if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
-            sql += " AND ld.idEstado IN (" + request.getEstadosString() + ") ";
+            sql += " AND (ld.idEstado IN (" + request.getEstadosString() + ") or ld.idEstado is null)  ";
         }
 
         sql += " ORDER BY c.id ASC ";
+        System.out.println("Caso Sunat: " + sql);
 
-        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CasoSunatListDTO dto = new CasoSunatListDTO();
             dto.setId(rs.getInt("id"));
             dto.setIdEmpresa(rs.getString("idEmpresa"));
@@ -617,11 +615,8 @@ public class CasoSunatRepository {
                 WHERE 1=1
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-
         if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = :idEmpresa ";
-            params.addValue("idEmpresa", request.getIdEmpresa().trim());
+            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
         }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
@@ -636,8 +631,7 @@ public class CasoSunatRepository {
             sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
         }
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
-            sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
-            params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+            sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
         if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
             sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
@@ -645,7 +639,7 @@ public class CasoSunatRepository {
 
         sql += " ORDER BY c.id ASC, d.id ASC ";
 
-        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CasoSunatSeguimientoDTO dto = new CasoSunatSeguimientoDTO();
             dto.setIdCaso(rs.getInt("idCaso"));
             dto.setIdEmpresa(rs.getString("idEmpresa"));
@@ -698,18 +692,14 @@ public class CasoSunatRepository {
                 LEFT JOIN casoSunatEmisor em ON e.idEmisor = em.id
                 LEFT JOIN casoSunatEvento ev ON e.idTipoEvento = ev.id
                 LEFT JOIN casoSunatDocumento cd ON e.idDocumentoCarta = cd.id
-                WHERE d.idTipoDocumento IN (2, 3, 4, 7)
+                WHERE d.idTipoDocumento IN (2, 3, 4, 7, 8)
                 """;
 
-        MapSqlParameterSource params = new MapSqlParameterSource();
-
         if (request.getIdCaso() != null && request.getIdCaso() > 0) {
-            sql += " AND c.id = :idCaso ";
-            params.addValue("idCaso", request.getIdCaso());
+            sql += " AND c.id = " + request.getIdCaso() + " ";
         }
         if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = :idEmpresa ";
-            params.addValue("idEmpresa", request.getIdEmpresa().trim());
+            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
         }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
@@ -724,8 +714,7 @@ public class CasoSunatRepository {
             sql += " AND c.idTributo IN (" + request.getTributosString() + ") ";
         }
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
-            sql += " AND LOWER(c.periodoTexto) LIKE :periodoTexto ";
-            params.addValue("periodoTexto", "%" + request.getPeriodoTexto().trim().toLowerCase() + "%");
+            sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
         if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
             sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
@@ -733,7 +722,7 @@ public class CasoSunatRepository {
 
         sql += " ORDER BY c.id ASC, d.id ASC, e.id ASC ";
 
-        return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CasoSunatMemoriaDTO dto = new CasoSunatMemoriaDTO();
             dto.setIdCaso(rs.getInt("idCaso"));
             dto.setIdEmpresa(rs.getString("idEmpresa"));
