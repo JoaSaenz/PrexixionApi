@@ -17,8 +17,8 @@ public class CasoSunatService {
     private final CasoSunatRepository repository;
 
     public List<CasoSunatListDTO> list(CasoSunatRequest request) {
-        System.out.println("Listando casos SUNAT...");
-        System.out.println("Caso Sunat: " + request.toString());
+        // System.out.println("Listando casos SUNAT...");
+        // System.out.println("Caso Sunat: " + request.toString());
         return repository.listForDataTable(request);
     }
 

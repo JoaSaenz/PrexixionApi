@@ -27,8 +27,8 @@ public class CasoSunatController {
 
     @GetMapping
     public ResponseEntity<List<CasoSunatListDTO>> list(CasoSunatRequest request) {
-        System.out.println("Listando casos SUNAT...");
-        System.out.println("Caso Sunat: " + request.toString());
+        // System.out.println("Listando casos SUNAT...");
+        // System.out.println("Caso Sunat: " + request.toString());
         return ResponseEntity.ok(service.list(request));
     }
 

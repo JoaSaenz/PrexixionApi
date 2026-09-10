@@ -54,16 +54,10 @@ public class CasoSunatRepository {
                 WHERE 1=1
                 """;
 
-        if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
-        }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
-        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
-            sql += " AND (ld.idTipoDocumento IN (" + request.getDocumentosString()
-                    + ") or ld.idTipoDocumento is null)  ";
-        }
+        sql += buildInOrNullClause("ld.idTipoDocumento", request.getDocumentosString());
         if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
             sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
         }
@@ -73,12 +67,10 @@ public class CasoSunatRepository {
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
             sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
-        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
-            sql += " AND (ld.idEstado IN (" + request.getEstadosString() + ") or ld.idEstado is null)  ";
-        }
+        sql += buildInOrNullClause("ld.idEstado", request.getEstadosString());
 
         sql += " ORDER BY c.id ASC ";
-        System.out.println("Caso Sunat: " + sql);
+        // System.out.println("Caso Sunat: " + sql);
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             CasoSunatListDTO dto = new CasoSunatListDTO();
@@ -615,15 +607,10 @@ public class CasoSunatRepository {
                 WHERE 1=1
                 """;
 
-        if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
-        }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
-        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
-            sql += " AND d.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
-        }
+        sql += buildInOrNullClause("d.idTipoDocumento", request.getDocumentosString());
         if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
             sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
         }
@@ -633,9 +620,7 @@ public class CasoSunatRepository {
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
             sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
-        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
-            sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
-        }
+        sql += buildInOrNullClause("d.idEstado", request.getEstadosString());
 
         sql += " ORDER BY c.id ASC, d.id ASC ";
 
@@ -698,15 +683,10 @@ public class CasoSunatRepository {
         if (request.getIdCaso() != null && request.getIdCaso() > 0) {
             sql += " AND c.id = " + request.getIdCaso() + " ";
         }
-        if (request.getIdEmpresa() != null && !request.getIdEmpresa().trim().isEmpty()) {
-            sql += " AND c.idEmpresa = '" + request.getIdEmpresa().trim() + "' ";
-        }
         if (request.getTiposCasoString() != null && !request.getTiposCasoString().isEmpty()) {
             sql += " AND c.idTipoCaso IN (" + request.getTiposCasoString() + ") ";
         }
-        if (request.getDocumentosString() != null && !request.getDocumentosString().isEmpty()) {
-            sql += " AND d.idTipoDocumento IN (" + request.getDocumentosString() + ") ";
-        }
+        sql += buildInOrNullClause("d.idTipoDocumento", request.getDocumentosString());
         if (request.getModalidadesString() != null && !request.getModalidadesString().isEmpty()) {
             sql += " AND c.idModalidad IN (" + request.getModalidadesString() + ") ";
         }
@@ -716,9 +696,7 @@ public class CasoSunatRepository {
         if (request.getPeriodoTexto() != null && !request.getPeriodoTexto().trim().isEmpty()) {
             sql += " AND LOWER(c.periodoTexto) LIKE '%" + request.getPeriodoTexto().trim().toLowerCase() + "%' ";
         }
-        if (request.getEstadosString() != null && !request.getEstadosString().isEmpty()) {
-            sql += " AND d.idEstado IN (" + request.getEstadosString() + ") ";
-        }
+        sql += buildInOrNullClause("d.idEstado", request.getEstadosString());
 
         sql += " ORDER BY c.id ASC, d.id ASC, e.id ASC ";
 
@@ -742,5 +720,34 @@ public class CasoSunatRepository {
             dto.setObservacion(rs.getString("observacion"));
             return dto;
         });
+    }
+
+    private String buildInOrNullClause(String columnName, String csvIds) {
+        if (csvIds == null || csvIds.trim().isEmpty()) {
+            return "";
+        }
+        String[] parts = csvIds.split(",");
+        List<String> validIds = new ArrayList<>();
+        boolean incluyeSinDoc = false;
+
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if ("0".equals(trimmed)) {
+                incluyeSinDoc = true;
+            } else if (!trimmed.isEmpty()) {
+                validIds.add(trimmed);
+            }
+        }
+
+        String validCsv = String.join(",", validIds);
+
+        if (!validCsv.isEmpty() && incluyeSinDoc) {
+            return " AND (" + columnName + " IN (" + validCsv + ") OR " + columnName + " IS NULL) ";
+        } else if (!validCsv.isEmpty()) {
+            return " AND " + columnName + " IN (" + validCsv + ") ";
+        } else if (incluyeSinDoc) {
+            return " AND " + columnName + " IS NULL ";
+        }
+        return "";
     }
 }
