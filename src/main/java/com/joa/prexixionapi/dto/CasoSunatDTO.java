@@ -32,4 +32,5 @@ public class CasoSunatDTO {
     private List<CasoSunatAuditorDTO> auditores;
     private List<CasoSunatDocumentoDTO> documentos;
     private List<CasoSunatDocumentoRelacionDTO> relaciones;
+    private List<CasoSunatChecklistDTO> checklist;
 }

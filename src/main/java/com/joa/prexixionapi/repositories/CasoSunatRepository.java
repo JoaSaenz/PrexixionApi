@@ -179,6 +179,7 @@ public class CasoSunatRepository {
         }
         caso.setDocumentos(docs);
         caso.setRelaciones(getRelacionesByCaso(id));
+        caso.setChecklist(getChecklistByCaso(id));
 
         return caso;
     }
@@ -443,6 +444,7 @@ public class CasoSunatRepository {
 
     public void deleteHijosByCaso(Integer idCaso) {
         MapSqlParameterSource params = new MapSqlParameterSource("idCaso", idCaso);
+        jdbcTemplate.update("DELETE FROM casoSunatChecklist WHERE idCaso = :idCaso", params);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoRelacion WHERE idCaso = :idCaso", params);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoEvento WHERE idCaso = :idCaso", params);
         jdbcTemplate.update("DELETE FROM casoSunatDocumento WHERE idCaso = :idCaso", params);
@@ -476,6 +478,11 @@ public class CasoSunatRepository {
 
     public List<Integer> getRelacionIdsByCaso(Integer idCaso) {
         String sql = "SELECT id FROM casoSunatDocumentoRelacion WHERE idCaso = :idCaso";
+        return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
+    }
+
+    public List<Integer> getChecklistIdsByCaso(Integer idCaso) {
+        String sql = "SELECT id FROM casoSunatChecklist WHERE idCaso = :idCaso";
         return jdbcTemplate.queryForList(sql, new MapSqlParameterSource("idCaso", idCaso), Integer.class);
     }
 
@@ -579,6 +586,106 @@ public class CasoSunatRepository {
             return;
         MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
         jdbcTemplate.update("DELETE FROM casoSunatDocumentoRelacion WHERE id IN (:ids)", params);
+    }
+
+    public List<CasoSunatChecklistDTO> getChecklistByCaso(Integer idCaso) {
+        String sql = """
+                SELECT id, idCaso, idPuntoPadre, idNivel, codigo, descripcion, orden,
+                       nroDocumentos, importeObservado, importeLevantado, importeReparo,
+                       idEstado, observacion
+                FROM casoSunatChecklist
+                WHERE idCaso = :idCaso
+                ORDER BY idNivel ASC, orden ASC, codigo ASC
+                """;
+        return jdbcTemplate.query(sql, new MapSqlParameterSource("idCaso", idCaso), (rs, rowNum) -> {
+            CasoSunatChecklistDTO dto = new CasoSunatChecklistDTO();
+            dto.setId(rs.getInt("id"));
+            dto.setIdCaso(rs.getInt("idCaso"));
+            int padre = rs.getInt("idPuntoPadre");
+            dto.setIdPuntoPadre(rs.wasNull() ? null : padre);
+            dto.setIdNivel(rs.getInt("idNivel"));
+            dto.setCodigo(rs.getString("codigo"));
+            dto.setDescripcion(rs.getString("descripcion"));
+            int ord = rs.getInt("orden");
+            dto.setOrden(rs.wasNull() ? null : ord);
+            int nDocs = rs.getInt("nroDocumentos");
+            dto.setNroDocumentos(rs.wasNull() ? null : nDocs);
+            dto.setImporteObservado(rs.getBigDecimal("importeObservado"));
+            dto.setImporteLevantado(rs.getBigDecimal("importeLevantado"));
+            dto.setImporteReparo(rs.getBigDecimal("importeReparo"));
+            dto.setIdEstado(rs.getObject("idEstado"));
+            dto.setObservacion(rs.getString("observacion"));
+            return dto;
+        });
+    }
+
+    public int insertChecklistItem(CasoSunatChecklistDTO dto) {
+        String sql = """
+                INSERT INTO casoSunatChecklist (idCaso, idPuntoPadre, idNivel, codigo, descripcion, orden,
+                                               nroDocumentos, importeObservado, importeLevantado, importeReparo,
+                                               idEstado, observacion)
+                VALUES (:idCaso, :idPuntoPadre, :idNivel, :codigo, :descripcion, :orden,
+                        :nroDocumentos, :importeObservado, :importeLevantado, :importeReparo,
+                        :idEstado, :observacion)
+                """;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("idCaso", dto.getIdCaso())
+                .addValue("idPuntoPadre", dto.getIdPuntoPadre())
+                .addValue("idNivel", dto.getIdNivel())
+                .addValue("codigo", dto.getCodigo())
+                .addValue("descripcion", dto.getDescripcion())
+                .addValue("orden", dto.getOrden())
+                .addValue("nroDocumentos", dto.getNroDocumentos())
+                .addValue("importeObservado", dto.getImporteObservado())
+                .addValue("importeLevantado", dto.getImporteLevantado())
+                .addValue("importeReparo", dto.getImporteReparo())
+                .addValue("idEstado", dto.getIdEstado())
+                .addValue("observacion", dto.getObservacion());
+
+        jdbcTemplate.update(sql, params, keyHolder, new String[] { "id" });
+        Number key = keyHolder.getKey();
+        return key != null ? key.intValue() : 0;
+    }
+
+    public void updateChecklistItem(CasoSunatChecklistDTO dto, Integer realId) {
+        String sql = """
+                UPDATE casoSunatChecklist
+                SET idPuntoPadre = :idPuntoPadre,
+                    idNivel = :idNivel,
+                    codigo = :codigo,
+                    descripcion = :descripcion,
+                    orden = :orden,
+                    nroDocumentos = :nroDocumentos,
+                    importeObservado = :importeObservado,
+                    importeLevantado = :importeLevantado,
+                    importeReparo = :importeReparo,
+                    idEstado = :idEstado,
+                    observacion = :observacion
+                WHERE id = :id
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("id", realId)
+                .addValue("idPuntoPadre", dto.getIdPuntoPadre())
+                .addValue("idNivel", dto.getIdNivel())
+                .addValue("codigo", dto.getCodigo())
+                .addValue("descripcion", dto.getDescripcion())
+                .addValue("orden", dto.getOrden())
+                .addValue("nroDocumentos", dto.getNroDocumentos())
+                .addValue("importeObservado", dto.getImporteObservado())
+                .addValue("importeLevantado", dto.getImporteLevantado())
+                .addValue("importeReparo", dto.getImporteReparo())
+                .addValue("idEstado", dto.getIdEstado())
+                .addValue("observacion", dto.getObservacion());
+
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void deleteChecklistByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty())
+            return;
+        MapSqlParameterSource params = new MapSqlParameterSource("ids", ids);
+        jdbcTemplate.update("DELETE FROM casoSunatChecklist WHERE id IN (:ids)", params);
     }
 
     public List<CasoSunatSeguimientoDTO> getReporteSeguimientoData(CasoSunatRequest request) {

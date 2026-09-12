@@ -69,6 +69,7 @@ public class CasoSunatService {
         List<Integer> existingDocumentoIds = new ArrayList<>();
         List<Integer> existingEventoIds = new ArrayList<>();
         List<Integer> existingRelacionIds = new ArrayList<>();
+        List<Integer> existingChecklistIds = new ArrayList<>();
 
         if (exists) {
             idCaso = dto.getId();
@@ -79,6 +80,7 @@ public class CasoSunatService {
             existingDocumentoIds = repository.getDocumentoIdsByCaso(idCaso);
             existingEventoIds = repository.getEventoIdsByCaso(idCaso);
             existingRelacionIds = repository.getRelacionIdsByCaso(idCaso);
+            existingChecklistIds = repository.getChecklistIdsByCaso(idCaso);
         } else {
             idCaso = repository.insertCaso(dto);
             dto.setId(idCaso);
@@ -200,6 +202,100 @@ public class CasoSunatService {
         // 4. Eliminar Documentos retirados de la lista
         existingDocumentoIds.removeAll(keptDocumentoIds);
         repository.deleteDocumentosByIds(existingDocumentoIds);
+
+        // 5. Guardar o Actualizar Checklist (Procesado en 3 pasadas jerárquicas: Nivel 1 -> Nivel 2 -> Nivel 3)
+        Set<Integer> keptChecklistIds = new HashSet<>();
+        if (dto.getChecklist() != null) {
+            Map<Object, Integer> chkIdMap = new HashMap<>();
+
+            // Pasada 1: Nivel 1 (Segmentos)
+            for (CasoSunatChecklistDTO chk : dto.getChecklist()) {
+                if (chk.getIdNivel() != null && chk.getIdNivel() == 1) {
+                    Object oldId = chk.getId();
+                    chk.setIdCaso(idCaso);
+                    chk.setIdPuntoPadre(null);
+
+                    Integer realId = parseRealId(oldId);
+                    int realChkId;
+                    if (realId != null && existingChecklistIds.contains(realId)) {
+                        repository.updateChecklistItem(chk, realId);
+                        realChkId = realId;
+                        keptChecklistIds.add(realId);
+                    } else {
+                        realChkId = repository.insertChecklistItem(chk);
+                    }
+                    chk.setId(realChkId);
+                    if (oldId != null) {
+                        chkIdMap.put(oldId, realChkId);
+                        chkIdMap.put(oldId.toString(), realChkId);
+                    }
+                    chkIdMap.put(realChkId, realChkId);
+                }
+            }
+
+            // Pasada 2: Nivel 2 (Puntos)
+            for (CasoSunatChecklistDTO chk : dto.getChecklist()) {
+                if (chk.getIdNivel() != null && chk.getIdNivel() == 2) {
+                    Object oldId = chk.getId();
+                    chk.setIdCaso(idCaso);
+
+                    Integer realPadreId = chkIdMap.get(chk.getIdPuntoPadre());
+                    if (realPadreId == null && chk.getIdPuntoPadre() != null) {
+                        realPadreId = chkIdMap.get(chk.getIdPuntoPadre().toString());
+                    }
+                    if (realPadreId == null) {
+                        realPadreId = parseRealId(chk.getIdPuntoPadre());
+                    }
+                    chk.setIdPuntoPadre(realPadreId);
+
+                    Integer realId = parseRealId(oldId);
+                    int realChkId;
+                    if (realId != null && existingChecklistIds.contains(realId)) {
+                        repository.updateChecklistItem(chk, realId);
+                        realChkId = realId;
+                        keptChecklistIds.add(realId);
+                    } else {
+                        realChkId = repository.insertChecklistItem(chk);
+                    }
+                    chk.setId(realChkId);
+                    if (oldId != null) {
+                        chkIdMap.put(oldId, realChkId);
+                        chkIdMap.put(oldId.toString(), realChkId);
+                    }
+                    chkIdMap.put(realChkId, realChkId);
+                }
+            }
+
+            // Pasada 3: Nivel 3 (Sub-puntos)
+            for (CasoSunatChecklistDTO chk : dto.getChecklist()) {
+                if (chk.getIdNivel() != null && chk.getIdNivel() == 3) {
+                    Object oldId = chk.getId();
+                    chk.setIdCaso(idCaso);
+
+                    Integer realPadreId = chkIdMap.get(chk.getIdPuntoPadre());
+                    if (realPadreId == null && chk.getIdPuntoPadre() != null) {
+                        realPadreId = chkIdMap.get(chk.getIdPuntoPadre().toString());
+                    }
+                    if (realPadreId == null) {
+                        realPadreId = parseRealId(chk.getIdPuntoPadre());
+                    }
+                    chk.setIdPuntoPadre(realPadreId);
+
+                    Integer realId = parseRealId(oldId);
+                    if (realId != null && existingChecklistIds.contains(realId)) {
+                        repository.updateChecklistItem(chk, realId);
+                        keptChecklistIds.add(realId);
+                    } else {
+                        repository.insertChecklistItem(chk);
+                    }
+                }
+            }
+
+            existingChecklistIds.removeAll(keptChecklistIds);
+            repository.deleteChecklistByIds(existingChecklistIds);
+        } else {
+            repository.deleteChecklistByIds(existingChecklistIds);
+        }
 
         return resultAction;
     }
