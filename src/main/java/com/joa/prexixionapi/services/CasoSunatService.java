@@ -208,7 +208,7 @@ public class CasoSunatService {
         if (dto.getChecklist() != null) {
             Map<Object, Integer> chkIdMap = new HashMap<>();
 
-            // Pasada 1: Nivel 1 (Segmentos)
+            // Pasada 1: Nivel 1 (Categorías)
             for (CasoSunatChecklistDTO chk : dto.getChecklist()) {
                 if (chk.getIdNivel() != null && chk.getIdNivel() == 1) {
                     Object oldId = chk.getId();
