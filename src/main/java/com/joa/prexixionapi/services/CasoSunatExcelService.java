@@ -553,7 +553,7 @@ public class CasoSunatExcelService {
                     createCell(dataRow, c++, dto.getDescTipoCaso(), casoCenterStyle);
 
                     // Determinar estilos según Tipo de Documento (idTipoDocumento)
-                    // 1: CARTA, 2: REQUERIMIENTO, 3: REQUERIMIENTO ART 75, 4: ESQUELA DE CITACION, 5: RECLAMO, 6: APELACION, 7: RD, 8: RM
+                    // 1: CARTA, 2: REQUERIMIENTO, 3: REQUERIMIENTO ART 75, 4: ESQUELA DE CITACION, 5: ESQUELA CON SOLICITUD DE INFORMACION
                     Integer idTipoDoc = dto.getIdTipoDocumento();
                     String descDoc = dto.getDescTipoDocumento() != null ? dto.getDescTipoDocumento() : "";
 
@@ -567,7 +567,7 @@ public class CasoSunatExcelService {
                         rowCenterStyle = celesteCenterStyle;
                         rowLeftStyle = celesteLeftStyle;
                         rowMoneyStyle = celesteMoneyStyle;
-                    } else if (idTipoDoc != null && idTipoDoc == 4) {
+                    } else if (idTipoDoc != null && (idTipoDoc == 4 || idTipoDoc == 5)) {
                         if (primeraEsquelaCitacion) {
                             rowDocTextStyle = celesteDocTextStyle;
                             rowCenterStyle = celesteCenterStyle;
@@ -580,16 +580,6 @@ public class CasoSunatExcelService {
                             rowLeftStyle = whiteLeftStyle;
                             rowMoneyStyle = whiteMoneyStyle;
                         }
-                    } else if (idTipoDoc != null && idTipoDoc == 5) {
-                        rowDocTextStyle = redDocTextStyle;
-                        rowCenterStyle = redCenterStyle;
-                        rowLeftStyle = redLeftStyle;
-                        rowMoneyStyle = redMoneyStyle;
-                    } else if (idTipoDoc != null && idTipoDoc == 6) {
-                        rowDocTextStyle = yellowDocTextStyle;
-                        rowCenterStyle = yellowCenterStyle;
-                        rowLeftStyle = yellowLeftStyle;
-                        rowMoneyStyle = yellowMoneyStyle;
                     } else {
                         rowDocTextStyle = whiteDocTextStyle;
                         rowCenterStyle = whiteCenterStyle;
@@ -629,9 +619,6 @@ public class CasoSunatExcelService {
                         fEnvio = "NO APLICA";
                         fPresentacion = "NO APLICA";
                         fResultado = "NO APLICA";
-                    } else if (idTipoDoc != null && (idTipoDoc == 5 || idTipoDoc == 6)) {
-                        fRecepcion = "NO APLICA";
-                        fEnvio = "NO APLICA";
                     }
 
                     // Col 12: F. RECEPCION
@@ -819,14 +806,12 @@ public class CasoSunatExcelService {
                     createCell(dataRow, 4, dto.getNroDocumentoCarta() != null ? dto.getNroDocumentoCarta() : "-",
                             dataCenterStyle);
 
-                    // Regla de Fechas
+                    // Regla de Fechas (Evaluación por ID numérico: ID 2 = Respuesta -> F. PRESENTACIÓN, Otros IDs = Notificación/Resultado/Otros -> F. NOTIFICACIÓN)
                     String descEvUpper = dto.getDescEvento() != null ? dto.getDescEvento().toUpperCase().trim() : "";
                     Integer idEvt = dto.getIdTipoEvento();
 
-                    boolean isNotificaOrResultado = descEvUpper.contains("NOTIFI") || descEvUpper.contains("RESULTAD")
-                            || (idEvt != null && (idEvt == 1 || idEvt == 3));
-
-                    boolean isRespuesta = descEvUpper.contains("RESPUEST") || (idEvt != null && idEvt == 2);
+                    boolean isRespuesta = (idEvt != null && idEvt == 2) || (idEvt == null && descEvUpper.contains("RESPUEST"));
+                    boolean isNotificaOrResultado = !isRespuesta;
 
                     String fFecha = dto.getFecha() != null ? dto.getFecha() : "";
 

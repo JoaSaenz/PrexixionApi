@@ -784,7 +784,7 @@ public class CasoSunatRepository {
                 LEFT JOIN casoSunatEmisor em ON e.idEmisor = em.id
                 LEFT JOIN casoSunatEvento ev ON e.idTipoEvento = ev.id
                 LEFT JOIN casoSunatDocumento cd ON e.idDocumentoCarta = cd.id
-                WHERE d.idTipoDocumento IN (2, 3, 4, 7, 8)
+                WHERE d.idTipoDocumento IN (2, 3, 4, 5)
                 """;
 
         if (request.getIdCaso() != null && request.getIdCaso() > 0) {
