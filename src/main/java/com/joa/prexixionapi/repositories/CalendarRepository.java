@@ -525,6 +525,8 @@ public class CalendarRepository {
         }
         sql += "ORDER BY x.fPresentacion, x.hora ";
 
+        System.out.println(sql);
+
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             String fecha = rs.getString("fPresentacion");
             String horaI = rs.getString("hora");
@@ -541,6 +543,72 @@ public class CalendarRepository {
                     .stateDescripcion(rs.getString("estadoDescripcion"))
                     .flagFiscalizacion(rs.getString("modo"))
                     .type("fiscalizacion")
+                    .build();
+        });
+    }
+
+    public List<CalendarEventDTO> findFiscalizacionesCasoSunat(String dni) {
+        Map<String, Object> personalInfo;
+        try {
+            personalInfo = jdbcTemplate.queryForMap(
+                    "SELECT idPuesto, idArea FROM personal WHERE dni = ?", dni);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+        int idPuesto = (Integer) personalInfo.get("idPuesto");
+        int idArea = (Integer) personalInfo.get("idArea");
+
+        String sql = "SELECT x.idEmpresa, x.razonSocial, x.idModalidad, x.modalidad, x.fechaPresentacion, x.hora, x.idTipoDocumento, x.tipoDocumento, x.idEstado, x.estadoDocumento, x.area "
+                + "FROM ( "
+                + "  SELECT cs.idEmpresa, "
+                + "  CASE WHEN (SELECT aux.nombreCorto FROM cliente aux WHERE cs.idEmpresa = aux.ruc) != '' "
+                + "    THEN CONCAT ('FT SUNAT | ', (SELECT aux.nombreCorto FROM cliente aux WHERE cs.idEmpresa = aux.ruc)) "
+                + "    ELSE CONCAT ('FT SUNAT | ', c.razonSocial) "
+                + "  END AS razonSocial, "
+                + "  cs.idModalidad, csm.descripcion AS modalidad, "
+                + "  d.fechaPresentacion, "
+                + "  CASE WHEN d.hora != '' THEN d.hora ELSE '08:00' END AS hora, "
+                + "  d.idTipoDocumento, cstd.descripcion AS tipoDocumento, "
+                + "  d.idEstado, csed.descripcion AS estadoDocumento, "
+                + "  8 AS area "
+                + "  FROM casoSunatDocumento d "
+                + "  LEFT JOIN casoSunat cs ON d.idCaso = cs.id "
+                + "  LEFT JOIN cliente c ON cs.idEmpresa = c.ruc "
+                + "  LEFT JOIN casoSunatModalidad csm ON cs.idModalidad = csm.id "
+                + "  LEFT JOIN casoSunatTipoDocumento cstd ON d.idTipoDocumento = cstd.id "
+                + "  LEFT JOIN casoSunatEstadoDocumento csed ON d.idEstado = csed.id "
+                + "  WHERE d.idTipoDocumento IN (2, 3, 4, 5) AND d.fechaPresentacion != '' AND d.idEstado IN (1, 2, 3) "
+                + ") AS x ";
+
+        if (idPuesto == 3) {
+            if (idArea == 2) {
+                sql += "WHERE x.area IN (2, 8) ";
+            } else {
+                sql += "WHERE x.area = " + idArea + " ";
+            }
+        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8
+                || idPuesto == 9 || idPuesto == 10) {
+            sql += "WHERE x.area = " + idArea + " ";
+        }
+
+        sql += "ORDER BY x.fechaPresentacion, x.hora ";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String fecha = rs.getString("fechaPresentacion");
+            String horaI = rs.getString("hora");
+            String start = fecha + "T" + horaI + ":00";
+
+            return CalendarEventDTO.builder()
+                    .title(rs.getString("razonSocial"))
+                    .start(start)
+                    .color("#50AEC3")
+                    .hexColor("#50AEC3")
+                    .attendee("")
+                    .topic(rs.getString("tipoDocumento"))
+                    .stateFiscalizacionCasoSunat(rs.getInt("idEstado"))
+                    .stateDescripcion(rs.getString("estadoDocumento"))
+                    .flagFiscalizacion(rs.getString("modalidad"))
+                    .type("fiscalizacionCasoSunat")
                     .build();
         });
     }

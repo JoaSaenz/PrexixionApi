@@ -58,4 +58,7 @@ public class CalendarController {
 
     @GetMapping("/fiscalizaciones")
     public List<CalendarEventDTO> getFiscalizaciones(@RequestParam String dni) { return calendarService.getFiscalizaciones(dni); }
+
+    @GetMapping("/fiscalizaciones-caso-sunat")
+    public List<CalendarEventDTO> getFiscalizacionesCasoSunat(@RequestParam String dni) { return calendarService.getFiscalizacionesCasoSunat(dni); }
 }

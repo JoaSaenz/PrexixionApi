@@ -19,6 +19,7 @@ public class CalendarEventDTO {
     private String topic;
     private Integer state;
     private Integer stateFiscalizacion;
+    private Integer stateFiscalizacionCasoSunat;
     private Integer stateFiscalizacionPay;
     private Integer stateTramitesSunat;
     private String stateDescripcion;
