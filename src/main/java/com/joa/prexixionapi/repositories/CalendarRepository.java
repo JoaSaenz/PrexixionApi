@@ -525,7 +525,7 @@ public class CalendarRepository {
         }
         sql += "ORDER BY x.fPresentacion, x.hora ";
 
-        System.out.println(sql);
+        // System.out.println(sql);
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             String fecha = rs.getString("fPresentacion");
@@ -577,7 +577,7 @@ public class CalendarRepository {
                 + "  LEFT JOIN casoSunatModalidad csm ON cs.idModalidad = csm.id "
                 + "  LEFT JOIN casoSunatTipoDocumento cstd ON d.idTipoDocumento = cstd.id "
                 + "  LEFT JOIN casoSunatEstadoDocumento csed ON d.idEstado = csed.id "
-                + "  WHERE d.idTipoDocumento IN (2, 3, 4, 5) AND d.fechaPresentacion != '' AND d.idEstado IN (1, 2, 3) "
+                + "  WHERE d.idTipoDocumento != 1 AND d.fechaPresentacion != '' AND d.idEstado IN (1, 2, 3) "
                 + ") AS x ";
 
         if (idPuesto == 3) {

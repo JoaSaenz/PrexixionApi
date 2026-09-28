@@ -567,7 +567,7 @@ public class CasoSunatExcelService {
                         rowCenterStyle = celesteCenterStyle;
                         rowLeftStyle = celesteLeftStyle;
                         rowMoneyStyle = celesteMoneyStyle;
-                    } else if (idTipoDoc != null && (idTipoDoc == 4 || idTipoDoc == 5)) {
+                    } else if (idTipoDoc != null && (idTipoDoc == 4 || idTipoDoc == 5 || idTipoDoc == 6 || descDoc.toUpperCase().contains("INDUCTIVA"))) {
                         if (primeraEsquelaCitacion) {
                             rowDocTextStyle = celesteDocTextStyle;
                             rowCenterStyle = celesteCenterStyle;
