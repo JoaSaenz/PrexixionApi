@@ -263,6 +263,39 @@ public class CasoSunatExcelService {
                 createNumericCell(dataRow, c++, incompletoVal, percentStyle);
             }
 
+            int finData = rowNum - 1;
+            if (finData >= inicioData) {
+                org.apache.poi.xssf.usermodel.XSSFSheetConditionalFormatting sheetCF = ((org.apache.poi.xssf.usermodel.XSSFSheet) sheet).getSheetConditionalFormatting();
+
+                // 1. Barra de progreso Verde para COMPLETO (Columna O, índice 14) - #63BE7B
+                org.apache.poi.xssf.usermodel.XSSFColor greenBarColor = new org.apache.poi.xssf.usermodel.XSSFColor(
+                        new java.awt.Color(99, 190, 123), new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+                org.apache.poi.xssf.usermodel.XSSFConditionalFormattingRule ruleGreen = sheetCF.createConditionalFormattingRule(greenBarColor);
+                DataBarFormatting dbfGreen = ruleGreen.getDataBarFormatting();
+                if (dbfGreen != null) {
+                    dbfGreen.getMinThreshold().setRangeType(ConditionalFormattingThreshold.RangeType.NUMBER);
+                    dbfGreen.getMinThreshold().setValue(0.0);
+                    dbfGreen.getMaxThreshold().setRangeType(ConditionalFormattingThreshold.RangeType.NUMBER);
+                    dbfGreen.getMaxThreshold().setValue(1.0);
+                }
+                CellRangeAddress[] regionsGreen = { new CellRangeAddress(inicioData, finData, 14, 14) };
+                sheetCF.addConditionalFormatting(regionsGreen, ruleGreen);
+
+                // 2. Barra de progreso Roja/Coral para INCOMPLETO (Columna P, índice 15) - #F8696B
+                org.apache.poi.xssf.usermodel.XSSFColor redBarColor = new org.apache.poi.xssf.usermodel.XSSFColor(
+                        new java.awt.Color(248, 105, 107), new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap());
+                org.apache.poi.xssf.usermodel.XSSFConditionalFormattingRule ruleRed = sheetCF.createConditionalFormattingRule(redBarColor);
+                DataBarFormatting dbfRed = ruleRed.getDataBarFormatting();
+                if (dbfRed != null) {
+                    dbfRed.getMinThreshold().setRangeType(ConditionalFormattingThreshold.RangeType.NUMBER);
+                    dbfRed.getMinThreshold().setValue(0.0);
+                    dbfRed.getMaxThreshold().setRangeType(ConditionalFormattingThreshold.RangeType.NUMBER);
+                    dbfRed.getMaxThreshold().setValue(1.0);
+                }
+                CellRangeAddress[] regionsRed = { new CellRangeAddress(inicioData, finData, 15, 15) };
+                sheetCF.addConditionalFormatting(regionsRed, ruleRed);
+            }
+
             // 6. FILA DE TOTALES (Pie de Tabla)
             Row totalRow = sheet.createRow(rowNum++);
             for (int col = 0; col < 16; col++) {
