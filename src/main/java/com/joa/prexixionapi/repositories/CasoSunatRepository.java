@@ -326,6 +326,28 @@ public class CasoSunatRepository {
         return key != null ? key.intValue() : 0;
     }
 
+    public void insertGestionNegocio(String idCliente, int idModuloPadre, String modulo, int idEstado) {
+        String sql = """
+                INSERT INTO gestionNegocios (idCliente, idModuloPadre, modulo, idEstado)
+                VALUES (:idCliente, :idModuloPadre, :modulo, :idEstado)
+                """;
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("idCliente", idCliente != null ? idCliente.trim() : "")
+                .addValue("idModuloPadre", idModuloPadre)
+                .addValue("modulo", modulo)
+                .addValue("idEstado", idEstado);
+
+        jdbcTemplate.update(sql, params);
+    }
+
+    public void deleteGestionNegocio(int idModuloPadre, String modulo) {
+        String sql = "DELETE FROM gestionNegocios WHERE idModuloPadre = :idModuloPadre AND modulo = :modulo";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("idModuloPadre", idModuloPadre)
+                .addValue("modulo", modulo);
+        jdbcTemplate.update(sql, params);
+    }
+
     public void updateCaso(CasoSunatDTO dto) {
         String sql = """
                 UPDATE casoSunat
@@ -453,6 +475,7 @@ public class CasoSunatRepository {
 
     public int delete(Integer idCaso) {
         deleteHijosByCaso(idCaso);
+        deleteGestionNegocio(idCaso, "GESTION FISCALIZACIONES");
         String sql = "DELETE FROM casoSunat WHERE id = :idCaso";
         return jdbcTemplate.update(sql, new MapSqlParameterSource("idCaso", idCaso));
     }

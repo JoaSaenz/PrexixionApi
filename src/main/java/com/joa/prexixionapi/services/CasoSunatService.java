@@ -85,6 +85,13 @@ public class CasoSunatService {
             idCaso = repository.insertCaso(dto);
             dto.setId(idCaso);
             resultAction = 1; // Registrado
+
+            // Inserción en gestionNegocios
+            try {
+                repository.insertGestionNegocio(dto.getIdEmpresa(), idCaso, "GESTION FISCALIZACIONES", 1);
+            } catch (Exception e) {
+                log.error("Error al registrar en gestionNegocios para caso SUNAT ID {}: {}", idCaso, e.getMessage(), e);
+            }
         }
 
         // 1. Guardar o Actualizar Auditores
