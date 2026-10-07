@@ -302,22 +302,31 @@ public class CalendarRepository {
                 +
                 ") AS calendario WHERE fecha IS NOT NULL ";
 
-        if (idPuesto == 3) {
-            if (idArea == 2) {
-                sql += "AND (area in (2,4) OR color = '#041562') ";
-            } else if (idArea == 4) {
-                sql += "AND (area = " + idArea + " OR color = '#041562') ";
-            } else {
-                sql += "AND area = " + idArea + " ";
-            }
-        } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6 || idPuesto == 7 || idPuesto == 8
-                || idPuesto == 9 || idPuesto == 10) {
-            if (idArea == 4) {
-                sql += "AND (area = " + idArea + " OR color = '#041562') ";
-            } else {
-                sql += "AND area = " + idArea + " ";
-            }
+        if (idArea == 4) {
+            sql += "AND (area = " + idArea + " OR color = '#041562') ";
+        } else if (idArea == 2 || idArea == 3 || idArea == 7 || idArea == 8) {
+            sql += "AND (area in (4,8) OR color = '#041562') ";
+        } else {
+            sql += "AND area = " + idArea + " ";
         }
+
+        // if (idPuesto == 3) {
+        // if (idArea == 2) {
+        // sql += "AND (area in (2,4) OR color = '#041562') ";
+        // } else if (idArea == 4) {
+        // sql += "AND (area = " + idArea + " OR color = '#041562') ";
+        // } else {
+        // sql += "AND area = " + idArea + " ";
+        // }
+        // } else if (idPuesto == 1 || idPuesto == 4 || idPuesto == 5 || idPuesto == 6
+        // || idPuesto == 7 || idPuesto == 8
+        // || idPuesto == 9 || idPuesto == 10) {
+        // if (idArea == 4) {
+        // sql += "AND (area = " + idArea + " OR color = '#041562') ";
+        // } else {
+        // sql += "AND area = " + idArea + " ";
+        // }
+        // }
         sql += "ORDER BY fecha ";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> CalendarEventDTO.builder()
