@@ -34,20 +34,21 @@ public class VacacionProgramadaService {
     public int insertUpdate(VacacionProgramadaDTO dto) {
         boolean exists = dto.getId() != null && repository.exist(dto.getId());
 
+        // Si no se especificó estado, por defecto 1 (PROGRAMADA)
+        if (dto.getIdEstado() == null || dto.getIdEstado() <= 0) {
+            dto.setIdEstado(1);
+        }
+
         if (exists) {
-            // Edición: pasa al estado 2: REPROGRAMADA
-            dto.setIdEstado(2);
+            // Edición: se respeta el estado elegido por el usuario (PROGRAMADA o REPROGRAMADA)
             repository.update(dto);
-            log.info("Vacación ID {} actualizada a estado REPROGRAMADA (idEstado=2)", dto.getId());
+            log.info("Vacación ID {} actualizada con idEstado={}", dto.getId(), dto.getIdEstado());
             return 2; // Actualizado
         } else {
-            // Nuevo registro: nace como 1: PROGRAMADA
-            if (dto.getIdEstado() == null || dto.getIdEstado() <= 0) {
-                dto.setIdEstado(1);
-            }
+            // Nuevo registro
             int newId = repository.insert(dto);
             dto.setId(newId);
-            log.info("Nueva vacación registrada con ID {} para DNI {} (idEstado=1)", newId, dto.getDni());
+            log.info("Nueva vacación registrada con ID {} para DNI {} con idEstado={}", newId, dto.getDni(), dto.getIdEstado());
             return 1; // Registrado
         }
     }

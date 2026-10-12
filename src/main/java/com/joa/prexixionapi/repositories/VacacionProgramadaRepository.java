@@ -81,7 +81,7 @@ public class VacacionProgramadaRepository {
                 }
             }
 
-            String title = rs.getString("colaborador") + " (" + rs.getInt("dias") + "d)" + areaSubArea;
+            String title = rs.getString("colaborador") + " (" + rs.getInt("dias") + "d) " + areaSubArea;
 
             return VacacionProgramadaDTO.builder()
                     .id(rs.getInt("id"))
@@ -142,13 +142,13 @@ public class VacacionProgramadaRepository {
                 String areaSubArea = "";
                 if (area != null && !area.trim().isEmpty()) {
                     if (subArea != null && !subArea.trim().isEmpty()) {
-                        areaSubArea = "[" + area.trim() + " - " + subArea.trim() + "] ";
+                        areaSubArea = " - " + area.trim() + " | " + subArea.trim();
                     } else {
-                        areaSubArea = "[" + area.trim() + "] ";
+                        areaSubArea = " - " + area.trim();
                     }
                 }
 
-                String title = areaSubArea + rs.getString("colaborador") + " (" + rs.getInt("dias") + "d)";
+                String title = rs.getString("colaborador") + " (" + rs.getInt("dias") + "d) " + areaSubArea;
 
                 return VacacionProgramadaDTO.builder()
                         .id(rs.getInt("id"))
@@ -222,7 +222,7 @@ public class VacacionProgramadaRepository {
                 .addValue("fechaInicio", dto.getFechaInicio())
                 .addValue("fechaFin", dto.getFechaFin())
                 .addValue("dias", dto.getDias() != null ? dto.getDias() : 0)
-                .addValue("idEstado", dto.getIdEstado() != null ? dto.getIdEstado() : 2)
+                .addValue("idEstado", dto.getIdEstado() != null ? dto.getIdEstado() : 1)
                 .addValue("observacion", dto.getObservacion());
 
         return jdbcTemplate.update(sql, params);
