@@ -1,4 +1,4 @@
-package com.joa.prexixionapi.common.dto;
+package com.joa.prexixionapi.modules.personal.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

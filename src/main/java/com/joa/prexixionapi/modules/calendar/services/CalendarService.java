@@ -28,4 +28,5 @@ public class CalendarService {
     public List<CalendarEventDTO> getFiscalizacionesPay(String dni) { return calendarRepository.findFiscalizacionesPay(dni); }
     public List<CalendarEventDTO> getReuniones() { return calendarRepository.findReuniones(); }
     public List<CalendarEventDTO> getFiscalizaciones(String dni) { return calendarRepository.findFiscalizaciones(dni); }
+    public List<CalendarEventDTO> getFiscalizacionesCasoSunat(String dni) { return calendarRepository.findFiscalizacionesCasoSunat(dni); }
 }

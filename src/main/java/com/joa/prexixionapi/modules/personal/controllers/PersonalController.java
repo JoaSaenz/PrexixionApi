@@ -1,7 +1,7 @@
 package com.joa.prexixionapi.modules.personal.controllers;
 
 import com.joa.prexixionapi.common.dto.GclassDTO;
-import com.joa.prexixionapi.common.dto.PersonalDTO;
+import com.joa.prexixionapi.modules.personal.dto.PersonalDTO;
 import com.joa.prexixionapi.modules.personal.services.PersonalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

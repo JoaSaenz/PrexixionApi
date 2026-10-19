@@ -17,47 +17,82 @@ public class CalendarController {
     private final CalendarService calendarService;
 
     @GetMapping("/pdt")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaPDT() { return ResponseEntity.ok(calendarService.getCronogramaPDT()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaPDT() {
+        return ResponseEntity.ok(calendarService.getCronogramaPDT());
+    }
 
     @GetMapping("/sire")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaSire() { return ResponseEntity.ok(calendarService.getCronogramaSire()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaSire() {
+        return ResponseEntity.ok(calendarService.getCronogramaSire());
+    }
 
     @GetMapping("/ple")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaPLE() { return ResponseEntity.ok(calendarService.getCronogramaPLE()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaPLE() {
+        return ResponseEntity.ok(calendarService.getCronogramaPLE());
+    }
 
     @GetMapping("/afp")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaAFP() { return ResponseEntity.ok(calendarService.getCronogramaAFP()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaAFP() {
+        return ResponseEntity.ok(calendarService.getCronogramaAFP());
+    }
 
     @GetMapping("/detracciones")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaDetracciones() { return ResponseEntity.ok(calendarService.getCronogramaDetracciones()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaDetracciones() {
+        return ResponseEntity.ok(calendarService.getCronogramaDetracciones());
+    }
 
     @GetMapping("/anual")
-    public ResponseEntity<List<CalendarEventDTO>> getCronogramaAnual() { return ResponseEntity.ok(calendarService.getCronogramaAnual()); }
+    public ResponseEntity<List<CalendarEventDTO>> getCronogramaAnual() {
+        return ResponseEntity.ok(calendarService.getCronogramaAnual());
+    }
 
     @GetMapping("/feriados")
-    public ResponseEntity<List<CalendarEventDTO>> getFeriados() { return ResponseEntity.ok(calendarService.getFeriados()); }
+    public ResponseEntity<List<CalendarEventDTO>> getFeriados() {
+        return ResponseEntity.ok(calendarService.getFeriados());
+    }
 
     @GetMapping("/misa")
-    public ResponseEntity<List<CalendarEventDTO>> getMisa() { return ResponseEntity.ok(calendarService.getMisa()); }
+    public ResponseEntity<List<CalendarEventDTO>> getMisa() {
+        return ResponseEntity.ok(calendarService.getMisa());
+    }
 
     @GetMapping("/dias-festivos")
-    public ResponseEntity<List<CalendarEventDTO>> getDiasFestivos() { return ResponseEntity.ok(calendarService.getDiasFestivos()); }
+    public ResponseEntity<List<CalendarEventDTO>> getDiasFestivos() {
+        return ResponseEntity.ok(calendarService.getDiasFestivos());
+    }
 
     @GetMapping("/tramites-sunat")
-    public ResponseEntity<List<CalendarEventDTO>> getTramitesSunat() { return ResponseEntity.ok(calendarService.getTramitesSunat()); }
+    public ResponseEntity<List<CalendarEventDTO>> getTramitesSunat() {
+        return ResponseEntity.ok(calendarService.getTramitesSunat());
+    }
 
     @GetMapping("/cumpleanos")
-    public ResponseEntity<List<CalendarEventDTO>> getCumpleanos(@RequestParam String dni) { return ResponseEntity.ok(calendarService.getCumpleanos(dni)); }
+    public ResponseEntity<List<CalendarEventDTO>> getCumpleanos(@RequestParam String dni) {
+        return ResponseEntity.ok(calendarService.getCumpleanos(dni));
+    }
 
     @GetMapping("/obligaciones")
-    public ResponseEntity<List<CalendarEventDTO>> getObligaciones(@RequestParam String dni) { return ResponseEntity.ok(calendarService.getObligaciones(dni)); }
+    public ResponseEntity<List<CalendarEventDTO>> getObligaciones(@RequestParam String dni) {
+        return ResponseEntity.ok(calendarService.getObligaciones(dni));
+    }
 
     @GetMapping("/fiscalizaciones-pay")
-    public ResponseEntity<List<CalendarEventDTO>> getFiscalizacionesPay(@RequestParam String dni) { return ResponseEntity.ok(calendarService.getFiscalizacionesPay(dni)); }
+    public ResponseEntity<List<CalendarEventDTO>> getFiscalizacionesPay(@RequestParam String dni) {
+        return ResponseEntity.ok(calendarService.getFiscalizacionesPay(dni));
+    }
 
     @GetMapping("/reuniones")
-    public ResponseEntity<List<CalendarEventDTO>> getReuniones() { return ResponseEntity.ok(calendarService.getReuniones()); }
+    public ResponseEntity<List<CalendarEventDTO>> getReuniones() {
+        return ResponseEntity.ok(calendarService.getReuniones());
+    }
 
     @GetMapping("/fiscalizaciones")
-    public ResponseEntity<List<CalendarEventDTO>> getFiscalizaciones(@RequestParam String dni) { return ResponseEntity.ok(calendarService.getFiscalizaciones(dni)); }
+    public ResponseEntity<List<CalendarEventDTO>> getFiscalizaciones(@RequestParam String dni) {
+        return ResponseEntity.ok(calendarService.getFiscalizaciones(dni));
+    }
+
+    @GetMapping("/fiscalizaciones-caso-sunat")
+    public List<CalendarEventDTO> getFiscalizacionesCasoSunat(@RequestParam String dni) {
+        return calendarService.getFiscalizacionesCasoSunat(dni);
+    }
 }
