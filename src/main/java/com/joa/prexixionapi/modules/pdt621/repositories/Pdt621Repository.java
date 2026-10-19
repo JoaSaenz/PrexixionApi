@@ -9,6 +9,8 @@ import com.joa.prexixionapi.modules.pdt621.dto.Pdt621RegistroDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ReportAnualDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ListDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621FilterRequestDTO;
+import com.joa.prexixionapi.common.utils.QueryUtils;
+import com.joa.prexixionapi.utils.DateUtils;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -246,20 +248,8 @@ public class Pdt621Repository {
                          WHEN c.y = '6' THEN cr.fecha6 WHEN c.y = '7' THEN cr.fecha7 WHEN c.y = '8' THEN cr.fecha8 
                          WHEN c.y = '9' THEN cr.fecha9 WHEN c.y = 'b' THEN cr.fechab 
                     END 
-             END AS fVencimiento, 
-             CASE 
-                WHEN c.y = '0' THEN crG.fecha0 
-                WHEN c.y = '1' THEN crG.fecha1 
-                WHEN c.y = '2' THEN crG.fecha2 
-                WHEN c.y = '3' THEN crG.fecha3 
-                WHEN c.y = '4' THEN crG.fecha4 
-                WHEN c.y = '5' THEN crG.fecha5 
-                WHEN c.y = '6' THEN crG.fecha6 
-                WHEN c.y = '7' THEN crG.fecha7 
-                WHEN c.y = '8' THEN crG.fecha8 
-                WHEN c.y = '9' THEN crG.fecha9
-            END AS fVencimientoGear, 
-            siData.registrado AS sireCV, 
+             END AS fechaVencimiento,
+            CASE WHEN si.idCliente IS NULL THEN 2 ELSE COALESCE(siData.registrado, 0) END AS sireCV, 
             t.ventasG, t.ventasNg,
             t.igvJusto, t.pago, pb.descripcion as descBancoPdt621, t.pagarImpuestos, 
             t.renta3Categoria, t.rentaPago, pbRenta.descripcion AS descRentaBanco, t.rentaPagarImpuestos,
@@ -280,15 +270,14 @@ public class Pdt621Repository {
             LEFT JOIN cronogramaPDT cr ON :anio = cr.anio AND :mes = cr.mes 
             LEFT JOIN cronogramaCovidPDT crC ON :anio = crC.anio AND :mes = crC.mes 
             LEFT JOIN cronogramaPricoPDT crPricoPDT ON :anio = crPricoPDT.anio AND :mes = crPricoPDT.mes 
-            LEFT JOIN cronogramaGear crG ON :anio = crG.anio AND :mes = crG.mes
             LEFT JOIN uit u ON u.anio = :anio 
             INNER JOIN clienteServiciosTributarios p ON c.ruc = p.idCliente AND p.stIdServicioTributario = 4 
             LEFT JOIN pdt621DataNew t ON c.ruc = t.idCliente AND :anio = t.anio AND :mes = t.mes 
-            LEFT JOIN loginProcesos lp ON t.idCliente = lp.ruc AND lp.anio = :anio AND lp.mes = :mes 
+            LEFT JOIN loginProcesos lp ON c.ruc = lp.ruc AND lp.anio = :anio AND lp.mes = :mes 
             INNER JOIN clientsEstados ce on c.idEstado = ce.id  
             LEFT JOIN Pdt621Bancos pb ON t.idBancoPdt621 = pb.id
             LEFT JOIN Pdt621Bancos pbRenta ON t.rentaBanco = pbRenta.id
-            LEFT JOIN pdt621registros pR ON t.idCliente = pR.idCliente AND pR.anio = :anio AND pR.mes = :mes 
+            LEFT JOIN pdt621registros pR ON c.ruc = pR.idCliente AND pR.anio = :anio AND pR.mes = :mes 
              AND pR.id = (select MAX(id) from pdt621Registros x where x.idCliente = c.ruc AND x.anio = :anio AND x.mes = :mes AND x.idTipo IN (3,4,5) )  
             LEFT JOIN clienteServiciosTributarios si ON c.ruc = si.idCliente AND si.stIdServicioTributario = 15 
             AND CAST(si.stAnioDesde + si.stMesDesde + '01' as date) <= CAST(:anio + '-' + :mes + '-01' as date) AND 
@@ -308,19 +297,49 @@ public class Pdt621Repository {
         params.addValue("lastAnio", String.valueOf(lastAnio));
         params.addValue("anioMes", Integer.parseInt(anio + mes));
 
-        if (req.getEstados() != null && !req.getEstados().isEmpty()) {
-            sql.append(" AND c.idEstado IN (:estados)");
-            params.addValue("estados", Arrays.stream(req.getEstados().split(",")).map(Integer::parseInt).collect(Collectors.toList()));
-        }
+        if (req != null) {
+            QueryUtils.appendIntFilter(sql, params, "c.idEstado", req.getEstados(), "estados");
+            QueryUtils.appendStringFilter(sql, params, "c.y", req.getGrupos(), "grupos");
+            QueryUtils.appendIntFilter(sql, params, "s.idCategoria", req.getCategorias(), "categorias");
+            QueryUtils.appendIntFilter(sql, params, "(CASE WHEN c.idGrupoEconomico IS NOT NULL AND c.idGrupoEconomico NOT IN (0, 1) THEN 1 ELSE 0 END)", req.getCategoriaGrupoE(), "categoriaGrupoE");
+            QueryUtils.appendIntFilter(sql, params, "(CASE WHEN cso.idCliente IS NOT NULL THEN 1 ELSE 0 END)", req.getCategoriaStore(), "categoriaStore");
+            QueryUtils.appendIntFilter(sql, params, "c.idGrupoEconomico", req.getGrupoEconomico(), "grupoEconomico");
 
-        if (req.getGrupos() != null && !req.getGrupos().isEmpty()) {
-            sql.append(" AND c.y IN (:grupos)");
-            params.addValue("grupos", Arrays.asList(req.getGrupos().split(",")));
-        }
-        
-        if (req.getRuc() != null && !req.getRuc().trim().isEmpty()) {
-            sql.append(" AND c.ruc = :ruc");
-            params.addValue("ruc", req.getRuc().trim());
+            if (req.getSire() != null && !req.getSire().trim().isEmpty()) {
+                List<String> sireVals = Arrays.stream(req.getSire().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                if (sireVals.contains("1") && !sireVals.contains("2")) {
+                    sql.append(" AND si.idCliente IS NOT NULL");
+                } else if (sireVals.contains("2") && !sireVals.contains("1")) {
+                    sql.append(" AND si.idCliente IS NULL");
+                }
+            }
+
+            QueryUtils.appendIntFilter(sql, params, "(CASE WHEN si.idCliente IS NULL THEN 2 ELSE COALESCE(siData.registrado, 0) END)", req.getSireCv(), "sireCv");
+            QueryUtils.appendIntFilter(sql, params, "COALESCE(lp.confirmacion, 0)", req.getConfirmacion(), "confirmacion");
+
+            if (req.getPdt() != null && !req.getPdt().trim().isEmpty()) {
+                List<String> list = Arrays.stream(req.getPdt().split(","))
+                        .map(String::trim)
+                        .filter(s -> !s.isEmpty())
+                        .collect(Collectors.toList());
+                if (list.contains("1") && !list.contains("0")) {
+                    sql.append(" AND (pR.idTipo IS NOT NULL AND pR.nroOrden IS NOT NULL AND TRIM(pR.nroOrden) <> '')");
+                } else if (list.contains("0") && !list.contains("1")) {
+                    sql.append(" AND (pR.idTipo IS NULL OR pR.nroOrden IS NULL OR TRIM(pR.nroOrden) = '')");
+                }
+            }
+
+            QueryUtils.appendIntFilter(sql, params, "COALESCE(t.mail, 0)", req.getMail(), "mail");
+            QueryUtils.appendIntFilter(sql, params, "COALESCE(t.sus, 0)", req.getSus(), "sus");
+            QueryUtils.appendIntFilter(sql, params, "COALESCE(t.pagarImpuestos, 0)", req.getPagarImpuestos(), "pagarImpuestos");
+
+            if (req.getRuc() != null && !req.getRuc().trim().isEmpty()) {
+                sql.append(" AND c.ruc = :ruc");
+                params.addValue("ruc", req.getRuc().trim());
+            }
         }
 
         sql.append(" ORDER BY c.y");
@@ -342,9 +361,9 @@ public class Pdt621Repository {
                 .confirmacion(rs.getInt("confirmacion"))
                 .anio(anio)
                 .mes(mes)
-                .fVencimientoGear(rs.getString("fVencimientoGear"))
-                .fVencimiento(rs.getString("fVencimiento"))
-                .sireCV(rs.getString("ruc") == null ? 2 : rs.getInt("sireCV"))
+                .fechaVencimiento(rs.getString("fechaVencimiento"))
+                .difference((int) DateUtils.getDifferenceInDays(rs.getString("fechaVencimiento")))
+                .sireCV(rs.getInt("sireCV"))
                 .mail(rs.getInt("mail"))
                 .sus(rs.getInt("sus"))
                 .pagarImpuestos(rs.getInt("pagarImpuestos"))

@@ -28,8 +28,8 @@ public class Pdt621ListDTO {
     // Fechas y Vencimiento
     private String anio;
     private String mes;
-    private String fVencimientoGear;
-    private String fVencimiento;
+    private String fechaVencimiento;
+    private Integer difference;
     
     // Status
     private String movimiento;
