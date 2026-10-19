@@ -1,0 +1,33 @@
+package com.joa.prexixionapi.modules.notificacion.dto;
+
+import java.time.LocalDateTime;
+
+public interface NotificacionProjection {
+    Long getId();
+
+    String getRuc();
+
+    String getIdSunat();
+
+    String getTitulo();
+
+    LocalDateTime getFecha();
+    
+    Boolean getRevisado();
+    
+    Integer getTieneAdjuntos();
+
+    Long getJobStatusId();
+
+    String getEstadoCliente();
+
+    String getTipo();
+
+    String getNombreCorto();
+
+    String getY();
+
+    String getRazonSocial();
+
+    Integer getIdEstado();
+}

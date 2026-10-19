@@ -1,0 +1,73 @@
+package com.joa.prexixionapi.modules.pdt621.dto;
+
+import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Pdt621ReportAnualDTO {
+    private String ruc;
+    private String anio;
+    private String mes;
+
+    private double ventasG;
+    private double comprasG;
+    private double ventasNetas10;
+    private double comprasNetas10;
+
+    private double tasa;
+
+    private double validerVentas;
+    private double validerCompras;
+
+    private double mesIgv;
+    private double mesAnteriorIgv;
+    private double ajusteIgv;
+    private double resultadoIgv;
+
+    private double mesPer;
+    private double mesAnteriorPer;
+    private double compensacionPer;
+    private double ajustePer;
+    private double resultadoPer;
+    private String codigosTributariosCompensacionPer;
+
+    private double mesRet;
+    private double mesAnteriorRet;
+    private double compensacionRet;
+    private double ajusteRet;
+    private double resultadoRet;
+    private String codigosTributariosCompensacionRet;
+
+    private double igvPorPagar;
+
+    private double expFactPer;
+    private double ventasNg;
+    private double comprasNgE;
+    private double comprasNg;
+
+    private double ivapVentasGravadas;
+    private double ivapTributo;
+
+    private double baseRenta;
+    private double mesRenta;
+    private double mesAnteriorRenta;
+    private double anualRenta;
+    private double saldoFavorExportador;
+
+    @JsonProperty("cItanRenta")
+    private double cItanRenta;
+
+    private double ajusteRenta;
+    private double totalDeudaTributariaRenta;
+    private double rentaPorPagar;
+
+    private List<Pdt621RegistroDTO> registros;
+    private String abrGestionRegimenTributario;
+}

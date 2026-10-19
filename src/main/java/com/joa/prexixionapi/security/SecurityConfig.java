@@ -23,16 +23,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) // Desactivamos CSRF porque usaremos JWT
-            .cors(cors -> cors.configure(http)) // Mantenemos la configuración de CORS que ya existe en CorsConfig
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Permitimos login
-                .requestMatchers("/api/**").authenticated() // Bloqueamos todo el resto del API
-                .anyRequest().permitAll()
-            )
-            .authenticationProvider(authenticationProvider)
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(csrf -> csrf.disable()) // Desactivamos CSRF porque usaremos JWT
+                .cors(cors -> cors.configure(http)) // Mantenemos la configuración de CORS que ya existe en CorsConfig
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll() // Permitimos login
+                        .requestMatchers("/api/**").authenticated() // Bloqueamos todo el resto del API
+                        .anyRequest().permitAll())
+                .authenticationProvider(authenticationProvider)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

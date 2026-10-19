@@ -1,37 +1,87 @@
-# Directrices de Migración: Prexixion WebApp a Prexixion API
+# Directrices de Migración: Backend Prexixion API
 
-Este documento establece los patrones y arquitecturas a seguir durante la migración de los módulos de la aplicación web antigua (Prexixion) hacia el nuevo backend (Prexixion API).
+Este documento establece los patrones y arquitecturas estándar a seguir durante el desarrollo y mantenimiento del backend (Prexixion API).
 
-## 1. Frontend (Javascript / JSP)
-- **DataTables sin Server-Side**: La configuración de DataTables debe usar `serverSide: false` y `paging: false`. Toda la lógica de paginación, ordenación y búsqueda se maneja del lado del cliente.
-- **Columnas Ocultas en DataTables**: Eliminar todas las columnas ocultas (`<th hidden>`) y sus respectivas configuraciones (`visible: false`) en el javascript si estas solo se usaban para alojar IDs de los registros con fines de filtrado en el cliente. En el nuevo modelo, los filtros se resuelven asíncronamente en el backend. Toda la información de un registro (incluyendo IDs) sigue estando disponible en el objeto JSON asociado a cada fila y puede accederse internamente en los callbacks del DataTables (ej. `row.idEstado`) sin necesidad de inyectarla en el DOM.
-- **Enrutamiento Directo (Entry point)**: Las llamadas iniciales a los módulos en el sidebar o menús deben apuntar directamente al archivo `.jsp` (ej. `href="signerOsce.jsp"`) y NO al Servlet legacy (ej. `Controller?action=1`).
-- **Llenado Dinámico de Filtros/Selectores**: Los selectores (`<select>`) dinámicos ya no deben llenarse sincrónicamente mediante JSTL (`<c:forEach>`). Se deben inicializar vacíos en el JSP y llenarse asíncronamente vía AJAX/JavaScript (usando los controladores de la API como `GclassGetList`). Para filtros con valores estáticos o cerrados (ej. grupos del 0 al 9), codificar los `<option>` directamente en el JSP para evitar llamadas innecesarias al backend.
-- **Limpieza de Formularios (HTML)**: Eliminar los inputs ocultos (`<input hidden>`) que se usaban antiguamente para mantener el estado de los filtros tras la recarga de página (ej. `grupoEconomicoString`, `estadosString`, `searchParameter`). Como la página ya no recarga gracias a DataTables AJAX y el cliente maneja las búsquedas, estos inputs son obsoletos y ensucian los modales. Solo se deben preservar inputs ocultos estrictamente funcionales (ej. `idCliente`). Además, eliminar los atributos `name` de los selectores de filtros, ya que los valores se capturan por `id` mediante jQuery.
-- **Limpieza de Alertas Legacy (`rpta`)**: Eliminar los bloques condicionales de JSTL (`<c:if test="${rpta == ...}">`) que validaban la respuesta de un controlador y mostraban alertas (`alertGrowl`). En el nuevo estándar, las alertas se deben mostrar desde Javascript interceptando las respuestas JSON del API vía AJAX (en las funciones `success` o `error`).
-- **Funciones Globales Utilitarias**: Para extraer y convertir en CSV (comma-separated values) el valor de un select múltiple y enviarlo como parámetro al backend, usar la función global existente `filterToCsv($select)` definida en `functions.js` (en lugar de declarar funciones locales duplicadas como `filtersToCsv`).
-- **Rutas y Autenticación**: Las llamadas AJAX deben apuntar a la base URL del API (`api-proxy`).
-- **Seguridad**: Es indispensable inyectar el token JWT en todas las peticiones AJAX. Para esto, se debe usar la propiedad `headers` en la configuración global de jQuery `$.ajaxSetup`, ya que si se usa `beforeSend`, este evento puede ser sobreescrito por llamadas AJAX individuales en el propio script, provocando errores `403 Forbidden` al perderse la cabecera `Authorization`. Ejemplo: `$.ajaxSetup({ headers: { 'Authorization': 'Bearer ' + token } });`
-- **Modernización de la Interfaz (UI)**: El diseño antiguo de barra lateral (`row-offcanvas-left`) y tablas de resumen estáticas queda obsoleto. Se debe migrar a la estructura `.modern-ui` que agrupa los selectores de filtro en la parte superior dentro de una tarjeta (`card`) flexible, e inyecta la tabla de resumen/estadísticas directamente como cabecera del DataTable (`#table-stats-minimalist`) utilizando Javascript, logrando así un diseño mucho más limpio que aprovecha todo el ancho de la pantalla.
-- **Scroll del DataTable (UI)**: Al migrar a las interfaces `.modern-ui` que abarcan toda la pantalla, es imperativo configurar el scroll de la tabla desde el script de inicialización de DataTables para evitar problemas de desbordamiento que oculten registros. Se deben añadir las propiedades `scrollY: 'calc(100vh - 280px)'`, `scrollCollapse: true` y `scrollX: true` al objeto de configuración del DataTable.
+---
 
-## 2. Backend - Controladores (Spring Boot)
+## 1. Backend - Controladores (Spring Boot)
 - **RESTful API Limpia**: Los controladores deben exponer endpoints usando los verbos HTTP correspondientes (`@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping`).
-- **Verbos para Búsqueda/Filtro**: Las operaciones de listado que incluyen filtros básicos (como múltiples selectores pasados como cadenas separadas por comas) deben usar `@GetMapping` para respetar la semántica de HTTP y mantener consistencia con el resto de la aplicación. En caso de usar un objeto de Request, Spring Boot lo mapeará automáticamente como `@ModelAttribute` a partir de los parámetros de consulta (query params).
-- **Objetos de Transferencia (DTOs)**: Se deben recibir y retornar DTOs específicos en lugar de entidades directas (ej. `[Modulo]DTO`, `[Modulo]DataTablesRequest`, `[Modulo]DataTablesResponse`).
-- **Limpieza de Request DTOs**: Dado que las grillas (DataTables) se configuran con `serverSide: false`, la búsqueda se procesa de forma nativa en el cliente (Javascript). Por tanto, los DTOs de Request (ej. `[Modulo]Request`) NO deben contener un atributo `searchParameter` ni generar lógica de búsqueda de texto global en las consultas del Repositorio.
+- **Respuestas Estandarizadas**:
+  - Operaciones de consulta / listados / DataTables: retornar `ResponseEntity<T>` o `ResponseEntity<[Modulo]DataTablesResponse>`.
+  - Operaciones de mutación (Creación, Edición, Eliminación): retornar `ResponseEntity<ApiResponse<T>>`.
+- **Verbos para Búsqueda/Filtro**: Las operaciones de listado que incluyen filtros usan `@GetMapping`. En caso de usar un objeto de Request, Spring Boot lo mapea automáticamente como `@ModelAttribute` a partir de los query params.
+- **Objetos de Transferencia (DTOs)**: Se deben recibir y retornar DTOs específicos con sufijo `DTO` (ej. `[Modulo]DTO`, `[Modulo]DataTablesRequest`, `[Modulo]DataTablesResponse`). No usar sufijos obsoletos como `*Projection`.
 
-## 3. Backend - Servicios (Lógica de Negocio)
+---
+
+## 2. Backend - Servicios (Lógica de Negocio)
 - **Orquestación**: Los servicios actúan como puente entre el controlador y el repositorio.
 - **Optimización de Consultas (Batch Fetching)**: Para evitar el problema de "N+1 consultas" al listar registros con sub-entidades (listas hijas), se deben extraer primero los IDs principales y luego hacer una única consulta para traer los datos relacionados, agrupándolos en memoria (usando `Map`) antes de devolver la respuesta.
 
-## 4. Backend - Repositorios (Data Access)
-- **SQL Nativo**: Se debe utilizar `NamedParameterJdbcTemplate` para las operaciones en base de datos, priorizando el uso de SQL puro, claro y estructurado (en lugar de ORMs pesados como JPA/Hibernate).
-- **Consultas Específicas (No reutilización)**: No declarar métodos que sean reutilizados entre múltiples flujos si el set de datos difiere (ej. DataTable vs Reporte Excel o Edición individual). Las consultas SQL (`SELECT`) deben extraer estrictamente solo las columnas que se usan en ese flujo, para maximizar el rendimiento. Dado que los datos mostrados o las lógicas de agrupación suelen variar, cada funcionalidad debe tener su propio método y su propia consulta optimizada.
-- **Mapeo Explícito (Inlining de Mappers)**: Para facilitar el mantenimiento y evitar que cambios en un flujo rompan otros (ej. agregar una columna extra para un Excel pero que rompe la tabla), los mapeos de base de datos (`RowMapper`) no deben abstraerse en métodos privados globales como `mapRowToDTO`. En su lugar, utilizar expresiones lambda directamente dentro de cada método de consulta (`(rs, rowNum) -> { ... }`). Esto garantiza que el mapeo sea específico para la consulta en cuestión y mejora la legibilidad.
-- **Transaccionalidad (CUD)**: Las operaciones de creación, actualización y eliminación que involucren múltiples tablas (padre e hijo) deben usar la anotación `@Transactional`.
-- **Manejo de Sub-entidades en Updates**: El patrón a seguir en las actualizaciones complejas es eliminar primero los registros hijos asociados (`DELETE FROM tabla_hija WHERE idPadre = :id`) y volver a insertarlos con la nueva información, manteniendo así la consistencia dentro de la transacción.
+---
 
-## 5. Exportaciones y Descargas (Excel/PDF)
-- **Seguridad en Descargas Directas**: Cuando se necesite descargar un archivo forzando la navegación del navegador (ej. `window.location.href`), las cabeceras AJAX (como el JWT) no se envían automáticamente. Para que Spring Security no bloquee la petición con un `403 Forbidden`, es obligatorio extraer el token y enviarlo como un parámetro en la URL (`&token=...`). El `JwtAuthenticationFilter` ya está configurado para leer el JWT desde el parámetro `token`.
-- **Generación en el API**: Los endpoints de exportación (ej. `/excel`) NO deben retornar listas de objetos JSON. Deben delegar a un servicio (ej. `[Modulo]ExcelService`) que genere el archivo binario (`byte[]`) utilizando `Apache POI` (y las utilidades base como `ExcelStyleManager`), para finalmente retornar el archivo con las cabeceras HTTP correspondientes (`Content-Disposition: attachment; filename=...` y el tipo MIME).
+## 3. Backend - Repositorios (Data Access Layer)
+
+### Regla Arquitectónica: 90% JDBC / 10% JPA
+- **Consultas Complejas, Reportes y Listados (90%)**: Usar clases `@Repository` con `NamedParameterJdbcTemplate` o `JdbcTemplate` mapeando a DTOs con lambdas.
+- **CRUDs Simples 1-a-1 de Entidad (10%)**: Usar interfaces `JpaRepository<Entity, ID>` únicamente para operaciones básicas (`save`, `findById`, `delete`).
+- **Prohibido**: No usar interfaces Spring Data JPA con `@Query(nativeQuery = true)` acopladas a entidades artificiales/dummy (ej. `ClienteExcelEntity`) ni interfaces de proyección con sufijo `Projection`.
+
+### Patrones Clave en Repositorios
+1. **Consultas Autocontenidas**: Cada método debe declarar su propia consulta SQL explícita y aislada. No usar métodos compartidos (`getBaseSelect()`) ni constantes de cadenas (`SELECT_BASE`).
+2. **Mapeo Tipado mediante Lambdas (`RowMapper`)**: Extraer directamente del `ResultSet` (`rs.getString(...)`, `rs.getInt(...)`, etc.) construyendo DTOs vía `@Builder` de Lombok.
+3. **Transaccionalidad (CUD)**: Las operaciones de creación, actualización y eliminación que involucren múltiples tablas deben usar la anotación `@Transactional`.
+
+### Plantilla de Repositorio Estándar (Gold Standard)
+```java
+package com.joa.prexixionapi.repositories;
+
+import com.joa.prexixionapi.dto.MiModuloDTO;
+import com.joa.prexixionapi.dto.MiModuloRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+
+@Slf4j
+@Repository
+@RequiredArgsConstructor
+public class MiModuloRepository {
+
+    private final NamedParameterJdbcTemplate jdbcTemplate;
+
+    public List<MiModuloDTO> list(MiModuloRequest req) {
+        String sql = """
+            SELECT c.ruc, c.razonSocial, c.idEstado, ce.descripcion as estado
+            FROM cliente c
+            INNER JOIN clientsEstados ce ON c.idEstado = ce.id
+            WHERE c.idEstado IN (:estados)
+            ORDER BY c.razonSocial
+        """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("estados", req.getEstados());
+
+        return jdbcTemplate.query(sql, params, this::mapRow);
+    }
+
+    private MiModuloDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return MiModuloDTO.builder()
+                .ruc(rs.getString("ruc"))
+                .razonSocial(rs.getString("razonSocial"))
+                .idEstado(rs.getInt("idEstado"))
+                .estado(rs.getString("estado"))
+                .build();
+    }
+}
+```
+
+---
+
+## 4. Exportaciones y Descargas (Excel/PDF)
+- **Generación en el API**: Los endpoints de exportación (ej. `/excel`) NO deben retornar listas de objetos JSON. Deben delegar a un servicio (ej. `[Modulo]ExcelService`) que genere el archivo binario (`byte[]`) utilizando `Apache POI` (y las utilidades base como `ExcelStyleManager`), retornando el archivo con las cabeceras HTTP correspondientes (`Content-Disposition: attachment; filename=...` y el tipo MIME).

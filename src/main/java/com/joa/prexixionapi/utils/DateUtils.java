@@ -4,6 +4,25 @@ import org.joda.time.LocalDate;
 
 public class DateUtils {
 
+    public static final java.time.ZoneId ZONE_LIMA = java.time.ZoneId.of("America/Lima");
+
+    public static String getToday() {
+        return java.time.LocalDate.now(ZONE_LIMA).toString();
+    }
+
+    public static String getToday(String formato) {
+        return java.time.LocalDate.now(ZONE_LIMA)
+                .format(java.time.format.DateTimeFormatter.ofPattern(formato));
+    }
+
+    public static String getTodayString() {
+        return getToday();
+    }
+
+    public static String getYesterday() {
+        return java.time.LocalDate.now(ZONE_LIMA).minusDays(1).toString();
+    }
+
     public static LocalDate stringToLocalDate(String someday) {
         if (someday == null || someday.isEmpty())
             return null;

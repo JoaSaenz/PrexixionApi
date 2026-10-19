@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.joa.prexixionapi.repositories.UserRepository;
+import com.joa.prexixionapi.auth.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

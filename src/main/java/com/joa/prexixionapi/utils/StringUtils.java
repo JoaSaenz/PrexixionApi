@@ -21,4 +21,25 @@ public class StringUtils {
         if (value == null) return "";
         return value.replace(charsToRemove, "");
     }
+
+    public static List<String> parseCsv(String csv) {
+        if (csv == null || csv.trim().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
+    public static List<Integer> parseCsvInt(String csv) {
+        if (csv == null || csv.trim().isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(Integer::parseInt)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

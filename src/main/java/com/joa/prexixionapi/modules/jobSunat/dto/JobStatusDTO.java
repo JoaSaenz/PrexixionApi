@@ -1,0 +1,42 @@
+package com.joa.prexixionapi.modules.jobSunat.dto;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class JobStatusDTO {
+    private Long id;
+
+    private String nombreJob; // Ej: "SincronizacionSUNAT"
+    private String estado; // Ej: "EN_PROGRESO", "FINALIZADO", "ERROR"
+    private Double progreso; // Porcentaje 0.0 a 100.0
+    private String mensaje; // Mensaje opcional: "Procesando cliente 3/50"
+    private String ultimaActualizacion;
+
+    // Nuevos campos
+    private LocalDate fechaEjecucion; // DATE
+    private LocalDateTime horaInicio; // DATETIME
+    private LocalDateTime horaFin; // DATETIME
+    private Integer rucsOk; // INT
+    private Integer rucsNoOk; // INT
+
+    @JsonIgnore
+    private List<JobStatusLogDTO> logs;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("formattedHoraInicio")
+    public String getFormattedHoraInicio() {
+        if (this.horaInicio != null) {
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            return this.horaInicio.format(formatter);
+        }
+        return "";
+    }
+}
