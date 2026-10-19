@@ -2,7 +2,7 @@ package com.joa.prexixionapi.modules.xentra.controllers;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,16 +12,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import lombok.RequiredArgsConstructor;
-
-import com.joa.prexixionapi.modules.xentra.dto.XentraDataDTO;
-import com.joa.prexixionapi.modules.xentra.dto.XentraReporteDTO;
-import com.joa.prexixionapi.modules.xentra.services.XentraService;
-import com.joa.prexixionapi.modules.xentra.services.XentraReporteService;
-import lombok.extern.slf4j.Slf4j;
 
 import com.joa.prexixionapi.common.dto.ApiResponse;
-import org.springframework.http.ResponseEntity;
+import com.joa.prexixionapi.modules.xentra.dto.XentraDataDTO;
+import com.joa.prexixionapi.modules.xentra.dto.XentraReporteDTO;
+import com.joa.prexixionapi.modules.xentra.services.XentraReporteService;
+import com.joa.prexixionapi.modules.xentra.services.XentraService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
@@ -88,3 +87,4 @@ public class XentraController {
         }
     }
 }
+
