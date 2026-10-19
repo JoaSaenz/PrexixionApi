@@ -122,7 +122,7 @@ public class AsistenciaRepository {
                             END
                     END AS turno
                     FROM ZKAccess1.dbo.acc_monitor_log m
-                    WHERE time >= :fecha AND time < DATEADD(day, 1, :fecha) AND pin = ?
+                    WHERE time >= :fechaI AND time < DATEADD(day, 1, :fechaF) AND pin = :dni
                 ) AS SourceTable PIVOT(min(tiempo) FOR [turno] IN([mi],[ms],[ti],[ts],[tarde])) AS PivotTable
                 ORDER BY fecha ASC;
                 """;

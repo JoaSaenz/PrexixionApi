@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import com.joa.prexixionapi.modules.asistencia.controllers.AsistenciaController;
 import com.joa.prexixionapi.modules.asistencia.dto.AsistenciaStatsDTO;
 import com.joa.prexixionapi.modules.asistencia.services.AsistenciaExcelService;
 import com.joa.prexixionapi.modules.asistencia.services.AsistenciaService;
@@ -58,7 +57,6 @@ public class AsistenciaController {
         log.info("Request asistencia stats from {} to {}", fechaI, fechaF);
         return ResponseEntity.ok(asistenciaService.stats(fechaI, fechaF));
     }
-
 
     @GetMapping("/logs")
     public ResponseEntity<List<Map<String, Object>>> getRawLogs(@RequestParam String dni, @RequestParam String fecha) {
