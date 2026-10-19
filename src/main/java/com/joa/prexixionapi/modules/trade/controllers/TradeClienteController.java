@@ -21,7 +21,7 @@ public class TradeClienteController {
 
     private final TradeClienteService tradeClienteService;
 
-    @GetMapping
+    @GetMapping({"", "/server-side"})
     public ResponseEntity<TradeClienteDataTablesResponse> list(TradeClienteDataTablesRequest req) throws Exception {
         return ResponseEntity.ok(tradeClienteService.list(req));
     }

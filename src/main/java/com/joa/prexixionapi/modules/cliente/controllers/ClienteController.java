@@ -36,7 +36,7 @@ public class ClienteController {
 
     private final ClienteCuentaBancariaExcelService clienteCuentaBancariaExcelService;
 
-    @GetMapping
+    @GetMapping({"", "/server-side"})
     public ResponseEntity<ClienteDataTablesResponse> list(ClienteDataTablesRequest req) throws Exception  {
         return ResponseEntity.ok(clienteService.list(req));
     }
