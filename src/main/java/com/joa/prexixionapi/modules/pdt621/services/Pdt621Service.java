@@ -8,8 +8,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.joa.prexixionapi.common.dto.DataTablesResponseDTO;
+import com.joa.prexixionapi.common.dto.IndicadorDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621AnualResponseDTO;
+import com.joa.prexixionapi.modules.pdt621.dto.Pdt621DTO;
+import com.joa.prexixionapi.modules.pdt621.dto.Pdt621HistorialDTO;
+import com.joa.prexixionapi.modules.pdt621.dto.Pdt621RegistroDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ReportAnualDTO;
 import com.joa.prexixionapi.modules.pdt621.repositories.Pdt621Repository;
 
@@ -94,7 +100,7 @@ public class Pdt621Service {
                     .mesAnteriorRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getMesAnteriorRenta).sum())
                     .anualRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getAnualRenta).sum())
                     .saldoFavorExportador(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getSaldoFavorExportador).sum())
-                    .cItanRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getCItanRenta).sum())
+                    .creditoItanRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getCreditoItanRenta).sum())
                     .ajusteRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getAjusteRenta).sum())
                     .totalDeudaTributariaRenta(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getTotalDeudaTributariaRenta).sum())
                     .rentaPorPagar(yearData.stream().mapToDouble(Pdt621ReportAnualDTO::getRentaPorPagar).sum())
@@ -143,7 +149,7 @@ public class Pdt621Service {
                 .tMesAnteriorRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getMesAnteriorRenta).sum())
                 .tAnualRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getAnualRenta).sum())
                 .tSaldoFavorExportador(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getSaldoFavorExportador).sum())
-                .tCItanRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getCItanRenta).sum())
+                .tCItanRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getCreditoItanRenta).sum())
                 .tAjusteRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getAjusteRenta).sum())
                 .tTotalDeudaTributariaRenta(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getTotalDeudaTributariaRenta).sum())
                 .tRentaPorPagar(nonSubtotalData.stream().mapToDouble(Pdt621ReportAnualDTO::getRentaPorPagar).sum())
@@ -198,5 +204,140 @@ public class Pdt621Service {
         // (sire, sireCv, confirmacion, pdt, mail, sus, pagarImpuestos)
         // that were usually handled by client side or by extra parameters.
         return list;
+    }
+
+    public DataTablesResponseDTO<Pdt621ListDTO> getPdt621DataTables(Pdt621FilterRequestDTO req) {
+        List<Pdt621ListDTO> all = getPdt621List(req);
+
+        int confirmacionSi = 0;
+        int confirmacionNo = 0;
+        int confirmacionNa = 0;
+
+        int sireCvSi = 0;
+        int sireCvNo = 0;
+        int sireCvNa = 0;
+
+        int pdtSi = 0;
+        int pdtNo = 0;
+
+        for (Pdt621ListDTO c : all) {
+            // TAKE (confirmacion)
+            if (c.getConfirmacion() != null) {
+                if (c.getConfirmacion() == 1) {
+                    confirmacionSi++;
+                } else if (c.getConfirmacion() == 0) {
+                    confirmacionNo++;
+                } else if (c.getConfirmacion() == 2) {
+                    confirmacionNa++;
+                }
+            } else {
+                confirmacionNo++;
+            }
+
+            // SIRE (sireCv)
+            if (c.getSireCV() != null) {
+                if (c.getSireCV() == 1) {
+                    sireCvSi++;
+                } else if (c.getSireCV() == 0) {
+                    sireCvNo++;
+                } else if (c.getSireCV() == 2) {
+                    sireCvNa++;
+                }
+            } else {
+                sireCvNo++;
+            }
+
+            // PDT
+            boolean hasPdt = false;
+            if (c.getRegistros() != null && !c.getRegistros().isEmpty()) {
+                for (Pdt621RegistroDTO r : c.getRegistros()) {
+                    if (r.getNroOrden() != null && !r.getNroOrden().trim().isEmpty()) {
+                        hasPdt = true;
+                        break;
+                    }
+                }
+            }
+            if (hasPdt) {
+                pdtSi++;
+            } else {
+                pdtNo++;
+            }
+        }
+
+        List<IndicadorDTO> indicadores = new ArrayList<>();
+        indicadores.add(new IndicadorDTO("TAKE_CONFIRMED", confirmacionSi + confirmacionNa));
+        indicadores.add(new IndicadorDTO("TAKE_PENDING", confirmacionNo));
+        indicadores.add(new IndicadorDTO("SIRE_PRESENTED", sireCvSi + sireCvNa));
+        indicadores.add(new IndicadorDTO("SIRE_PENDING", sireCvNo));
+        indicadores.add(new IndicadorDTO("PDT_PRESENTED", pdtSi));
+        indicadores.add(new IndicadorDTO("PDT_PENDING", pdtNo));
+        indicadores.add(new IndicadorDTO("TOTAL", all.size()));
+
+        return DataTablesResponseDTO.<Pdt621ListDTO>builder()
+                .data(all)
+                .indicadores(indicadores)
+                .build();
+    }
+
+    public String[] getVencimientoLimits(String periodoI, String periodoF) {
+        int startAnio = Integer.parseInt(periodoI.substring(0, 4));
+        int startMes = Integer.parseInt(periodoI.substring(5, 7));
+        int endAnio = Integer.parseInt(periodoF.substring(0, 4));
+        int endMes = Integer.parseInt(periodoF.substring(5, 7));
+
+        int currAnio = startAnio;
+        int currMes = startMes;
+
+        String globalMin = null;
+        String globalMax = null;
+
+        while (currAnio * 100 + currMes <= endAnio * 100 + endMes) {
+            String mesStr = currMes < 10 ? "0" + currMes : String.valueOf(currMes);
+            String anioStr = String.valueOf(currAnio);
+
+            String[] limits = pdt621Repository.getVencimientoLimits(anioStr, mesStr);
+
+            if (limits[0] != null && !limits[0].isEmpty()) {
+                if (globalMin == null || limits[0].compareTo(globalMin) < 0) {
+                    globalMin = limits[0];
+                }
+            }
+            if (limits[1] != null && !limits[1].isEmpty()) {
+                if (globalMax == null || limits[1].compareTo(globalMax) > 0) {
+                    globalMax = limits[1];
+                }
+            }
+
+            if (currMes == 12) {
+                currAnio++;
+                currMes = 1;
+            } else {
+                currMes++;
+            }
+        }
+
+        return new String[] { globalMin != null ? globalMin : "", globalMax != null ? globalMax : "" };
+    }
+
+    public Pdt621DTO getOne(String ruc, String anio, String mes) {
+        Pdt621DTO dto = pdt621Repository.getOne(ruc, anio, mes);
+        if (dto == null) {
+            dto = Pdt621DTO.builder()
+                    .ruc(ruc)
+                    .anio(anio)
+                    .mes(mes)
+                    .registros(new ArrayList<>())
+                    .build();
+        }
+        return dto;
+    }
+
+    @Transactional
+    public int insertUpdate(Pdt621DTO dto) {
+        return pdt621Repository.insertUpdate(dto);
+    }
+
+    public List<Pdt621HistorialDTO> listHistorial(String idCliente, String periodoInicial, String periodoFinal) {
+        return pdt621Repository.listHistorial(idCliente, periodoInicial, periodoFinal);
     }
 }

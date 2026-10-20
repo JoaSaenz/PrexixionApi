@@ -11,17 +11,20 @@ public class Pdt621FilterRequestDTO {
     private String periodoI;
     private String periodoF;
     private String ruc;
-    private String categorias;
-    private String categoriaGrupoE;
-    private String categoriaStore;
-    private String grupoEconomico;
-    private String estados;
-    private String grupos;
-    private String sire;
-    private String sireCv;
-    private String confirmacion;
-    private String pdt;
-    private String mail;
-    private String sus;
-    private String pagarImpuestos;
+    private String categoriaFiltro;
+    private String categoriaGrupoEFiltro;
+    private String categoriaStoreFiltro;
+    private String grupoEconomicoFiltro;
+    private String estadoFiltro;
+    private String grupoFiltro;
+    private String sireFiltro;
+    private String sireCvFiltro;
+    private String confirmacionFiltro;
+    private String pdtFiltro;
+    private String mailFiltro;
+    private String susFiltro;
+    private String pagarImpuestosFiltro;
+    private String fechaVencimientoMin;
+    private String fechaVencimientoMax;
 }
+

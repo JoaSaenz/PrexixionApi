@@ -119,9 +119,6 @@ public class NotificacionRepository {
         
         int idERaw = rs.getInt("idEstado");
         final Integer idEstadoVal = rs.wasNull() ? null : idERaw;
-        
-        int tieneAdjRaw = rs.getInt("tieneAdjuntos");
-        final Integer tieneAdjuntosVal = rs.wasNull() ? null : tieneAdjRaw;
 
         return new NotificacionProjection() {
             @Override public Long getId() { return idVal; }
@@ -137,6 +134,40 @@ public class NotificacionRepository {
             @Override public String getRazonSocial() { return razonSocialVal; }
             @Override public String getY() { return yVal; }
             @Override public Integer getIdEstado() { return idEstadoVal; }
+            @Override public Integer getTieneAdjuntos() { return null; }
+        };
+    };
+
+    private final RowMapper<NotificacionProjection> resumenProjectionRowMapper = (rs, rowNum) -> {
+        final Long idVal = rs.getLong("id");
+        final String rucVal = rs.getString("ruc");
+        final String idSunatVal = rs.getString("idSunat");
+        final String tituloVal = rs.getString("titulo");
+        
+        java.sql.Timestamp ts = rs.getTimestamp("fecha");
+        final java.time.LocalDateTime fechaVal = ts != null ? ts.toLocalDateTime() : null;
+        
+        final String tipoVal = rs.getString("tipo");
+        final String nombreCortoVal = rs.getString("nombreCorto");
+        final Boolean revisadoVal = rs.getBoolean("revisado");
+        
+        int tieneAdjRaw = rs.getInt("tieneAdjuntos");
+        final Integer tieneAdjuntosVal = rs.wasNull() ? null : tieneAdjRaw;
+
+        return new NotificacionProjection() {
+            @Override public Long getId() { return idVal; }
+            @Override public String getRuc() { return rucVal; }
+            @Override public String getIdSunat() { return idSunatVal; }
+            @Override public String getTitulo() { return tituloVal; }
+            @Override public java.time.LocalDateTime getFecha() { return fechaVal; }
+            @Override public String getTipo() { return tipoVal; }
+            @Override public String getNombreCorto() { return nombreCortoVal; }
+            @Override public Long getJobStatusId() { return null; }
+            @Override public Boolean getRevisado() { return revisadoVal; }
+            @Override public String getEstadoCliente() { return null; }
+            @Override public String getRazonSocial() { return null; }
+            @Override public String getY() { return null; }
+            @Override public Integer getIdEstado() { return null; }
             @Override public Integer getTieneAdjuntos() { return tieneAdjuntosVal; }
         };
     };
@@ -157,7 +188,7 @@ public class NotificacionRepository {
 
     public List<NotificacionProjection> findResumenByRuc(String ruc) {
         String sql = """
-            SELECT n.id, n.ruc, n.idSunat, n.titulo, n.fecha, n.revisado, 
+            SELECT n.id, n.ruc, n.idSunat, n.titulo, n.fecha, n.revisado, n.tipo, n.nombreCorto,
                    (CASE WHEN EXISTS (SELECT 1 FROM sunatBuzonAdjunto a WHERE a.notificacion_id = n.id) THEN 1 ELSE 0 END) as tieneAdjuntos
             FROM sunatBuzonNotificacion n
             WHERE n.ruc = :ruc
@@ -165,6 +196,6 @@ public class NotificacionRepository {
         """;
         MapSqlParameterSource params = new MapSqlParameterSource()
         .addValue("ruc", ruc);
-        return jdbcTemplate.query(sql, params, projectionRowMapper);
+        return jdbcTemplate.query(sql, params, resumenProjectionRowMapper);
     }
 }
