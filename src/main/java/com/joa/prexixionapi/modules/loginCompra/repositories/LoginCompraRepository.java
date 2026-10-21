@@ -111,14 +111,58 @@ public class LoginCompraRepository {
     }
 
     public LoginCompraDTO getOne(String ruc, String anio, String mes) {
-        StringBuilder sql = new StringBuilder(buildSelectQuery(anio, mes));
-        sql.append(" AND c.ruc = :ruc ");
+        String sql = "SELECT c.ruc, c.razonSocial, "
+                + "lc.version, "
+                + "lc.sire, lc.sireUsuario, lc.sireFecha, "
+                + "lc.validacionSunat, lc.validacionSunatUsuario, lc.validacionSunatFecha, "
+                + "lc.validacion, lc.validacionUsuario, lc.validacionFecha, lc.validacionHora, "
+                + "lc.confirmacion, lc.confirmacionUsuario, lc.confirmacionFecha, lc.confirmacionHora, "
+                + "lc.observacion, "
+                + "lv.confirmacion AS ventasConfirmacion, lv.confirmacionUsuario AS ventasConfirmacionUsuario, lv.confirmacionFecha AS ventasConfirmacionFecha "
+                + "FROM cliente c "
+                + "LEFT JOIN loginCompras lc ON c.ruc = lc.idCliente AND lc.anio = :anio AND lc.mes = :mes "
+                + "LEFT JOIN loginVentas lv ON c.ruc = lv.idCliente AND lv.anio = :anio AND lv.mes = :mes "
+                + "WHERE c.ruc = :ruc";
 
-        MapSqlParameterSource params = buildBaseParams(anio, mes);
-        params.addValue("ruc", ruc);
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("anio", anio)
+                .addValue("mes", mes)
+                .addValue("ruc", ruc);
 
-        List<LoginCompraDTO> clientes = jdbcTemplate.query(sql.toString(), params,
-                (rs, rowNum) -> mapRowToDetailDTO(rs, anio, mes));
+        List<LoginCompraDTO> clientes = jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            LoginCompraDTO dto = new LoginCompraDTO();
+            dto.setRuc(rs.getString("ruc"));
+            dto.setRazonSocial(rs.getString("razonSocial"));
+            dto.setAnio(anio);
+            dto.setMes(mes);
+            dto.setVersion(rs.getInt("version"));
+
+            dto.setSireCompras(rs.getObject("sire", Integer.class));
+            dto.setSireUsuario(rs.getString("sireUsuario"));
+            dto.setSireFecha(rs.getString("sireFecha"));
+
+            dto.setValidacionSunat(rs.getObject("validacionSunat", Integer.class));
+            dto.setValidacionSunatUsuario(rs.getString("validacionSunatUsuario"));
+            dto.setValidacionSunatFecha(rs.getString("validacionSunatFecha"));
+
+            dto.setValidacion(rs.getObject("validacion", Integer.class));
+            dto.setValidacionUsuario(rs.getString("validacionUsuario"));
+            dto.setValidacionFecha(rs.getString("validacionFecha"));
+            dto.setValidacionHora(rs.getString("validacionHora"));
+
+            dto.setConfirmacion(rs.getObject("confirmacion", Integer.class));
+            dto.setConfirmacionUsuario(rs.getString("confirmacionUsuario"));
+            dto.setConfirmacionFecha(rs.getString("confirmacionFecha"));
+            dto.setConfirmacionHora(rs.getString("confirmacionHora"));
+
+            dto.setVentasConfirmacion(rs.getObject("ventasConfirmacion", Integer.class));
+            dto.setVentasConfirmacionUsuario(rs.getString("ventasConfirmacionUsuario"));
+            dto.setVentasConfirmacionFecha(rs.getString("ventasConfirmacionFecha"));
+
+            dto.setObservacion(rs.getString("observacion"));
+            return dto;
+        });
+
         return clientes.isEmpty() ? null : clientes.get(0);
     }
 
@@ -181,11 +225,11 @@ public class LoginCompraRepository {
         return count != null ? count : 0;
     }
 
-    public List<LoginCompraDTO> listExcelDiario(String proceso, String fecha, String anio, String mes) {
+    public List<LoginCompraListDTO> listExcelDiario(String proceso, String fecha, String anio, String mes) {
         return listExcelDiario(proceso, fecha, fecha, anio, mes);
     }
 
-    public List<LoginCompraDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
+    public List<LoginCompraListDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
         if (fechaI == null || fechaI.isEmpty()) {
             fechaI = fechaF;
         }
@@ -235,7 +279,7 @@ public class LoginCompraRepository {
                 .addValue("anio", anio)
                 .addValue("mes", mes);
 
-        return jdbcTemplate.query(query, params, (rs, rowNum) -> mapRowToDetailDTO(rs, anio, mes));
+        return jdbcTemplate.query(query, params, (rs, rowNum) -> mapRowToListDTO(rs, anio, mes));
     }
 
     private String getFechaVencimientoSql(String anio, String mes, String lastAnio) {
@@ -433,139 +477,6 @@ public class LoginCompraRepository {
                 .addValue("lastAnio", lastAnio);
     }
 
-    private LoginCompraDTO mapRowToDetailDTO(ResultSet rs, String anio, String mes) throws SQLException {
-        LoginCompraDTO dto = new LoginCompraDTO();
-
-        dto.setRuc(rs.getString("ruc"));
-        dto.setY(rs.getString("y"));
-        dto.setRazonSocial(rs.getString("razonSocial"));
-        dto.setNombreCorto(rs.getString("nombreCorto"));
-
-        dto.setEstadoId(rs.getInt("idEstado"));
-        dto.setEstadoDescripcion(rs.getString("estado"));
-        dto.setTipoServicioAbr(rs.getString("tipoServicioAbr"));
-        dto.setTipoServicioDesc(rs.getString("tipoServicio"));
-        dto.setGrupoEconomicoId(rs.getInt("idGrupoEconomico"));
-        dto.setDescGrupoEconomico(rs.getString("descGrupoEconomico"));
-        dto.setCategoriaStore(rs.getInt("categoriaStore"));
-
-        // Regimen Tributario
-        List<String> rTs = new ArrayList<>();
-        if (rs.getInt("rT3ra") != 0) {
-            if (rs.getInt("rTMypeTributario") != 0)
-                rTs.add("RM");
-            if (rs.getInt("rTRus") != 0)
-                rTs.add("RUS");
-            if (rs.getInt("rTEspecial") != 0)
-                rTs.add("RE");
-            if (rs.getInt("rTGeneral") != 0)
-                rTs.add("RG");
-            if (rs.getInt("rTAmazonico") != 0)
-                rTs.add("RAM");
-            if (rs.getInt("rTAgrario") != 0)
-                rTs.add("RAG");
-        } else if (rs.getInt("rT1ra") != 0) {
-            rTs.add("1ra");
-        } else if (rs.getInt("rT2da") != 0) {
-            rTs.add("2da");
-        } else if (rs.getInt("rT4ta") != 0) {
-            rTs.add("4ta");
-        } else if (rs.getInt("rT5ta") != 0) {
-            rTs.add("5ta");
-        }
-        dto.setRegimenTributario(rTs.isEmpty() ? "" : rTs.get(rTs.size() - 1));
-
-        dto.setSireCompras(rs.getInt("sire"));
-        dto.setSireUsuario(rs.getString("sireUsuario"));
-        dto.setSireFecha(rs.getString("sireFecha"));
-
-        dto.setValidacionSunat(rs.getInt("validacionSunat"));
-        dto.setValidacionSunatUsuario(rs.getString("validacionSunatUsuario"));
-        dto.setValidacionSunatFecha(rs.getString("validacionSunatFecha"));
-
-        dto.setValidacion(rs.getInt("validacion"));
-        dto.setValidacionUsuario(rs.getString("validacionUsuario"));
-
-        String valUser = dto.getValidacionUsuario();
-        if (valUser != null && !valUser.trim().isEmpty()) {
-            try {
-                String x = valUser.trim().replaceAll("\\s+", " ");
-                String[] partsX = x.split(" ");
-                if (partsX.length >= 3) {
-                    String apellido = partsX[0];
-                    String nombre = partsX[2];
-                    dto.setValidacionUsuarioNombreCorto(nombre.substring(0, 1) + apellido);
-                } else {
-                    dto.setValidacionUsuarioNombreCorto(partsX[0]);
-                }
-            } catch (Exception ex) {
-                dto.setValidacionUsuarioNombreCorto(valUser);
-            }
-        } else {
-            dto.setValidacionUsuarioNombreCorto("");
-        }
-
-        dto.setValidacionFecha(rs.getString("validacionFecha"));
-        dto.setValidacionHora(rs.getString("validacionHora"));
-
-        dto.setConfirmacion(rs.getInt("confirmacion"));
-        dto.setConfirmacionUsuario(rs.getString("confirmacionUsuario"));
-        dto.setConfirmacionFecha(rs.getString("confirmacionFecha"));
-        dto.setConfirmacionHora(rs.getString("confirmacionHora"));
-
-        dto.setObservacion(rs.getString("observacion"));
-        dto.setVersion(rs.getInt("version"));
-
-        String fVenc = rs.getString("fVencimiento");
-        dto.setFechaVencimiento(fVenc);
-        if (fVenc != null && !fVenc.isEmpty()) {
-            String[] parts = fVenc.split("-");
-            if (parts.length >= 3) {
-                dto.setDiaVencimiento(parts[2]);
-                dto.setMesVencimiento(parts[1]);
-            }
-            try {
-                java.time.LocalDate fVencDate = java.time.LocalDate.parse(fVenc);
-                java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
-                dto.setDifference((int) java.time.temporal.ChronoUnit.DAYS.between(fVencDate, today));
-            } catch (Exception e) {
-                dto.setDifference(-999);
-            }
-        } else {
-            dto.setDifference(-999);
-        }
-
-        dto.setAnio(anio);
-        dto.setMes(mes);
-        dto.setMovimiento(rs.getString("movimiento"));
-        dto.setComprasFilas(rs.getInt("comprasFilas"));
-        String mod = rs.getString("modalidad");
-        dto.setModalidad(mod != null && !mod.isEmpty() ? Integer.parseInt(mod) : 0);
-        dto.setPrioridad(rs.getString("prioridad"));
-
-        String fPle = rs.getString("fPle");
-        dto.setPle((fPle == null || fPle.isEmpty()) ? "N/A" : "PLE");
-
-        dto.setSunatSire(rs.getInt("sunatSire"));
-        dto.setExternoSire(rs.getInt("externoSire"));
-        dto.setGerenciaSire(rs.getInt("gerenciaSire"));
-
-        List<String> sireList = new ArrayList<>();
-        if (dto.getSunatSire() != 0)
-            sireList.add("SEE");
-        if (dto.getExternoSire() != 0)
-            sireList.add("EXT");
-        if (dto.getGerenciaSire() != 0)
-            sireList.add("GCOM");
-        dto.setSireGlobal(String.join(", ", sireList));
-
-        dto.setVentasConfirmacion(rs.getInt("ventasConfirmacion"));
-        dto.setVentasConfirmacionUsuario(rs.getString("ventasConfirmacionUsuario"));
-        dto.setVentasConfirmacionFecha(rs.getString("ventasConfirmacionFecha"));
-
-        return dto;
-    }
-
     public int insertUpdate(LoginCompraDTO dto) {
         String checkSql = "SELECT version FROM loginCompras WHERE idCliente = :idCliente AND anio = :anio AND mes = :mes";
         MapSqlParameterSource checkParams = new MapSqlParameterSource()
@@ -670,6 +581,17 @@ public class LoginCompraRepository {
         dto.setGrupoEconomicoId(grupoEconomicoId);
         dto.setDescGrupoEconomico(rs.getString("descGrupoEconomico"));
 
+        if (hasColumn(rs, "tipoServicioAbr")) {
+            dto.setTipoServicioAbr(rs.getString("tipoServicioAbr"));
+        }
+        if (hasColumn(rs, "prioridad")) {
+            dto.setPrioridad(rs.getString("prioridad"));
+        }
+        if (hasColumn(rs, "fPle")) {
+            String fPle = rs.getString("fPle");
+            dto.setPle((fPle == null || fPle.isEmpty()) ? "N/A" : "PLE");
+        }
+
         // Regimen Tributario
         List<String> rTs = new ArrayList<>();
         if (rs.getInt("rT3ra") != 0) {
@@ -699,7 +621,21 @@ public class LoginCompraRepository {
         dto.setAnio(anio);
         dto.setMes(mes);
 
-        dto.setFechaVencimiento(rs.getString("fVencimiento"));
+        if (hasColumn(rs, "fVencimiento")) {
+            String fVenc = rs.getString("fVencimiento");
+            dto.setFechaVencimiento(fVenc);
+            if (fVenc != null && !fVenc.isEmpty()) {
+                try {
+                    java.time.LocalDate fVencDate = java.time.LocalDate.parse(fVenc);
+                    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
+                    dto.setDifference((int) java.time.temporal.ChronoUnit.DAYS.between(fVencDate, today));
+                } catch (Exception e) {
+                    dto.setDifference(-999);
+                }
+            } else {
+                dto.setDifference(-999);
+            }
+        }
 
         dto.setMovimiento(rs.getString("movimiento"));
 
@@ -708,6 +644,12 @@ public class LoginCompraRepository {
         dto.setComprasFilas(cFilas);
 
         dto.setVentasConfirmacion(rs.getObject("ventasConfirmacion", Integer.class));
+        if (hasColumn(rs, "ventasConfirmacionUsuario")) {
+            dto.setVentasConfirmacionUsuario(rs.getString("ventasConfirmacionUsuario"));
+        }
+        if (hasColumn(rs, "ventasConfirmacionFecha")) {
+            dto.setVentasConfirmacionFecha(rs.getString("ventasConfirmacionFecha"));
+        }
 
         dto.setSireCompras(rs.getObject("sire", Integer.class));
         dto.setSireUsuario(rs.getString("sireUsuario"));

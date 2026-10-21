@@ -3,7 +3,6 @@ package com.joa.prexixionapi.modules.cliente.dto;
 import lombok.Data;
 import java.util.Map;
 import java.util.List;
-import com.joa.prexixionapi.modules.cliente.dto.ClienteDTO;
 import com.joa.prexixionapi.modules.cliente.dto.ClienteDataTablesResponse;
 
 @Data

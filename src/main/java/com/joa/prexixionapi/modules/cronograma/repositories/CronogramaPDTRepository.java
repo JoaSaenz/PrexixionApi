@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
-import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,8 +37,8 @@ public class CronogramaPDTRepository {
     public Optional<CronogramaPDTDTO> findByAnioAndMes(String anio, String mes) {
         String sql = "SELECT * FROM CRONOGRAMAPDT WHERE anio = :anio AND mes = :mes";
         MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("anio", anio)
-        .addValue("mes", mes);
+                .addValue("anio", anio)
+                .addValue("mes", mes);
         List<CronogramaPDTDTO> list = jdbcTemplate.query(sql, params, rowMapper);
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }

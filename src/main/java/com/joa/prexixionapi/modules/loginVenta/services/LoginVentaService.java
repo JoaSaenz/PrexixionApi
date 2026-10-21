@@ -157,6 +157,8 @@ public class LoginVentaService {
         if (dto == null) {
             dto = new LoginVentaDTO();
             dto.setRuc(ruc);
+            dto.setAnio(anio);
+            dto.setMes(mes);
         }
 
         if (dto.getVersion() == null) {

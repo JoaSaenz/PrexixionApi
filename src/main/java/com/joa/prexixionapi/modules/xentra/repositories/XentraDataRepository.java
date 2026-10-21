@@ -7,8 +7,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
-import java.util.Map;
-import java.util.List;
 
 @Repository
 @RequiredArgsConstructor

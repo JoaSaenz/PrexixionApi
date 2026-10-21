@@ -18,7 +18,6 @@ import com.joa.prexixionapi.utils.ExcelStyleManager;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
-import com.joa.prexixionapi.modules.cliente.dto.ClienteDTO;
 
 @Service
 public class ReunionReportService {

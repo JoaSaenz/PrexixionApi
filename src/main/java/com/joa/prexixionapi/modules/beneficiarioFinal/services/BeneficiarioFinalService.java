@@ -1,7 +1,5 @@
 package com.joa.prexixionapi.modules.beneficiarioFinal.services;
 
-
-import com.joa.prexixionapi.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -11,13 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import com.joa.prexixionapi.modules.beneficiarioFinal.dto.BeneficiarioFinalDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.dto.BeneficiarioFinalReporteDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.dto.BeneficiarioFinalDataDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.repositories.BeneficiarioFinalDataRepository;
 import com.joa.prexixionapi.modules.beneficiarioFinal.repositories.BeneficiarioFinalRegistroRepository;
-import com.joa.prexixionapi.common.dto.GclassDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.services.BeneficiarioFinalService;
 import com.joa.prexixionapi.modules.beneficiarioFinal.dto.BeneficiarioFinalRegistroDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.repositories.BeneficiarioFinalRepository;
@@ -60,8 +56,10 @@ public class BeneficiarioFinalService {
         BeneficiarioFinalReporteDTO dto = list.get(0);
 
         // Fetch nested lists
-        List<BeneficiarioFinalDTO> beneficiariosList = beneficiarioRepository.findByIdClienteAndAnioAndMes(ruc, anio, mes);
-        List<BeneficiarioFinalRegistroDTO> registrosList = registroRepository.findByIdClienteAndAnioAndMesOrderByNroRegistroAsc(ruc, anio, mes);
+        List<BeneficiarioFinalDTO> beneficiariosList = beneficiarioRepository.findByIdClienteAndAnioAndMes(ruc, anio,
+                mes);
+        List<BeneficiarioFinalRegistroDTO> registrosList = registroRepository
+                .findByIdClienteAndAnioAndMesOrderByNroRegistroAsc(ruc, anio, mes);
 
         dto.setBeneficiarios(beneficiariosList);
         dto.setRegistros(registrosList);
@@ -73,6 +71,7 @@ public class BeneficiarioFinalService {
         return beneficiarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Beneficiario no encontrado con ID: " + id));
     }
+
     @Transactional
     public void save(BeneficiarioFinalReporteDTO dto) {
         log.info("Saving BF3800 for Client: {} - Period: {}-{}", dto.getIdCliente(), dto.getAnio(), dto.getMes());
@@ -109,6 +108,5 @@ public class BeneficiarioFinalService {
             }
         }
     }
-
 
 }

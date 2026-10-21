@@ -10,7 +10,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
-import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -108,7 +107,7 @@ public class JobStatusLogRepository {
                     ORDER BY jsl.fechaRegistro ASC
                 """;
         MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("jobStatusId", jobStatusId);
+                .addValue("jobStatusId", jobStatusId);
         return jdbcTemplate.query(sql, params, projectionRowMapper);
     }
 }

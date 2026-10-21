@@ -250,11 +250,11 @@ public class LoginProcesosRepository {
         return count != null ? count : 0;
     }
 
-    public List<LoginProcesosDTO> listExcelDiario(String proceso, String fechaI, String fechaF) {
+    public List<LoginProcesosListDTO> listExcelDiario(String proceso, String fechaI, String fechaF) {
         return listExcelDiario(proceso, fechaI, fechaF, null, null);
     }
 
-    public List<LoginProcesosDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
+    public List<LoginProcesosListDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
         String queryProceso = "";
         String queryProcesoFecha = "";
         String orderBy = "";
@@ -276,13 +276,10 @@ public class LoginProcesosRepository {
                 + " c.idTipoServicio, tS.abreviatura as tipoServicioAbr, tS.descripcion as tipoServicio, lp.movimiento, "
                 + " c.prioridad, lp.anio, lp.mes, "
                 + queryProceso
-                + " c.solU, c.solC, c.soldierU, c.soldierC, lp.observacion, "
-                + " c.fPle, "
-                + " CASE WHEN c.ruc = lie.ruc THEN 'STORECOM' ELSE 'ENTERCOM' END AS areaEncargada "
+                + " lp.observacion, c.fPle "
                 + " FROM cliente c "
                 + " INNER JOIN clientsEstados cE ON c.idEstado = cE.id "
                 + " LEFT JOIN clientsTipoServicio tS ON c.idTipoServicio = tS.id "
-                + " LEFT JOIN loginInventariosEmpresas lie ON c.ruc = lie.ruc "
                 + " LEFT JOIN loginProcesos lp ON lp.ruc = c.ruc "
                 + " WHERE " + queryProcesoFecha
                 + "   AND (:anio IS NULL OR :anio = '' OR (lp.anio = :anio AND lp.mes = :mes)) "
@@ -295,47 +292,38 @@ public class LoginProcesosRepository {
                 .addValue("mes", mes);
 
         return jdbcTemplate.query(sql, params, (rs, rowNum) -> {
-            LoginProcesosDTO obj = new LoginProcesosDTO();
-            obj.setRuc(rs.getString("ruc"));
-            obj.setY(rs.getString("y"));
-            obj.setRazonSocial(rs.getString("razonSocial"));
-            obj.setNombreCorto(rs.getString("nombreCorto"));
-            obj.setIdEstado(rs.getInt("idEstado"));
-            obj.setEstado(rs.getString("estado"));
+            String fPleVal = rs.getString("fPle");
+            String obs = rs.getString("observacion");
 
-            obj.setIdTipoServicio(rs.getInt("idTipoServicio"));
-            obj.setTipoServicioAbr(rs.getString("tipoServicioAbr"));
-            obj.setTipoServicio(rs.getString("tipoServicio"));
-
-            obj.setMovimiento(rs.getString("movimiento"));
-            obj.setPrioridad(rs.getString("prioridad"));
-            obj.setAnio(rs.getString("anio"));
-            obj.setMes(rs.getString("mes"));
+            LoginProcesosListDTO.LoginProcesosListDTOBuilder builder = LoginProcesosListDTO.builder()
+                    .ruc(rs.getString("ruc"))
+                    .y(rs.getString("y"))
+                    .razonSocial(rs.getString("razonSocial"))
+                    .nombreCorto(rs.getString("nombreCorto"))
+                    .idEstado(rs.getInt("idEstado"))
+                    .estado(rs.getString("estado"))
+                    .tipoServicio(rs.getString("tipoServicio"))
+                    .movimiento(rs.getString("movimiento"))
+                    .prioridad(rs.getString("prioridad"))
+                    .anio(rs.getString("anio"))
+                    .mes(rs.getString("mes"))
+                    .observacion(obs == null ? "" : obs)
+                    .ple((fPleVal == null || fPleVal.isEmpty()) ? "" : "PLE");
 
             switch (proceso) {
                 case "preLiquidacion":
-                    obj.setPreLiquidacion(rs.getInt("preLiquidacion"));
-                    obj.setPreLiquidacionFecha(rs.getString("preLiquidacionFecha"));
-                    obj.setPreLiquidacionUsuario(rs.getString("preLiquidacionUsuario"));
+                    builder.preLiquidacion(rs.getInt("preLiquidacion"))
+                            .preLiquidacionFecha(rs.getString("preLiquidacionFecha"))
+                            .preLiquidacionUsuario(rs.getString("preLiquidacionUsuario"));
                     break;
                 case "confirmacion":
-                    obj.setConfirmacion(rs.getInt("confirmacion"));
-                    obj.setConfirmacionFecha(rs.getString("confirmacionFecha"));
-                    obj.setConfirmacionUsuario(rs.getString("confirmacionUsuario"));
+                    builder.confirmacion(rs.getInt("confirmacion"))
+                            .confirmacionFecha(rs.getString("confirmacionFecha"))
+                            .confirmacionUsuario(rs.getString("confirmacionUsuario"));
                     break;
             }
 
-            obj.setSolU(rs.getString("solU"));
-            obj.setSolC(rs.getString("solC"));
-            obj.setSoldierU(rs.getString("soldierU"));
-            obj.setSoldierC(rs.getString("soldierC"));
-            String obs = rs.getString("observacion");
-            obj.setObservacion(obs == null ? "" : obs);
-
-            String fPleVal = rs.getString("fPle");
-            obj.setPle((fPleVal == null || fPleVal.isEmpty()) ? "" : "PLE");
-            obj.setAreaEncargada(rs.getString("areaEncargada"));
-            return obj;
+            return builder.build();
         });
     }
 

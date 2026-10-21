@@ -3,7 +3,6 @@ package com.joa.prexixionapi.modules.pdt621.services;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
@@ -26,9 +24,7 @@ import com.joa.prexixionapi.modules.pdt621.dto.Pdt621DTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621FilterRequestDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ListDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621RegistroDTO;
-import com.joa.prexixionapi.utils.DateUtils;
 import com.joa.prexixionapi.utils.ExcelStyleManager;
-import com.joa.prexixionapi.utils.PoiUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +55,6 @@ public class Pdt621ExcelService {
 
             XSSFCellStyle dataGreenStyle = sm.getFondoGreenStyle(9);
             XSSFCellStyle dataRedStyle = sm.getFondoRedStyle(9);
-            XSSFCellStyle dataYellowStyle = sm.getFondoYellowStyle(9);
             XSSFCellStyle dataLightBlueStyle = sm.getFondoLightBlueStyle(9);
             XSSFCellStyle dataLightRedStyle = sm.getFondoLightRedStyle(9);
 
@@ -92,14 +87,13 @@ public class Pdt621ExcelService {
 
             Row resumenHead2 = sheet.createRow(rowNum++);
             colNum = CellReference.convertColStringToIndex("K");
-            String[] resHeaders = {"RUC", "D", "P", "R", "TOTAL"};
+            String[] resHeaders = { "RUC", "D", "P", "R", "TOTAL" };
             for (String h : resHeaders) {
                 Cell c = resumenHead2.createCell(colNum++);
                 c.setCellStyle(subHeaderStyle);
                 c.setCellValue(h);
             }
 
-            int resumenStartRow = rowNum;
             Row[] rucRows = new Row[10];
             for (int d = 0; d < 10; d++) {
                 rucRows[d] = sheet.createRow(rowNum++);
@@ -114,7 +108,8 @@ public class Pdt621ExcelService {
             cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 2.5f);
             Cell cellCabecera = cabecera.createCell(0);
             cellCabecera.setCellStyle(headerStyle);
-            cellCabecera.setCellValue("C  O  R  P  O  R  A  C  I  O  N      G  E  R  E  N  C  I  A . C O M      S . A . C .");
+            cellCabecera.setCellValue(
+                    "C  O  R  P  O  R  A  C  I  O  N      G  E  R  E  N  C  I  A . C O M      S . A . C .");
             sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 0, 31));
 
             // --- SUPER HEADERS ---
@@ -148,10 +143,11 @@ public class Pdt621ExcelService {
 
             // --- COLUMN HEADERS ---
             String[] colTitles = {
-                "N°", "CAT", "CGE", "STO", "GRUPO E", "ESTADO", "T. SERV.", "RUC", "ID", "RAZÓN SOCIAL", "RÉGIMEN",
-                "PLE", "SIRE", "V. PLE", "PLE", "V. SIRE", "SIRE", "V. PDT", "PDT", "CP", "F. PDT",
-                "MAIL", "SUS", "P IMP.", "VENTAS", "VENTAS NG", "EXPORTACIONES", "COMPRAS", "COMPRAS NG E", "COMPRAS NG",
-                "IGV", "RENTA"
+                    "N°", "CAT", "CGE", "STO", "GRUPO E", "ESTADO", "T. SERV.", "RUC", "ID", "RAZÓN SOCIAL", "RÉGIMEN",
+                    "PLE", "SIRE", "V. PLE", "PLE", "V. SIRE", "SIRE", "V. PDT", "PDT", "CP", "F. PDT",
+                    "MAIL", "SUS", "P IMP.", "VENTAS", "VENTAS NG", "EXPORTACIONES", "COMPRAS", "COMPRAS NG E",
+                    "COMPRAS NG",
+                    "IGV", "RENTA"
             };
 
             Row colHeadRow = sheet.createRow(rowNum++);
@@ -209,10 +205,14 @@ public class Pdt621ExcelService {
                 Cell cEstado = row.createCell(colNum++);
                 String est = item.getEstado() != null ? item.getEstado().toUpperCase() : "";
                 cEstado.setCellValue(est);
-                if ("ACTIVO".equals(est)) cEstado.setCellStyle(dataGreenStyle);
-                else if ("SUSPENDIDO".equals(est)) cEstado.setCellStyle(dataRedStyle);
-                else if ("BAJA DEFINITIVA".equals(est)) cEstado.setCellStyle(dataLightBlueStyle);
-                else cEstado.setCellStyle(dataCenterStyle);
+                if ("ACTIVO".equals(est))
+                    cEstado.setCellStyle(dataGreenStyle);
+                else if ("SUSPENDIDO".equals(est))
+                    cEstado.setCellStyle(dataRedStyle);
+                else if ("BAJA DEFINITIVA".equals(est))
+                    cEstado.setCellStyle(dataLightBlueStyle);
+                else
+                    cEstado.setCellStyle(dataCenterStyle);
 
                 // T. SERV.
                 Cell cTserv = row.createCell(colNum++);
@@ -237,7 +237,8 @@ public class Pdt621ExcelService {
                 // RÉGIMEN
                 Cell cReg = row.createCell(colNum++);
                 cReg.setCellStyle(dataCenterStyle);
-                cReg.setCellValue(item.getAbrGestionRegimenTributario() != null ? item.getAbrGestionRegimenTributario() : "");
+                cReg.setCellValue(
+                        item.getAbrGestionRegimenTributario() != null ? item.getAbrGestionRegimenTributario() : "");
 
                 // PLE
                 Cell cEsPle = row.createCell(colNum++);
@@ -334,7 +335,8 @@ public class Pdt621ExcelService {
                 // P IMP.
                 Cell cPImp = row.createCell(colNum++);
                 cPImp.setCellStyle(dataCenterStyle);
-                cPImp.setCellValue(item.getPagarImpuestos() != null && item.getPagarImpuestos() == 1 ? "CLIENTE" : "G.COM");
+                cPImp.setCellValue(
+                        item.getPagarImpuestos() != null && item.getPagarImpuestos() == 1 ? "CLIENTE" : "G.COM");
 
                 // VENTAS
                 Cell cVentasVal = row.createCell(colNum++);
@@ -362,20 +364,23 @@ public class Pdt621ExcelService {
 
                 // IGV
                 Cell cIgvVal = row.createCell(colNum++);
-                Double igvAmount = (item.getIgvPorPagar() != null && item.getIgvPorPagar() != 0) 
-                        ? item.getIgvPorPagar() : item.getResultadoIgv();
+                Double igvAmount = (item.getIgvPorPagar() != null && item.getIgvPorPagar() != 0)
+                        ? item.getIgvPorPagar()
+                        : item.getResultadoIgv();
                 writeNumber(cIgvVal, igvAmount, numberStyle, numberRedStyle);
 
                 // RENTA
                 Cell cRentaVal = row.createCell(colNum++);
-                Double rentaAmount = (item.getRentaPorPagar() != null && item.getRentaPorPagar() != 0) 
-                        ? item.getRentaPorPagar() : item.getTotalDeudaTributariaRenta();
+                Double rentaAmount = (item.getRentaPorPagar() != null && item.getRentaPorPagar() != 0)
+                        ? item.getRentaPorPagar()
+                        : item.getTotalDeudaTributariaRenta();
                 writeNumber(cRentaVal, rentaAmount, numberStyle, numberRedStyle);
 
                 // Resumen counter update
                 if (item.getY() != null && item.getY().matches("\\d")) {
                     int digit = Integer.parseInt(item.getY());
-                    if (item.getAbrGestionRegimenTributario() != null && "NRUS".equalsIgnoreCase(item.getAbrGestionRegimenTributario())) {
+                    if (item.getAbrGestionRegimenTributario() != null
+                            && "NRUS".equalsIgnoreCase(item.getAbrGestionRegimenTributario())) {
                         rus[digit]++;
                     } else if (hasPdt) {
                         declaradas[digit]++;
@@ -440,29 +445,29 @@ public class Pdt621ExcelService {
             cTotAll.setCellValue(totalD + totalP + totalR);
 
             // Column width adjustments
-            sheet.setColumnWidth(0, 5 * 256);   // N°
-            sheet.setColumnWidth(1, 7 * 256);   // CAT
-            sheet.setColumnWidth(2, 6 * 256);   // CGE
-            sheet.setColumnWidth(3, 6 * 256);   // STO
-            sheet.setColumnWidth(4, 15 * 256);  // GRUPO E
-            sheet.setColumnWidth(5, 14 * 256);  // ESTADO
-            sheet.setColumnWidth(6, 10 * 256);  // T. SERV
-            sheet.setColumnWidth(7, 14 * 256);  // RUC
-            sheet.setColumnWidth(8, 5 * 256);   // ID
-            sheet.setColumnWidth(9, 36 * 256);  // RAZÓN SOCIAL
+            sheet.setColumnWidth(0, 5 * 256); // N°
+            sheet.setColumnWidth(1, 7 * 256); // CAT
+            sheet.setColumnWidth(2, 6 * 256); // CGE
+            sheet.setColumnWidth(3, 6 * 256); // STO
+            sheet.setColumnWidth(4, 15 * 256); // GRUPO E
+            sheet.setColumnWidth(5, 14 * 256); // ESTADO
+            sheet.setColumnWidth(6, 10 * 256); // T. SERV
+            sheet.setColumnWidth(7, 14 * 256); // RUC
+            sheet.setColumnWidth(8, 5 * 256); // ID
+            sheet.setColumnWidth(9, 36 * 256); // RAZÓN SOCIAL
             sheet.setColumnWidth(10, 10 * 256); // RÉGIMEN
-            sheet.setColumnWidth(11, 6 * 256);  // PLE
-            sheet.setColumnWidth(12, 6 * 256);  // SIRE
+            sheet.setColumnWidth(11, 6 * 256); // PLE
+            sheet.setColumnWidth(12, 6 * 256); // SIRE
             sheet.setColumnWidth(13, 12 * 256); // V. PLE
-            sheet.setColumnWidth(14, 8 * 256);  // REG PLE
+            sheet.setColumnWidth(14, 8 * 256); // REG PLE
             sheet.setColumnWidth(15, 12 * 256); // V. SIRE
-            sheet.setColumnWidth(16, 8 * 256);  // SIRE CV
+            sheet.setColumnWidth(16, 8 * 256); // SIRE CV
             sheet.setColumnWidth(17, 12 * 256); // V. PDT
-            sheet.setColumnWidth(18, 8 * 256);  // PDT
+            sheet.setColumnWidth(18, 8 * 256); // PDT
             sheet.setColumnWidth(19, 12 * 256); // CP
             sheet.setColumnWidth(20, 12 * 256); // F. PDT
-            sheet.setColumnWidth(21, 7 * 256);  // MAIL
-            sheet.setColumnWidth(22, 7 * 256);  // SUS
+            sheet.setColumnWidth(21, 7 * 256); // MAIL
+            sheet.setColumnWidth(22, 7 * 256); // SUS
             sheet.setColumnWidth(23, 10 * 256); // P IMP
             sheet.setColumnWidth(24, 14 * 256); // VENTAS
             sheet.setColumnWidth(25, 14 * 256); // VENTAS NG
@@ -583,7 +588,7 @@ public class Pdt621ExcelService {
             // Columns Header (Row 2)
             Row colHead = sheet.createRow(rowNum++);
             colHead.setHeightInPoints(20f);
-            String[] baseCols = {"N°", "CAT", "GRUPO E", "ESTADO", "RUC", "ID", "RAZÓN SOCIAL"};
+            String[] baseCols = { "N°", "CAT", "GRUPO E", "ESTADO", "RUC", "ID", "RAZÓN SOCIAL" };
             for (int i = 0; i < baseCols.length; i++) {
                 Cell c = colHead.createCell(i);
                 c.setCellStyle(subHeaderStyle);
@@ -592,7 +597,7 @@ public class Pdt621ExcelService {
 
             colCursor = 7;
             for (int pIdx = 0; pIdx < periodos.size(); pIdx++) {
-                String[] pSubCols = {"PDT", "VENTAS", "IGV", "RENTA"};
+                String[] pSubCols = { "PDT", "VENTAS", "IGV", "RENTA" };
                 for (String sc : pSubCols) {
                     Cell c = colHead.createCell(colCursor++);
                     c.setCellStyle(subHeaderBlueStyle);
@@ -650,19 +655,23 @@ public class Pdt621ExcelService {
 
                     if (itemMonth != null) {
                         boolean hasPdt = itemMonth.getRegistros() != null && !itemMonth.getRegistros().isEmpty()
-                                && itemMonth.getRegistros().get(itemMonth.getRegistros().size() - 1).getNroOrden() != null
-                                && !itemMonth.getRegistros().get(itemMonth.getRegistros().size() - 1).getNroOrden().trim().isEmpty();
+                                && itemMonth.getRegistros().get(itemMonth.getRegistros().size() - 1)
+                                        .getNroOrden() != null
+                                && !itemMonth.getRegistros().get(itemMonth.getRegistros().size() - 1).getNroOrden()
+                                        .trim().isEmpty();
 
                         cPdt.setCellValue(hasPdt ? "SI" : "NO");
                         cPdt.setCellStyle(hasPdt ? dataGreenStyle : dataRedStyle);
 
                         writeNumber(cV, itemMonth.getVentasG(), numberStyle, numberStyle);
-                        Double igvVal = (itemMonth.getIgvPorPagar() != null && itemMonth.getIgvPorPagar() != 0) 
-                                ? itemMonth.getIgvPorPagar() : itemMonth.getResultadoIgv();
+                        Double igvVal = (itemMonth.getIgvPorPagar() != null && itemMonth.getIgvPorPagar() != 0)
+                                ? itemMonth.getIgvPorPagar()
+                                : itemMonth.getResultadoIgv();
                         writeNumber(cIgv, igvVal, numberStyle, numberStyle);
 
-                        Double rtaVal = (itemMonth.getRentaPorPagar() != null && itemMonth.getRentaPorPagar() != 0) 
-                                ? itemMonth.getRentaPorPagar() : itemMonth.getTotalDeudaTributariaRenta();
+                        Double rtaVal = (itemMonth.getRentaPorPagar() != null && itemMonth.getRentaPorPagar() != 0)
+                                ? itemMonth.getRentaPorPagar()
+                                : itemMonth.getTotalDeudaTributariaRenta();
                         writeNumber(cRta, rtaVal, numberStyle, numberStyle);
                     } else {
                         cPdt.setCellStyle(dataCenterStyle);
@@ -710,7 +719,6 @@ public class Pdt621ExcelService {
             ExcelStyleManager sm = new ExcelStyleManager(wb);
 
             XSSFCellStyle headerStyle = sm.getHeaderStyle(14);
-            XSSFCellStyle subHeaderStyle = sm.getSubHeaderStyle(10);
             XSSFCellStyle subHeaderBlueStyle = sm.getSubHeaderStyleBlue(10);
             XSSFCellStyle labelStyle = sm.getDataLeftBoldStyle(9);
             XSSFCellStyle valueStyle = sm.getDataLeftStyle(9);
@@ -731,10 +739,14 @@ public class Pdt621ExcelService {
 
             // Client Info
             addInfoRow(sheet, rowNum++, "RUC:", dto.getRuc() != null ? dto.getRuc() : "", labelStyle, valueStyle);
-            addInfoRow(sheet, rowNum++, "Razón Social:", dto.getRazonSocial() != null ? dto.getRazonSocial() : "", labelStyle, valueStyle);
+            addInfoRow(sheet, rowNum++, "Razón Social:", dto.getRazonSocial() != null ? dto.getRazonSocial() : "",
+                    labelStyle, valueStyle);
             addInfoRow(sheet, rowNum++, "Periodo:", anio + " - " + mes, labelStyle, valueStyle);
-            addInfoRow(sheet, rowNum++, "Régimen:", dto.getAbrGestionRegimenTributario() != null ? dto.getAbrGestionRegimenTributario() : "", labelStyle, valueStyle);
-            addInfoRow(sheet, rowNum++, "Vencimiento:", dto.getFechaVencimiento() != null ? dto.getFechaVencimiento() : "", labelStyle, valueStyle);
+            addInfoRow(sheet, rowNum++, "Régimen:",
+                    dto.getAbrGestionRegimenTributario() != null ? dto.getAbrGestionRegimenTributario() : "",
+                    labelStyle, valueStyle);
+            addInfoRow(sheet, rowNum++, "Vencimiento:",
+                    dto.getFechaVencimiento() != null ? dto.getFechaVencimiento() : "", labelStyle, valueStyle);
 
             rowNum++;
 
@@ -754,20 +766,27 @@ public class Pdt621ExcelService {
             cSh3.setCellValue("TRIBUTO / SALDO");
 
             // IGV
-            addCalcRow(sheet, rowNum++, "Ventas Netas Gravadas (18%)", dto.getVentasG(), dto.getMesIgv(), labelStyle, numberStyle);
-            addCalcRow(sheet, rowNum++, "Ventas Gravadas (10%)", dto.getVentasNetas10(), dto.getVentasNetasIgv10(), labelStyle, numberStyle);
+            addCalcRow(sheet, rowNum++, "Ventas Netas Gravadas (18%)", dto.getVentasG(), dto.getMesIgv(), labelStyle,
+                    numberStyle);
+            addCalcRow(sheet, rowNum++, "Ventas Gravadas (10%)", dto.getVentasNetas10(), dto.getVentasNetasIgv10(),
+                    labelStyle, numberStyle);
             addCalcRow(sheet, rowNum++, "Ventas No Gravadas", dto.getVentasNg(), 0.0, labelStyle, numberStyle);
-            addCalcRow(sheet, rowNum++, "Compras Netas Gravadas", dto.getComprasG(), dto.getImpComprasGigv(), labelStyle, numberStyle);
-            addCalcRow(sheet, rowNum++, "Saldo a Favor Mes Anterior IGV", null, dto.getMesAnteriorIgv(), labelStyle, numberStyle);
+            addCalcRow(sheet, rowNum++, "Compras Netas Gravadas", dto.getComprasG(), dto.getImpComprasGigv(),
+                    labelStyle, numberStyle);
+            addCalcRow(sheet, rowNum++, "Saldo a Favor Mes Anterior IGV", null, dto.getMesAnteriorIgv(), labelStyle,
+                    numberStyle);
             addCalcRow(sheet, rowNum++, "Resultado IGV", null, dto.getResultadoIgv(), labelStyle, numberStyle);
             addCalcRow(sheet, rowNum++, "IGV a Pagar", null, dto.getIgvPorPagar(), labelStyle, numberStyle);
 
             rowNum++;
 
             // Renta
-            addCalcRow(sheet, rowNum++, "Ingresos Netos (Base Renta)", dto.getBaseRenta(), dto.getMesRenta(), labelStyle, numberStyle);
-            addCalcRow(sheet, rowNum++, "Saldo a Favor Renta Mes Anterior", null, dto.getMesAnteriorRenta(), labelStyle, numberStyle);
-            addCalcRow(sheet, rowNum++, "Total Deuda Tributaria Renta", null, dto.getTotalDeudaTributariaRenta(), labelStyle, numberStyle);
+            addCalcRow(sheet, rowNum++, "Ingresos Netos (Base Renta)", dto.getBaseRenta(), dto.getMesRenta(),
+                    labelStyle, numberStyle);
+            addCalcRow(sheet, rowNum++, "Saldo a Favor Renta Mes Anterior", null, dto.getMesAnteriorRenta(), labelStyle,
+                    numberStyle);
+            addCalcRow(sheet, rowNum++, "Total Deuda Tributaria Renta", null, dto.getTotalDeudaTributariaRenta(),
+                    labelStyle, numberStyle);
             addCalcRow(sheet, rowNum++, "Renta a Pagar", null, dto.getRentaPorPagar(), labelStyle, numberStyle);
 
             sheet.setColumnWidth(0, 15 * 256);
@@ -796,7 +815,8 @@ public class Pdt621ExcelService {
         sheet.addMergedRegion(new CellRangeAddress(rowNum, rowNum, 1, 3));
     }
 
-    private void addCalcRow(Sheet sheet, int rowNum, String label, Double base, Double tributo, CellStyle lblStyle, CellStyle numStyle) {
+    private void addCalcRow(Sheet sheet, int rowNum, String label, Double base, Double tributo, CellStyle lblStyle,
+            CellStyle numStyle) {
         Row row = sheet.createRow(rowNum);
         Cell cL = row.createCell(0);
         cL.setCellStyle(lblStyle);

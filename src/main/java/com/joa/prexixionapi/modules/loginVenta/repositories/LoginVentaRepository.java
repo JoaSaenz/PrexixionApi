@@ -333,7 +333,8 @@ public class LoginVentaRepository {
     }
 
     public LoginVentaDTO getOne(String ruc, String anio, String mes) {
-        String sql = "SELECT c.ruc, c.razonSocial, lv.version, lv.responsable, "
+        String sql = "SELECT c.ruc, c.razonSocial, c.sunatSire, c.externoSire, c.gerenciaSire, "
+                + "lv.version, lv.responsable, "
                 + "lv.seeVentas, lv.extVentas, "
                 + "lv.registro, lv.registroUsuario, lv.registroFecha, lv.registroHora, "
                 + "lv.revisionSunat, lv.revisionSunatUsuario, lv.revisionSunatFecha, "
@@ -353,6 +354,18 @@ public class LoginVentaRepository {
             LoginVentaDTO dto = new LoginVentaDTO();
             dto.setRuc(rs.getString("ruc"));
             dto.setRazonSocial(rs.getString("razonSocial"));
+            dto.setAnio(anio);
+            dto.setMes(mes);
+
+            int sunatSire = rs.getInt("sunatSire");
+            int externoSire = rs.getInt("externoSire");
+            int gerenciaSire = rs.getInt("gerenciaSire");
+            List<String> sireList = new ArrayList<>();
+            if (sunatSire != 0) sireList.add("SEE");
+            if (externoSire != 0) sireList.add("EXT");
+            if (gerenciaSire != 0) sireList.add("GCOM");
+            dto.setSire(String.join(", ", sireList));
+
             dto.setVersion(rs.getInt("version"));
             dto.setResponsable(rs.getString("responsable"));
             dto.setSeeVentas(rs.getInt("seeVentas"));
@@ -441,11 +454,11 @@ public class LoginVentaRepository {
         return count != null ? count : 0;
     }
 
-    public List<LoginVentaDTO> listExcelDiario(String proceso, String fecha, String anio, String mes) {
+    public List<LoginVentaListDTO> listExcelDiario(String proceso, String fecha, String anio, String mes) {
         return listExcelDiario(proceso, fecha, fecha, anio, mes);
     }
 
-    public List<LoginVentaDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
+    public List<LoginVentaListDTO> listExcelDiario(String proceso, String fechaI, String fechaF, String anio, String mes) {
         if (fechaI == null || fechaI.isEmpty()) {
             fechaI = fechaF;
         }
@@ -498,120 +511,7 @@ public class LoginVentaRepository {
                 .addValue("anio", anio)
                 .addValue("mes", mes);
 
-        return jdbcTemplate.query(query, params, (rs, rowNum) -> mapRowToDetailDTO(rs, anio, mes));
-    }
-
-    private LoginVentaDTO mapRowToDetailDTO(ResultSet rs, String anio, String mes) throws SQLException {
-        LoginVentaDTO dto = new LoginVentaDTO();
-        dto.setRuc(rs.getString("ruc"));
-        dto.setY(rs.getString("y"));
-        dto.setRazonSocial(rs.getString("razonSocial"));
-        dto.setNombreCorto(rs.getString("nombreCorto"));
-        dto.setEstadoId(rs.getInt("idEstado"));
-        dto.setEstadoDescripcion(rs.getString("estado"));
-        dto.setTipoServicioAbr(rs.getString("tipoServicioAbr"));
-        dto.setTipoServicioDesc(rs.getString("tipoServicio"));
-        dto.setGrupoEconomicoId(rs.getInt("idGrupoEconomico"));
-        dto.setDescGrupoEconomico(rs.getString("descGrupoEconomico"));
-        dto.setCategoriaStore(rs.getInt("categoriaStore"));
-
-        // Regimen Tributario
-        List<String> rTs = new ArrayList<>();
-        if (rs.getInt("rT3ra") != 0) {
-            if (rs.getInt("rTMypeTributario") != 0)
-                rTs.add("RM");
-            if (rs.getInt("rTRus") != 0)
-                rTs.add("RUS");
-            if (rs.getInt("rTEspecial") != 0)
-                rTs.add("RE");
-            if (rs.getInt("rTGeneral") != 0)
-                rTs.add("RG");
-            if (rs.getInt("rTAmazonico") != 0)
-                rTs.add("RAM");
-            if (rs.getInt("rTAgrario") != 0)
-                rTs.add("RAG");
-        } else if (rs.getInt("rT1ra") != 0) {
-            rTs.add("1ra");
-        } else if (rs.getInt("rT2da") != 0) {
-            rTs.add("2da");
-        } else if (rs.getInt("rT4ta") != 0) {
-            rTs.add("4ta");
-        } else if (rs.getInt("rT5ta") != 0) {
-            rTs.add("5ta");
-        }
-        dto.setRegimenTributario(rTs.isEmpty() ? "" : rTs.get(rTs.size() - 1));
-
-        if (hasColumn(rs, "responsable")) dto.setResponsable(rs.getString("responsable"));
-        if (hasColumn(rs, "registro")) dto.setRegistro(rs.getInt("registro"));
-        if (hasColumn(rs, "registroUsuario")) dto.setRegistroUsuario(rs.getString("registroUsuario"));
-        if (hasColumn(rs, "registroFecha")) dto.setRegistroFecha(rs.getString("registroFecha"));
-        if (hasColumn(rs, "registroHora")) dto.setRegistroHora(rs.getString("registroHora"));
-        if (hasColumn(rs, "revisionSunat")) dto.setRevisionSunat(rs.getInt("revisionSunat"));
-        if (hasColumn(rs, "revisionSunatUsuario")) dto.setRevisionSunatUsuario(rs.getString("revisionSunatUsuario"));
-        if (hasColumn(rs, "revisionSunatFecha")) dto.setRevisionSunatFecha(rs.getString("revisionSunatFecha"));
-        if (hasColumn(rs, "validacion")) dto.setValidacion(rs.getInt("validacion"));
-        if (hasColumn(rs, "validacionUsuario")) dto.setValidacionUsuario(rs.getString("validacionUsuario"));
-        if (hasColumn(rs, "validacionFecha")) dto.setValidacionFecha(rs.getString("validacionFecha"));
-        if (hasColumn(rs, "validacionHora")) dto.setValidacionHora(rs.getString("validacionHora"));
-        if (hasColumn(rs, "confirmacion")) dto.setConfirmacion(rs.getInt("confirmacion"));
-        if (hasColumn(rs, "confirmacionUsuario")) dto.setConfirmacionUsuario(rs.getString("confirmacionUsuario"));
-        if (hasColumn(rs, "confirmacionFecha")) dto.setConfirmacionFecha(rs.getString("confirmacionFecha"));
-        if (hasColumn(rs, "confirmacionHora")) dto.setConfirmacionHora(rs.getString("confirmacionHora"));
-        if (hasColumn(rs, "seeVentas")) dto.setSeeVentas(rs.getInt("seeVentas"));
-        if (hasColumn(rs, "extVentas")) dto.setExtVentas(rs.getInt("extVentas"));
-        if (hasColumn(rs, "observacion")) dto.setObservacion(rs.getString("observacion"));
-        if (hasColumn(rs, "version")) dto.setVersion(rs.getInt("version"));
-
-        if (hasColumn(rs, "fechaVencimiento")) {
-            String fVenc = rs.getString("fechaVencimiento");
-            dto.setFechaVencimiento(fVenc);
-            if (fVenc != null && !fVenc.isEmpty()) {
-                String[] parts = fVenc.split("-");
-                if (parts.length >= 3) {
-                    dto.setDiaVencimiento(parts[2]);
-                    dto.setMesVencimiento(parts[1]);
-                }
-                try {
-                    java.time.LocalDate fVencDate = java.time.LocalDate.parse(fVenc);
-                    java.time.LocalDate today = java.time.LocalDate.now(java.time.ZoneId.of("America/Lima"));
-                    dto.setDifference((int) java.time.temporal.ChronoUnit.DAYS.between(fVencDate, today));
-                } catch (Exception e) {
-                    dto.setDifference(-999);
-                }
-            } else {
-                dto.setDifference(-999);
-            }
-        } else {
-            dto.setDifference(-999);
-        }
-
-        dto.setAnio(anio);
-        dto.setMes(mes);
-        if (hasColumn(rs, "descResponsable")) dto.setDescResponsable(rs.getString("descResponsable"));
-        if (hasColumn(rs, "movimiento")) dto.setMovimiento(rs.getString("movimiento"));
-        if (hasColumn(rs, "comprasFilas")) dto.setComprasFilas(rs.getInt("comprasFilas"));
-        if (hasColumn(rs, "modalidad")) dto.setModalidad(rs.getString("modalidad"));
-        if (hasColumn(rs, "prioridad")) dto.setPrioridad(rs.getString("prioridad"));
-
-        if (hasColumn(rs, "fPle")) {
-            String fPle = rs.getString("fPle");
-            dto.setPle((fPle == null || fPle.isEmpty()) ? "N/A" : "PLE");
-        }
-
-        if (hasColumn(rs, "sunatSire")) dto.setSunatSire(rs.getInt("sunatSire"));
-        if (hasColumn(rs, "externoSire")) dto.setExternoSire(rs.getInt("externoSire"));
-        if (hasColumn(rs, "gerenciaSire")) dto.setGerenciaSire(rs.getInt("gerenciaSire"));
-
-        List<String> sireList = new ArrayList<>();
-        if (dto.getSunatSire() != 0)
-            sireList.add("SEE");
-        if (dto.getExternoSire() != 0)
-            sireList.add("EXT");
-        if (dto.getGerenciaSire() != 0)
-            sireList.add("GCOM");
-        dto.setSireGlobal(String.join(", ", sireList));
-
-        return dto;
+        return jdbcTemplate.query(query, params, (rs, rowNum) -> mapRowToListDTO(rs, anio, mes));
     }
 
     public int insertUpdate(LoginVentaDTO dto) {

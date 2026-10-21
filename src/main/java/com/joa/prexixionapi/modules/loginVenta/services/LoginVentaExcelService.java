@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import com.joa.prexixionapi.utils.PoiUtils;
 import com.joa.prexixionapi.utils.DateUtils;
-import com.joa.prexixionapi.modules.loginVenta.dto.LoginVentaDTO;
 import com.joa.prexixionapi.modules.loginVenta.dto.LoginVentaListDTO;
 import com.joa.prexixionapi.modules.loginVenta.dto.LoginVentaRequest;
 import com.joa.prexixionapi.modules.loginVenta.repositories.LoginVentaRepository;
@@ -81,31 +80,20 @@ public class LoginVentaExcelService {
             XSSFColor DATA_BG_COLOR = new XSSFColor(new byte[] { (byte) 242, (byte) 242, (byte) 242 });
             XSSFColor CLIENTE_BG_COLOR = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 });
             XSSFColor GRIS_CABECERA_COLOR = new XSSFColor(new byte[] { (byte) 128, (byte) 128, (byte) 128 });
-            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[] { (byte) 138, (byte) 193, (byte) 255 });
-            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[] { (byte) 81, (byte) 198, (byte) 218 });
-            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[] { (byte) 254, (byte) 255, (byte) 155 });
-            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[] { (byte) 252, (byte) 184, (byte) 72 });
-            XSSFColor ROJO_COLOR = new XSSFColor(new byte[] { (byte) 169, (byte) 0, (byte) 54 });
             XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 });
             XSSFColor BLACK = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
             XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 128, (byte) 0 });
             XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 });
-            XSSFColor BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 255 });
-            XSSFColor SKY_BLUE = new XSSFColor(new byte[] { (byte) 135, (byte) 206, (byte) 235 });
             XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 165, (byte) 0 });
 
             Boolean negrita = true;
             XSSFFont cabeceraFont = PoiUtils.fuente(wb, WHITE, 18, negrita);
             XSSFFont subHeaderFont = PoiUtils.fuente(wb, WHITE, 9, negrita);
-            XSSFFont dataFontRes = PoiUtils.fuente(wb, BLACK, 9, negrita);
             XSSFFont dataFont = PoiUtils.fuente(wb, BLACK, 9, false);
             XSSFFont dataFontNeg = PoiUtils.fuente(wb, BLACK, 9, negrita);
             XSSFFont dataGreenFont = PoiUtils.fuente(wb, GREEN, 9, negrita);
             XSSFFont dataRedFont = PoiUtils.fuente(wb, RED, 9, negrita);
             XSSFFont dataOrangeFont = PoiUtils.fuente(wb, ORANGE, 9, negrita);
-            XSSFFont dataBlueFont = PoiUtils.fuente(wb, BLUE, 9, negrita);
-            XSSFFont dataSkyBlueFont = PoiUtils.fuente(wb, SKY_BLUE, 9, negrita);
-            XSSFFont resStyleFont = PoiUtils.fuente(wb, ROYAL_BLUE_MOD, 10, negrita);
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" ESTILOS ">
@@ -614,7 +602,8 @@ public class LoginVentaExcelService {
         String fechaF = req.getFechaF();
         String fechaI = req.getFechaI() != null && !req.getFechaI().isEmpty() ? req.getFechaI() : fechaF;
 
-        String periodo = req.getPeriodoI() != null && !req.getPeriodoI().isEmpty() ? req.getPeriodoI() : req.getPeriodoF();
+        String periodo = req.getPeriodoI() != null && !req.getPeriodoI().isEmpty() ? req.getPeriodoI()
+                : req.getPeriodoF();
         String anio = "";
         String mes = "";
         if (periodo != null && periodo.length() >= 7) {
@@ -641,7 +630,7 @@ public class LoginVentaExcelService {
             mes = fechaF.substring(5, 7);
         }
         try {
-            List<LoginVentaDTO> list = loginVentaRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
+            List<LoginVentaListDTO> list = loginVentaRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
             int acumulado = loginVentaRepository.countAcumulado(proceso, fechaF, anio, mes);
             int total = loginVentaRepository.countTotal(anio, mes);
 
@@ -676,50 +665,15 @@ public class LoginVentaExcelService {
             XSSFColor GERENCIA_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 51, (byte) 204 });
             XSSFColor GERENCIA_GREY = new XSSFColor(new byte[] { (byte) 214, (byte) 220, (byte) 228 });
             XSSFColor MATTE_BLACK = new XSSFColor(new byte[] { (byte) 43, (byte) 43, (byte) 43 });
-
-            XSSFColor VERY_LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 102 });
-            XSSFColor LIGHT_RED = new XSSFColor(new byte[] { (byte) 255, (byte) 51, (byte) 51 });
             XSSFColor RED = new XSSFColor(new byte[] { (byte) 255, (byte) 0, (byte) 0 });
-            XSSFColor DARK_RED = new XSSFColor(new byte[] { (byte) 204, (byte) 0, (byte) 0 });
-            XSSFColor VERY_DARK_RED = new XSSFColor(new byte[] { (byte) 153, (byte) 0, (byte) 0 });
             XSSFColor SUPERLIGHT_RED = new XSSFColor(new byte[] { (byte) 253, (byte) 237, (byte) 236 });
-
-            XSSFColor VERY_LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 204, (byte) 255 });
             XSSFColor LIGHT_BLUE = new XSSFColor(new byte[] { (byte) 51, (byte) 153, (byte) 255 });
-            XSSFColor BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 255 });
-            XSSFColor DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 204 });
-            XSSFColor VERY_DARK_BLUE = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 153 });
             XSSFColor LIGHT_SKYBLUE = new XSSFColor(new byte[] { (byte) 235, (byte) 245, (byte) 251 });
-
-            XSSFColor VERY_LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 102, (byte) 255, (byte) 102 });
-            XSSFColor LIGHT_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 255, (byte) 51 });
             XSSFColor GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 204, (byte) 0 });
-            XSSFColor DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 153, (byte) 0 });
-            XSSFColor VERY_DARK_GREEN = new XSSFColor(new byte[] { (byte) 0, (byte) 102, (byte) 0 });
-
-            XSSFColor VERY_LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 204 });
-            XSSFColor LIGHT_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 153 });
             XSSFColor YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 0 });
-            XSSFColor DARK_YELLOW = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 0 });
-
-            XSSFColor LIGHT_ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 153, (byte) 0 });
             XSSFColor ORANGE = new XSSFColor(new byte[] { (byte) 255, (byte) 102, (byte) 0 });
-
-            XSSFColor GOLD = new XSSFColor(new byte[] { (byte) 255, (byte) 204, (byte) 51 });
-
             XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 });
             XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 });
-            XSSFColor DARK_GREY = new XSSFColor(new byte[] { (byte) 102, (byte) 102, (byte) 102 });
-            XSSFColor VERY_DARK_GREY = new XSSFColor(new byte[] { (byte) 51, (byte) 51, (byte) 51 });
-
-            XSSFColor LIGHT_BROWN = new XSSFColor(new byte[] { (byte) 153, (byte) 102, (byte) 0 });
-            XSSFColor BROWN = new XSSFColor(new byte[] { (byte) 102, (byte) 51, (byte) 0 });
-            XSSFColor VERY_DARK_BROWN = new XSSFColor(new byte[] { (byte) 51, (byte) 0, (byte) 0 });
-
-            XSSFColor PURPLE = new XSSFColor(new byte[] { (byte) 102, (byte) 0, (byte) 153 });
-
-            XSSFColor BLACK = new XSSFColor(new byte[] { (byte) 0, (byte) 0, (byte) 0 });
-
             XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 });
             // </editor-fold>
 
@@ -735,8 +689,6 @@ public class LoginVentaExcelService {
             XSSFFont dataYellowFont = PoiUtils.fuente((XSSFWorkbook) wb, YELLOW, 9, negrita);
             XSSFFont dataOrangeFont = PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, negrita);
             XSSFFont dataLightBlueFont = PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9,
-                    negrita);
-            XSSFFont resStyleFont = PoiUtils.fuente((XSSFWorkbook) wb, GERENCIA_BLUE, 9,
                     negrita);
             XSSFFont dataStarFont = PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9,
                     negrita);
@@ -800,13 +752,6 @@ public class LoginVentaExcelService {
             CellStyle dataSimpleRedStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb,
                     HorizontalAlignment.CENTER, WHITE, dataRedFont);
             PoiUtils.addBorders(dataSimpleRedStyle, BorderStyle.THIN, IndexedColors.WHITE);
-
-            CellStyle resStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb,
-                    HorizontalAlignment.LEFT, WHITE, resStyleFont);
-            CellStyle resStyleG = PoiUtils.createCellStyle((XSSFWorkbook) wb,
-                    HorizontalAlignment.CENTER, WHITE, dataGreenFont);
-            CellStyle resStyleR = PoiUtils.createCellStyle((XSSFWorkbook) wb,
-                    HorizontalAlignment.CENTER, WHITE, dataRedFont);
 
             CellStyle dataStarStyle = PoiUtils.createCellStyle((XSSFWorkbook) wb,
                     HorizontalAlignment.CENTER, GERENCIA_GREY, dataStarFont);
@@ -1039,7 +984,7 @@ public class LoginVentaExcelService {
             rowNum++;
 
             // <editor-fold defaultstate="collapsed" desc=" L L E N A D O D E L A D A T A ">
-            for (LoginVentaDTO clie : list) {
+            for (LoginVentaListDTO clie : list) {
                 colNum = 0;
 
                 Row data = sheet.createRow(rowNum);
