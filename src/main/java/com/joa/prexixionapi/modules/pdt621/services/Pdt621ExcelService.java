@@ -6,10 +6,12 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ToDoubleFunction;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -17,6 +19,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,7 @@ import com.joa.prexixionapi.modules.pdt621.dto.Pdt621DTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621FilterRequestDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ListDTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621RegistroDTO;
+import com.joa.prexixionapi.modules.pdt621.dto.Pdt621ReportAnualDTO;
 import com.joa.prexixionapi.utils.ExcelStyleManager;
 
 import lombok.RequiredArgsConstructor;
@@ -800,6 +805,324 @@ public class Pdt621ExcelService {
         } catch (Exception e) {
             log.error("Error generating PDT 621 Cliente Excel", e);
             throw new RuntimeException("Error generando reporte individual de PDT 621", e);
+        }
+    }
+
+    // ======================= REPORTE ANUAL (PDT 621) =======================
+
+    private record AnualCol(ToDoubleFunction<Pdt621ReportAnualDTO> getter, boolean strong, boolean tasa) {
+    }
+
+    private static final String[] MESES_ABR = { "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Set", "Oct",
+            "Nov", "Dic" };
+
+    /** Primera columna numérica (H) y última columna (AR) del reporte anual. */
+    private static final int ANUAL_FIRST_NUM_COL = 7;
+    private static final int ANUAL_LAST_COL = 43;
+
+    /** Columnas numéricas del reporte, en el orden en que se dibujan desde la columna H. */
+    private List<AnualCol> anualColumns() {
+        List<AnualCol> c = new ArrayList<>();
+        // Operaciones gravadas (H..M) + tasa (N)
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getVentasG, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getComprasG, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getVentasNetas10, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getComprasNetas10, false, false));
+        c.add(new AnualCol(r -> r.getVentasG() + r.getVentasNetas10(), false, false));
+        c.add(new AnualCol(r -> r.getComprasG() + r.getComprasNetas10(), false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getTasa, false, true));
+        // IGV
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesIgv, true, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesAnteriorIgv, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getAjusteIgv, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getResultadoIgv, true, false));
+        // Percepciones
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesPer, true, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesAnteriorPer, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getCompensacionPer, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getAjustePer, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getResultadoPer, true, false));
+        // Retenciones
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesRet, true, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesAnteriorRet, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getCompensacionRet, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getAjusteRet, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getResultadoRet, true, false));
+        // Total IGV
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getIgvPorPagar, true, false));
+        // Operaciones no gravadas
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getExpFactPer, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getVentasNg, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getComprasNgE, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getComprasNg, false, false));
+        // IVAP
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getIvapVentasGravadas, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getIvapTributo, false, false));
+        // Renta de 3ra
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getBaseRenta, true, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesRenta, true, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getMesAnteriorRenta, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getAnualRenta, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getSaldoFavorExportador, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getCreditoItanRenta, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getAjusteRenta, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getTotalDeudaTributariaRenta, false, false));
+        c.add(new AnualCol(Pdt621ReportAnualDTO::getRentaPorPagar, true, false));
+        return c;
+    }
+
+    public byte[] excelAnual(String ruc, List<String> anios) {
+        com.joa.prexixionapi.modules.pdt621.dto.Pdt621AnualResponseDTO data = pdt621Service.getPdt621ReportAnual(ruc,
+                anios);
+        String[] cli = pdt621Service.getClienteBasico(ruc);
+        List<Pdt621ReportAnualDTO> list = data.getList() != null ? data.getList() : new ArrayList<>();
+        List<AnualCol> cols = anualColumns();
+
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            XSSFWorkbook wb = new XSSFWorkbook();
+            Sheet sheet = wb.createSheet("PDT621 ANUAL");
+            ExcelStyleManager sm = new ExcelStyleManager(wb);
+
+            XSSFColor black = sm.getColor(ExcelStyleManager.BLACK_RGB);
+            XSSFColor red = sm.getColor(ExcelStyleManager.DARK_RED_TEXT_RGB);
+            XSSFColor white = sm.getColor(ExcelStyleManager.WHITE_RGB);
+            XSSFColor lightGrey = sm.getColor(ExcelStyleManager.LIGHT_GREY_RGB);
+            XSSFColor skyBlueGrey = sm.getColor(ExcelStyleManager.SKYBLUE_GREY_RGB);
+
+            XSSFFont fCab = anualFont(wb, black, 11, true);
+            XSSFFont fSub = anualFont(wb, black, 8, true);
+            XSSFFont fData = anualFont(wb, black, 8, false);
+            XSSFFont fRed = anualFont(wb, red, 8, false);
+
+            XSSFCellStyle cabeceraStyle = anualStyle(wb, HorizontalAlignment.CENTER, skyBlueGrey, fCab, null);
+            XSSFCellStyle subStyle = anualStyle(wb, HorizontalAlignment.CENTER, skyBlueGrey, fSub, null);
+            XSSFCellStyle centerStyle = anualStyle(wb, HorizontalAlignment.CENTER, white, fData, null);
+            XSSFCellStyle tasaStyle = anualStyle(wb, HorizontalAlignment.CENTER, white, fData, null);
+
+            XSSFCellStyle[] generalPos = anualNumStyles(wb, white, fData);
+            XSSFCellStyle[] generalNeg = anualNumStyles(wb, white, fRed);
+            XSSFCellStyle[] strongPos = anualNumStyles(wb, lightGrey, fData);
+            XSSFCellStyle[] strongNeg = anualNumStyles(wb, lightGrey, fRed);
+            XSSFCellStyle[] totalStyles = anualNumStyles(wb, skyBlueGrey, fSub);
+
+            // Etiquetas de la 3ra fila de cabecera, indexadas por columna
+            String[] labels3 = new String[ANUAL_LAST_COL + 1];
+            String[] l3 = { "Rect.", "N°", "Fecha", "Constancia", "Ventas", "Compras", "Ventas", "Compras", "Ventas",
+                    "Compras", null, "M E S", "A Favor", "Ajuste", "Resultado", "M E S", "A Favor", "Compensa", "Ajuste",
+                    "Resultado", "M E S", "A Favor", "Compensa", "Ajuste", "Resultado", "IGV | Por Pagar",
+                    "Exportaciones", "Ventas Ng.", "Compras Ng. E", "Compras Ng.", "V GRAVADAS", "TRIB IVAP", "Base",
+                    "M E S", "A favor", "Anual", "Del Export.", "c.ITAN", "Ajuste", "Saldo", "RENTA|Por Pagar" };
+            System.arraycopy(l3, 0, labels3, 3, l3.length);
+
+            // Encabezado de empresa
+            Row empresa = sheet.createRow(0);
+            empresa.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 2);
+            anualMerged(sheet, 0, 0, 0, ANUAL_LAST_COL, "R U C : " + ruc + " | " + cli[0], cabeceraStyle);
+            anualMerged(sheet, 1, 1, 0, ANUAL_LAST_COL, cli[1], cabeceraStyle);
+
+            int rowNum = 3;
+            double[] grand = new double[cols.size()];
+
+            for (String anio : anios) {
+                int h = rowNum;
+
+                // ---- Cabecera fila 1 ----
+                anualMerged(sheet, h, h + 2, 0, 0, "AÑO", subStyle);
+                anualMerged(sheet, h, h + 2, 1, 1, anio, subStyle);
+                anualMerged(sheet, h, h + 2, 2, 2, "RT", subStyle);
+                anualMerged(sheet, h, h + 1, 3, 6, "PDT | DECLARACIÓN", subStyle);
+                anualMerged(sheet, h, h, 7, 13, "OPERACIONES GRAVADAS", subStyle);
+                anualMerged(sheet, h, h + 1, 14, 17, "I G V", subStyle);
+                anualMerged(sheet, h, h + 1, 18, 22, "P E R C E P C I O N E S", subStyle);
+                anualMerged(sheet, h, h + 1, 23, 27, "R E T E N C I O N E S", subStyle);
+                anualMerged(sheet, h, h + 1, 28, 28, "T O T A L", subStyle);
+                anualMerged(sheet, h, h + 1, 29, 32, "OP. NO GRAVADAS", subStyle);
+                anualMerged(sheet, h, h + 1, 33, 34, "IVAP", subStyle);
+                anualMerged(sheet, h, h + 1, 35, 43, "R E N T A  D E  3 R A", subStyle);
+
+                // ---- Cabecera fila 2 ----
+                anualMerged(sheet, h + 1, h + 1, 7, 8, "PDT | VALOR GRAVADO", subStyle);
+                anualMerged(sheet, h + 1, h + 1, 9, 10, "PDT | VALOR IGV 10 %", subStyle);
+                anualMerged(sheet, h + 1, h + 1, 11, 12, "TOTAL CALCULABLE", subStyle);
+                anualMerged(sheet, h + 1, h + 2, 13, 13, "Tasa", subStyle);
+
+                // ---- Cabecera fila 3 ----
+                Row r3 = sheet.getRow(h + 2) != null ? sheet.getRow(h + 2) : sheet.createRow(h + 2);
+                for (int c = 3; c <= ANUAL_LAST_COL; c++) {
+                    if (labels3[c] == null) {
+                        continue;
+                    }
+                    Cell cell = r3.getCell(c) != null ? r3.getCell(c) : r3.createCell(c);
+                    cell.setCellStyle(subStyle);
+                    cell.setCellValue(labels3[c]);
+                }
+
+                rowNum = h + 3;
+
+                // ---- Filas de datos ----
+                double[] sums = new double[cols.size()];
+                for (Pdt621ReportAnualDTO d : list) {
+                    if (!anio.equals(d.getAnio()) || "13".equals(d.getMes())) {
+                        continue;
+                    }
+                    Row row = sheet.createRow(rowNum++);
+
+                    int mesIdx = Integer.parseInt(d.getMes()) - 1;
+                    Cell cMes = row.createCell(0);
+                    cMes.setCellStyle(subStyle);
+                    cMes.setCellValue(mesIdx >= 0 && mesIdx < 12 ? MESES_ABR[mesIdx] : d.getMes());
+
+                    Cell cPer = row.createCell(1);
+                    cPer.setCellStyle(centerStyle);
+                    cPer.setCellValue(d.getAnio() + d.getMes());
+
+                    Cell cRt = row.createCell(2);
+                    cRt.setCellStyle(centerStyle);
+                    cRt.setCellValue(d.getAbrGestionRegimenTributario() != null ? d.getAbrGestionRegimenTributario() : "");
+
+                    String nroRect = "";
+                    String fechaRect = "";
+                    String constancia = "";
+                    if (d.getRegistros() != null && !d.getRegistros().isEmpty()) {
+                        Pdt621RegistroDTO reg = d.getRegistros().get(d.getRegistros().size() - 1);
+                        nroRect = reg.getNroRectificacion() != null ? reg.getNroRectificacion() : "";
+                        fechaRect = reg.getFecha() != null ? reg.getFecha() : "";
+                        constancia = reg.getNroOrden() != null ? reg.getNroOrden() : "";
+                    }
+                    String[] declaracion = { "", nroRect, fechaRect, constancia };
+                    for (int i = 0; i < declaracion.length; i++) {
+                        Cell cd = row.createCell(3 + i);
+                        cd.setCellStyle(centerStyle);
+                        cd.setCellValue(declaracion[i]);
+                    }
+
+                    for (int i = 0; i < cols.size(); i++) {
+                        AnualCol col = cols.get(i);
+                        double v = col.getter().applyAsDouble(d);
+                        Cell cell = row.createCell(ANUAL_FIRST_NUM_COL + i);
+                        if (col.tasa()) {
+                            cell.setCellStyle(tasaStyle);
+                            cell.setCellValue(v);
+                            continue;
+                        }
+                        XSSFCellStyle[] st = col.strong() ? (v < 0 ? strongNeg : strongPos)
+                                : (v < 0 ? generalNeg : generalPos);
+                        writeAnualNumber(cell, v, st);
+                        sums[i] += v;
+                    }
+                }
+
+                // ---- Fila de totales del año ----
+                String titulo = anios.size() > 1 ? "SUB TOTAL AÑO " + anio : "T O T A L E S";
+                writeAnualFooter(sheet, rowNum, titulo, sums, cols, subStyle, totalStyles);
+                for (int i = 0; i < sums.length; i++) {
+                    grand[i] += sums[i];
+                }
+                rowNum += 2; // fila en blanco antes del siguiente año
+            }
+
+            if (anios.size() > 1) {
+                writeAnualFooter(sheet, rowNum, "T O T A L E S", grand, cols, subStyle, totalStyles);
+            }
+
+            sheet.setColumnWidth(0, 12 * 256);
+            sheet.setColumnWidth(1, 10 * 256);
+            sheet.setColumnWidth(2, 8 * 256);
+            sheet.setColumnWidth(3, 7 * 256);
+            sheet.setColumnWidth(4, 7 * 256);
+            sheet.setColumnWidth(5, 12 * 256);
+            sheet.setColumnWidth(6, 12 * 256);
+            for (int c = ANUAL_FIRST_NUM_COL; c <= ANUAL_LAST_COL; c++) {
+                sheet.setColumnWidth(c, 13 * 256);
+            }
+
+            wb.write(out);
+            wb.close();
+            return out.toByteArray();
+        } catch (Exception e) {
+            log.error("Error generating PDT 621 Anual Excel", e);
+            throw new RuntimeException("Error generando reporte anual de PDT 621", e);
+        }
+    }
+
+    private void writeAnualFooter(Sheet sheet, int rowNum, String titulo, double[] values, List<AnualCol> cols,
+            XSSFCellStyle titleStyle, XSSFCellStyle[] totalStyles) {
+        Row footer = sheet.createRow(rowNum);
+        anualMerged(sheet, rowNum, rowNum, 0, 6, titulo, titleStyle);
+        for (int i = 0; i < cols.size(); i++) {
+            Cell cell = footer.createCell(ANUAL_FIRST_NUM_COL + i);
+            if (cols.get(i).tasa()) {
+                cell.setCellStyle(titleStyle);
+                cell.setCellValue("");
+            } else {
+                writeAnualNumber(cell, values[i], totalStyles);
+            }
+        }
+    }
+
+    /** Escribe un número eligiendo el formato igual que el reporte legacy (entero, decimal, o menor a 1). */
+    private void writeAnualNumber(Cell cell, double v, XSSFCellStyle[] st) {
+        if (v % 1 == 0) {
+            cell.setCellStyle(st[0]);
+        } else if (v < 1) {
+            cell.setCellStyle(st[2]);
+        } else {
+            cell.setCellStyle(st[1]);
+        }
+        cell.setCellValue(v);
+    }
+
+    private XSSFFont anualFont(XSSFWorkbook wb, XSSFColor color, int size, boolean bold) {
+        XSSFFont f = wb.createFont();
+        f.setFontName("Arial");
+        f.setFontHeightInPoints((short) size);
+        f.setBold(bold);
+        f.setColor(color);
+        return f;
+    }
+
+    private XSSFCellStyle anualStyle(XSSFWorkbook wb, HorizontalAlignment align, XSSFColor bg, XSSFFont font,
+            String format) {
+        XSSFCellStyle s = wb.createCellStyle();
+        s.setAlignment(align);
+        s.setFillForegroundColor(bg);
+        s.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        s.setFont(font);
+        s.setBorderTop(BorderStyle.THIN);
+        s.setBorderBottom(BorderStyle.THIN);
+        s.setBorderLeft(BorderStyle.THIN);
+        s.setBorderRight(BorderStyle.THIN);
+        short grey = IndexedColors.GREY_25_PERCENT.getIndex();
+        s.setTopBorderColor(grey);
+        s.setBottomBorderColor(grey);
+        s.setLeftBorderColor(grey);
+        s.setRightBorderColor(grey);
+        if (format != null) {
+            s.setDataFormat(wb.createDataFormat().getFormat(format));
+        }
+        return s;
+    }
+
+    /** Estilos numéricos [entero, decimal, menor-a-1] para un fondo y fuente dados. */
+    private XSSFCellStyle[] anualNumStyles(XSSFWorkbook wb, XSSFColor bg, XSSFFont font) {
+        return new XSSFCellStyle[] {
+                anualStyle(wb, HorizontalAlignment.RIGHT, bg, font, "#,###,###"),
+                anualStyle(wb, HorizontalAlignment.RIGHT, bg, font, "#,###,###.##"),
+                anualStyle(wb, HorizontalAlignment.RIGHT, bg, font, "0.##") };
+    }
+
+    /** Combina un rango, escribe el texto en su primera celda y aplica el estilo (con bordes) a todo el rango. */
+    private void anualMerged(Sheet sheet, int r1, int r2, int c1, int c2, String text, XSSFCellStyle style) {
+        for (int r = r1; r <= r2; r++) {
+            Row row = sheet.getRow(r) != null ? sheet.getRow(r) : sheet.createRow(r);
+            for (int c = c1; c <= c2; c++) {
+                Cell cell = row.getCell(c) != null ? row.getCell(c) : row.createCell(c);
+                cell.setCellStyle(style);
+            }
+        }
+        sheet.getRow(r1).getCell(c1).setCellValue(text != null ? text : "");
+        if (r1 != r2 || c1 != c2) {
+            sheet.addMergedRegion(new CellRangeAddress(r1, r2, c1, c2));
         }
     }
 

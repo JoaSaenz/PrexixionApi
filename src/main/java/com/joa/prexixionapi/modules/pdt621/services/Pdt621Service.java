@@ -29,6 +29,10 @@ public class Pdt621Service {
 
     private final Pdt621Repository pdt621Repository;
 
+    public String[] getClienteBasico(String ruc) {
+        return pdt621Repository.getClienteBasico(ruc);
+    }
+
     public Pdt621AnualResponseDTO getPdt621ReportAnual(String ruc, List<String> anios) {
         List<Pdt621ReportAnualDTO> listTaxReview = new ArrayList<>();
         List<Pdt621ReportAnualDTO> listPdt621 = new ArrayList<>();
@@ -339,5 +343,10 @@ public class Pdt621Service {
 
     public List<Pdt621HistorialDTO> listHistorial(String idCliente, String periodoInicial, String periodoFinal) {
         return pdt621Repository.listHistorial(idCliente, periodoInicial, periodoFinal);
+    }
+
+    public boolean over300UIT(String ruc, String anio, String mes, double ventasG, double ventasNetas10,
+            double ventasNg, double expFactPer, double ivapVentasGravadas) {
+        return pdt621Repository.over300UIT(ruc, anio, mes, ventasG, ventasNetas10, ventasNg, expFactPer, ivapVentasGravadas);
     }
 }

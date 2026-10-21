@@ -18,7 +18,10 @@ import com.joa.prexixionapi.modules.pdt621.dto.Pdt621DTO;
 import com.joa.prexixionapi.modules.pdt621.dto.Pdt621HistorialDTO;
 import com.joa.prexixionapi.common.dto.GclassDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Repository
+@Slf4j
 public class Pdt621Repository {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -82,6 +85,8 @@ public class Pdt621Repository {
                 .anualRenta(toDouble(rs.getObject("rentaAnual")))
                 .saldoFavorExportador(toDouble(rs.getObject("saldoFavorExportador")))
                 .creditoItanRenta(toDouble(rs.getObject("rentaCItan")))
+                .coefA(toDouble(rs.getObject("rentaCoeficienteA")))
+                .coefB(toDouble(rs.getObject("rentaCoeficienteB")))
                 .ajusteRenta(toDouble(rs.getObject("rentaAjuste")))
                 .totalDeudaTributariaRenta(toDouble(rs.getObject("rentaSaldo")))
                 .rentaPorPagar(toDouble(rs.getObject("rentaPorPagar")))
@@ -104,7 +109,8 @@ public class Pdt621Repository {
                 p.mesPer, p.mesAnteriorPer, p.compensacionPer, p.ajustePer, p.resultadoPer, p.codigosTributariosCompensacionPer,
                 p.mesRet, p.mesAnteriorRet, p.compensacionRet, p.ajusteRet, p.resultadoRet, p.codigosTributariosCompensacionRet, p.igvPorPagar,
                 p.ivapVentasGravadas, p.ivapTributo,
-                p.baseRenta, p.mesRenta, p.mesAnteriorRenta, p.anualRenta, p.saldoFavorExportador, p.cItanRenta, p.ajusteRenta, p.totalDeudaTributariaRenta,
+                p.baseRenta, p.mesRenta, p.mesAnteriorRenta, p.anualRenta, p.saldoFavorExportador, p.cItanRenta,
+                p.impRtaFactorA, p.ingresosFactorA, p.coefA, p.coefB, p.codigosTributariosAjusteRenta, p.ajusteRenta, p.totalDeudaTributariaRenta,
                 p.rentaPorPagar,
                 pR.fecha as fechaRegistro, pR.nroRectificacion, pR.nroOrden as nroOrdenRegistro,
                 rt.abreviatura AS abrGestionRegimenTributario,
@@ -159,6 +165,11 @@ public class Pdt621Repository {
                 .anualRenta(toDouble(rs.getObject("anualRenta")))
                 .saldoFavorExportador(toDouble(rs.getObject("saldoFavorExportador")))
                 .creditoItanRenta(toDouble(rs.getObject("cItanRenta")))
+                .impRtaFactorA(toDouble(rs.getObject("impRtaFactorA")))
+                .ingresosFactorA(toDouble(rs.getObject("ingresosFactorA")))
+                .coefA(toDouble(rs.getObject("coefA")))
+                .coefB(toDouble(rs.getObject("coefB")))
+                .codigosTributariosAjusteRenta(rs.getString("codigosTributariosAjusteRenta"))
                 .ajusteRenta(toDouble(rs.getObject("ajusteRenta")))
                 .totalDeudaTributariaRenta(toDouble(rs.getObject("totalDeudaTributariaRenta")))
                 .rentaPorPagar(toDouble(rs.getObject("rentaPorPagar")))
@@ -170,6 +181,17 @@ public class Pdt621Repository {
                         .build()) : new ArrayList<>())
                 .abrGestionRegimenTributario(rs.getString("abrGestionRegimenTributario"))
                 .build());
+    }
+
+    public String[] getClienteBasico(String ruc) {
+        String sql = "SELECT razonSocial, direccion FROM cliente WHERE ruc = :ruc";
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("ruc", ruc);
+
+        List<String[]> result = jdbcTemplate.query(sql, params, (rs, rowNum) -> new String[] {
+                rs.getString("razonSocial") != null ? rs.getString("razonSocial") : "",
+                rs.getString("direccion") != null ? rs.getString("direccion") : "" });
+        return result.isEmpty() ? new String[] { "", "" } : result.get(0);
     }
 
     private double toDouble(Object o) {
@@ -1071,6 +1093,38 @@ public class Pdt621Repository {
             }
             return new String[]{"", ""};
         });
+    }
+
+    public boolean over300UIT(String ruc, String anio, String mes, double ventasG, double ventasNetas10,
+            double ventasNg, double expFactPer, double ivapVentasGravadas) {
+        String query = "SELECT COALESCE(SUM(ventasg), 0) + COALESCE(SUM(ventasNetas10), 0) + COALESCE(SUM(ventasng), 0) + COALESCE(SUM(expFactPer), 0) + COALESCE(SUM(ivapVentasGravadas), 0) AS montoAcumulado "
+                + "FROM pdt621DataNew WHERE idCliente = :ruc AND anio = :anio AND mes < :mes";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("ruc", ruc)
+                .addValue("anio", anio)
+                .addValue("mes", mes);
+
+        Double montoAcumulado = jdbcTemplate.queryForObject(query, params, Double.class);
+        if (montoAcumulado == null) {
+            montoAcumulado = 0.0;
+        }
+
+        montoAcumulado += ventasG + ventasNetas10 + ventasNg + expFactPer + ivapVentasGravadas;
+
+        Double valorUit = 0.0;
+        try {
+            valorUit = jdbcTemplate.queryForObject("SELECT valor FROM uit WHERE anio = :anio",
+                    new MapSqlParameterSource("anio", anio), Double.class);
+        } catch (Exception e) {
+            log.error("Error al obtener UIT del anio {}: {}", anio, e.getMessage());
+        }
+
+        if (valorUit == null) {
+            valorUit = 0.0;
+        }
+
+        return montoAcumulado >= (300 * valorUit);
     }
 
     private int parsePeriodo(String periodo, int defaultVal) {

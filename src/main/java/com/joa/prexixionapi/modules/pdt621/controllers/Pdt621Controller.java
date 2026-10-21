@@ -45,12 +45,6 @@ public class Pdt621Controller {
         return ResponseEntity.ok(new ApiResponse<>(true, "Reporte generado", pdt621Service.getPdt621ReportAnual(ruc, anioList)));
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<ApiResponse<List<Pdt621ListDTO>>> getPdt621List(
-            @org.springframework.web.bind.annotation.ModelAttribute Pdt621FilterRequestDTO request) {
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lista obtenida", pdt621Service.getPdt621List(request)));
-    }
-
     @PostMapping("/list")
     public ResponseEntity<DataTablesResponseDTO<Pdt621ListDTO>> list(@RequestBody Pdt621FilterRequestDTO req) {
         return ResponseEntity.ok(pdt621Service.getPdt621DataTables(req));
@@ -117,5 +111,31 @@ public class Pdt621Controller {
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         headers.setContentDispositionFormData("attachment", "PDT621_" + ruc + "_" + anio + mes + ".xlsx");
         return new ResponseEntity<>(content, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/excelAnual")
+    public ResponseEntity<byte[]> excelAnual(
+            @RequestParam String ruc,
+            @RequestParam String anios) {
+        List<String> anioList = Arrays.asList(anios.split(","));
+        byte[] content = pdt621ExcelService.excelAnual(ruc, anioList);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "PDT621_ANUAL_" + ruc + ".xlsx");
+        return new ResponseEntity<>(content, headers, HttpStatus.OK);
+    }
+
+    @PostMapping("/over300UIT")
+    public ResponseEntity<Boolean> over300UIT(
+            @RequestParam("idCliente") String idCliente,
+            @RequestParam("anio") String anio,
+            @RequestParam("mes") String mes,
+            @RequestParam(value = "ventasG", defaultValue = "0") double ventasG,
+            @RequestParam(value = "ventasNetas10", defaultValue = "0") double ventasNetas10,
+            @RequestParam(value = "ventasNg", defaultValue = "0") double ventasNg,
+            @RequestParam(value = "expFactPer", defaultValue = "0") double expFactPer,
+            @RequestParam(value = "ivapVentasGravadas", defaultValue = "0") double ivapVentasGravadas) {
+        boolean result = pdt621Service.over300UIT(idCliente, anio, mes, ventasG, ventasNetas10, ventasNg, expFactPer, ivapVentasGravadas);
+        return ResponseEntity.ok(result);
     }
 }

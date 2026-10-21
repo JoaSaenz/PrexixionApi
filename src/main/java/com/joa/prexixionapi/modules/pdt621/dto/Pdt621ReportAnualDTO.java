@@ -62,7 +62,13 @@ public class Pdt621ReportAnualDTO {
 
     private double creditoItanRenta;
 
+    private double impRtaFactorA;
+    private double ingresosFactorA;
+    private double coefA;
+    private double coefB;
+
     private double ajusteRenta;
+    private String codigosTributariosAjusteRenta;
     private double totalDeudaTributariaRenta;
     private double rentaPorPagar;
 
