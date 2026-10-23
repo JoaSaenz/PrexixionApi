@@ -1,5 +1,8 @@
 package com.joa.prexixionapi.modules.gestionSide.controllers;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +20,7 @@ import com.joa.prexixionapi.common.dto.DataTablesResponseDTO;
 import com.joa.prexixionapi.modules.gestionSide.dto.GestionSideDTO;
 import com.joa.prexixionapi.modules.gestionSide.dto.GestionSideListDTO;
 import com.joa.prexixionapi.modules.gestionSide.dto.GestionSideRequest;
+import com.joa.prexixionapi.modules.gestionSide.services.GestionSideExcelService;
 import com.joa.prexixionapi.modules.gestionSide.services.GestionSideService;
 
 @RestController
@@ -26,6 +30,7 @@ import com.joa.prexixionapi.modules.gestionSide.services.GestionSideService;
 public class GestionSideController {
 
     private final GestionSideService gestionSideService;
+    private final GestionSideExcelService gestionSideExcelService;
 
     @PostMapping("/list")
     public ResponseEntity<DataTablesResponseDTO<GestionSideListDTO>> list(@RequestBody GestionSideRequest req) {
@@ -49,5 +54,16 @@ public class GestionSideController {
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") int id) {
         gestionSideService.delete(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Registro eliminado exitosamente", null));
+    }
+
+    @PostMapping("/excel")
+    public ResponseEntity<byte[]> excel(@RequestBody GestionSideRequest req) {
+        byte[] excelContent = gestionSideExcelService.excel(req);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "ReporteGeneral_GestionSide.xlsx");
+
+        return new ResponseEntity<>(excelContent, headers, HttpStatus.OK);
     }
 }
