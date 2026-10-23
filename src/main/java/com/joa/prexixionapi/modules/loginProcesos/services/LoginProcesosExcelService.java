@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +24,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.joa.prexixionapi.common.dto.ServicioRegistroDTO;
 import com.joa.prexixionapi.utils.DateUtils;
 import com.joa.prexixionapi.utils.PoiUtils;
 import com.joa.prexixionapi.utils.StringUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosRequest;
-import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosDTO;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosListDTO;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosAvanceDTO;
 import com.joa.prexixionapi.modules.loginProcesos.services.LoginProcesosExcelService;
@@ -98,11 +95,6 @@ public class LoginProcesosExcelService {
             XSSFColor GREY = new XSSFColor(new byte[] { (byte) 153, (byte) 153, (byte) 153 }, null);
             XSSFColor LIGHT_GREY = new XSSFColor(new byte[] { (byte) 240, (byte) 240, (byte) 240 }, null);
             XSSFColor WHITE = new XSSFColor(new byte[] { (byte) 255, (byte) 255, (byte) 255 }, null);
-            XSSFColor CELESTE_COLOR = new XSSFColor(new byte[] { (byte) 138, (byte) 193, (byte) 255 }, null);
-            XSSFColor TURQUESA_COLOR = new XSSFColor(new byte[] { (byte) 81, (byte) 198, (byte) 218 }, null);
-            XSSFColor AMARILLO_COLOR = new XSSFColor(new byte[] { (byte) 254, (byte) 255, (byte) 155 }, null);
-            XSSFColor NARANJA_COLOR = new XSSFColor(new byte[] { (byte) 252, (byte) 184, (byte) 72 }, null);
-            XSSFColor ROJO_COLOR = new XSSFColor(new byte[] { (byte) 169, (byte) 0, (byte) 54 }, null);
 
             // Fuentes
             XSSFFont cabeceraFont = PoiUtils.fuente((XSSFWorkbook) wb, WHITE, 17, true);
@@ -652,12 +644,12 @@ public class LoginProcesosExcelService {
             fechaF = DateUtils.getToday();
             fechaI = fechaF;
         }
-        List<LoginProcesosDTO> list = loginProcesosRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
+        List<LoginProcesosListDTO> list = loginProcesosRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
         int acumulado = loginProcesosRepository.countAcumulado(proceso, fechaF, anio, mes);
         int total = loginProcesosRepository.countTotal(anio, mes);
         int realizado = 0;
 
-        for (LoginProcesosDTO lp : list) {
+        for (LoginProcesosListDTO lp : list) {
             switch (proceso) {
                 case "validerCompras":
                     if (lp.getValidacionCompras() != null && lp.getValidacionCompras() == 1)
@@ -991,7 +983,7 @@ public class LoginProcesosExcelService {
             rowNum++;
 
             // Data
-            for (LoginProcesosDTO obj : list) {
+            for (LoginProcesosListDTO obj : list) {
                 Row data = sheet.createRow(rowNum);
                 colNum = 0;
 
@@ -1651,7 +1643,8 @@ public class LoginProcesosExcelService {
 
                 for (String periodo : periodos) {
                     List<LoginProcesosListDTO> datosPeriodo = dataMap.get(periodo);
-                    LoginProcesosListDTO x = datosPeriodo.stream().filter(e -> e.getRuc().equals(obj.getRuc())).findFirst()
+                    LoginProcesosListDTO x = datosPeriodo.stream().filter(e -> e.getRuc().equals(obj.getRuc()))
+                            .findFirst()
                             .orElse(null);
 
                     if (x != null) {
@@ -1843,7 +1836,8 @@ public class LoginProcesosExcelService {
                 String anioPdt = String.format("%04d", pdtPeriod.getYear());
                 String mesPdt = String.format("%02d", pdtPeriod.getMonthValue());
 
-                List<LoginProcesosAvanceDTO> list = loginProcesosRepository.listAvanceMensual(anioPdt, mesPdt, fechaI, fechaF);
+                List<LoginProcesosAvanceDTO> list = loginProcesosRepository.listAvanceMensual(anioPdt, mesPdt, fechaI,
+                        fechaF);
 
                 // Días entre fechaI y fechaF
                 List<String> fechas = new ArrayList<>();
@@ -2015,13 +2009,15 @@ public class LoginProcesosExcelService {
 
     private long diferenciaDias(List<LoginProcesosAvanceDTO> list, int idProceso) {
         LocalDate minDate = list.stream()
-                .filter(e -> e.getIdProceso() == idProceso && e.getFechaAvance() != null && !e.getFechaAvance().isEmpty())
+                .filter(e -> e.getIdProceso() == idProceso && e.getFechaAvance() != null
+                        && !e.getFechaAvance().isEmpty())
                 .map(e -> LocalDate.parse(e.getFechaAvance()))
                 .min(LocalDate::compareTo)
                 .orElse(null);
 
         LocalDate maxDate = list.stream()
-                .filter(e -> e.getIdProceso() == idProceso && e.getFechaAvance() != null && !e.getFechaAvance().isEmpty())
+                .filter(e -> e.getIdProceso() == idProceso && e.getFechaAvance() != null
+                        && !e.getFechaAvance().isEmpty())
                 .map(e -> LocalDate.parse(e.getFechaAvance()))
                 .max(LocalDate::compareTo)
                 .orElse(null);
@@ -2032,4 +2028,3 @@ public class LoginProcesosExcelService {
         return ChronoUnit.DAYS.between(minDate, maxDate) + 1;
     }
 }
-

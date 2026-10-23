@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
-import com.joa.prexixionapi.modules.cliente.dto.ClienteDTO;
 import com.joa.prexixionapi.modules.cliente.dto.ClientePersonalDTO;
 import com.joa.prexixionapi.modules.cliente.repositories.ClientePersonalRepository;
 import com.joa.prexixionapi.modules.cliente.services.ClientePersonalExcelService;
@@ -26,10 +25,10 @@ public class ClientePersonalExcelService {
     public byte[] exportarExcelPersonal(String estados, String grupos) {
         List<Integer> listEstados = (estados == null || estados.isBlank()) ? List.of()
                 : Arrays.stream(estados.split(",")).map(String::trim).filter(s -> !s.isBlank())
-                .map(Integer::valueOf).toList();
+                        .map(Integer::valueOf).toList();
         List<Integer> listGrupos = (grupos == null || grupos.isBlank()) ? List.of()
                 : Arrays.stream(grupos.split(",")).map(String::trim).filter(s -> !s.isBlank())
-                .map(Integer::valueOf).toList();
+                        .map(Integer::valueOf).toList();
 
         List<ClientePersonalDTO> list = repository.getPersonalData(listEstados, listGrupos);
         return generateExcel(list);
@@ -53,9 +52,12 @@ public class ClientePersonalExcelService {
 
             XSSFCellStyle estiloDatosCentroVerdeNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.GREEN_RGB);
             XSSFCellStyle estiloDatosCentroRojoNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.RED_RGB);
-            XSSFCellStyle estiloDatosCentroGrisOscuroNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.GREY_RGB);
-            XSSFCellStyle estiloDatosCentroNaranjaNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.ORANGE_RGB);
-            XSSFCellStyle estiloDatosCentroAzulNegrita = styleManager.getDataStatusStyle(ExcelStyleManager.LIGHT_BLUE_RGB);
+            XSSFCellStyle estiloDatosCentroGrisOscuroNegrita = styleManager
+                    .getDataStatusStyle(ExcelStyleManager.GREY_RGB);
+            XSSFCellStyle estiloDatosCentroNaranjaNegrita = styleManager
+                    .getDataStatusStyle(ExcelStyleManager.ORANGE_RGB);
+            XSSFCellStyle estiloDatosCentroAzulNegrita = styleManager
+                    .getDataStatusStyle(ExcelStyleManager.LIGHT_BLUE_RGB);
 
             // --- HOJA ---
             Sheet sheet = wb.createSheet("Personal de ClienteDTO");
@@ -67,15 +69,16 @@ public class ClientePersonalExcelService {
             cabecera.setHeightInPoints(sheet.getDefaultRowHeightInPoints() * 3);
             Cell cellCabecera = cabecera.createCell(0);
             cellCabecera.setCellStyle(estiloCabeceraCentroAzul);
-            cellCabecera.setCellValue("C  O  R  P  O  R  A  C  I  O  N      G  E  R  E  N  C  I  A.  C  O  M      S. A. C.");
+            cellCabecera.setCellValue(
+                    "C  O  R  P  O  R  A  C  I  O  N      G  E  R  E  N  C  I  A.  C  O  M      S. A. C.");
             sheet.addMergedRegion(CellRangeAddress.valueOf("A1:P1"));
 
             // SUB-CABECERA
             rowNum++;
             Row subHeader = sheet.createRow(rowNum);
-            String[] headers = {"N°", "GRUPO E.", "ESTADO", "RUC", "Y", "RAZON SOCIAL",
+            String[] headers = { "N°", "GRUPO E.", "ESTADO", "RUC", "Y", "RAZON SOCIAL",
                     "TIPO CC", "DNI", "APELLIDOS", "NOMBRES", "PUESTO",
-                    "TELÉFONO", "CORREO", "F. NACIMIENTO", "CLAVE SOL", "ADM"};
+                    "TELÉFONO", "CORREO", "F. NACIMIENTO", "CLAVE SOL", "ADM" };
             for (String h : headers) {
                 Cell c = subHeader.createCell(colNum++);
                 c.setCellStyle(estiloSubCabeceraCentroNegroNegrita);
@@ -105,7 +108,7 @@ public class ClientePersonalExcelService {
                 // Estado (con color según idEstado)
                 Cell estadoData = data.createCell(colData++);
                 estadoData.setCellValue(cp.getDescEstado() != null ? cp.getDescEstado() : "");
-                
+
                 int idEstado = cp.getIdEstado() != null ? cp.getIdEstado() : 0;
                 switch (idEstado) {
                     case 1 -> estadoData.setCellStyle(estiloDatosCentroVerdeNegrita);

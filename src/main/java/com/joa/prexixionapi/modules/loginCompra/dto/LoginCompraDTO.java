@@ -1,39 +1,23 @@
 package com.joa.prexixionapi.modules.loginCompra.dto;
 
 import lombok.Data;
-import com.joa.prexixionapi.modules.loginCompra.dto.LoginCompraDTO;
 
+/**
+ * DTO para la gestión individual de Login Compras (consulta por ID / getOne y guardado / insertUpdate).
+ * Contiene únicamente los atributos requeridos por el formulario modal de registro y edición.
+ */
 @Data
 public class LoginCompraDTO {
-    // Datos del ClienteDTO
+
+    // Identificadores y datos del cliente en el formulario
     private String ruc;
-    private String y;
     private String razonSocial;
-    private String nombreCorto;
+    private String anio;
+    private String mes;
+    private Integer version;
 
-    // Clasificaciones y Grupos
-    private Integer estadoId;
-    private String estadoDescripcion;
-    private String tipoServicioAbr;
-    private String tipoServicioDesc;
-    private Integer grupoEconomicoId;
-    private String descGrupoEconomico;
-    private Integer categoriaStore;
-    private String regimenTributario;
-
-    // Sire Global
-    private Integer sunatSire;
-    private Integer externoSire;
-    private Integer gerenciaSire;
-    private String sireGlobal; // Reemplaza al 'sire' que iba en ClienteDTO
-
-    // Login Ventas
-    private Integer ventasConfirmacion;
-    private String ventasConfirmacionUsuario;
-    private String ventasConfirmacionFecha;
-
-    // Login Compras - Campos de Base de Datos
-    private Integer sireCompras; // Reemplaza a lc.sire
+    // Control de Procesos de Compras y Auditoría
+    private Integer sireCompras; // Mapea a lc.sire (en front #sire)
     private String sireUsuario;
     private String sireFecha;
 
@@ -43,7 +27,6 @@ public class LoginCompraDTO {
 
     private Integer validacion;
     private String validacionUsuario;
-    private String validacionUsuarioNombreCorto;
     private String validacionFecha;
     private String validacionHora;
 
@@ -52,19 +35,11 @@ public class LoginCompraDTO {
     private String confirmacionFecha;
     private String confirmacionHora;
 
-    private String observacion;
-    private Integer version;
+    // Datos informativos de Login Ventas (solo lectura en modal)
+    private Integer ventasConfirmacion;
+    private String ventasConfirmacionUsuario;
+    private String ventasConfirmacionFecha;
 
-    // Login Compras - Campos Calculados / Lógicos
-    private String fechaVencimiento;
-    private String diaVencimiento;
-    private String mesVencimiento;
-    private Integer difference;
-    private String anio;
-    private String mes;
-    private String movimiento;
-    private Integer comprasFilas;
-    private Integer modalidad;
-    private String prioridad;
-    private String ple;
+    // Observaciones
+    private String observacion;
 }

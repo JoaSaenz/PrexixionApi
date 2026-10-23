@@ -262,7 +262,6 @@ public class CalendarRepository {
         } catch (Exception e) {
             return Collections.emptyList();
         }
-        int idPuesto = (Integer) personalInfo.get("idPuesto");
         int idArea = (Integer) personalInfo.get("idArea");
 
         String sql = "SELECT titulo, fecha, color, area FROM ( " +

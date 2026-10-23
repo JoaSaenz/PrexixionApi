@@ -4,7 +4,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
-import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -101,18 +100,18 @@ public class BeneficiarioFinalRepository {
     public Optional<BeneficiarioFinalDTO> findById(int id) {
         String sql = "SELECT * FROM bf3800_beneficiarios WHERE id = :id";
         MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("id", id);
+                .addValue("id", id);
         List<BeneficiarioFinalDTO> list = jdbcTemplate.query(sql, params, rowMapper);
-        
+
         for (BeneficiarioFinalDTO b : list) {
             String capSql = "SELECT * FROM persona_capital_ppjj WHERE idBeneficiario = :idB";
             MapSqlParameterSource params1 = new MapSqlParameterSource()
-                .addValue("idB", b.getId());
+                    .addValue("idB", b.getId());
             b.setPersonaCapitalPPJJ(jdbcTemplate.query(capSql, params1, capitalRowMapper));
-            
+
             String cadSql = "SELECT * FROM persona_cadena_titularidad WHERE idBeneficiario = :idB";
             MapSqlParameterSource params2 = new MapSqlParameterSource()
-                .addValue("idB", b.getId());
+                    .addValue("idB", b.getId());
             b.setPersonaCadenaTitularidad(jdbcTemplate.query(cadSql, params2, cadenaRowMapper));
         }
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
@@ -121,20 +120,20 @@ public class BeneficiarioFinalRepository {
     public List<BeneficiarioFinalDTO> findByIdClienteAndAnioAndMes(String idCliente, String anio, String mes) {
         String sql = "SELECT * FROM bf3800_beneficiarios WHERE idCliente = :idCliente AND anio = :anio AND mes = :mes";
         MapSqlParameterSource params = new MapSqlParameterSource()
-        .addValue("idCliente", idCliente)
-        .addValue("anio", anio)
-        .addValue("mes", mes);
+                .addValue("idCliente", idCliente)
+                .addValue("anio", anio)
+                .addValue("mes", mes);
         List<BeneficiarioFinalDTO> list = jdbcTemplate.query(sql, params, rowMapper);
-        
+
         for (BeneficiarioFinalDTO b : list) {
             String capSql = "SELECT * FROM persona_capital_ppjj WHERE idBeneficiario = :idB";
             MapSqlParameterSource params1 = new MapSqlParameterSource()
-                .addValue("idB", b.getId());
+                    .addValue("idB", b.getId());
             b.setPersonaCapitalPPJJ(jdbcTemplate.query(capSql, params1, capitalRowMapper));
-            
+
             String cadSql = "SELECT * FROM persona_cadena_titularidad WHERE idBeneficiario = :idB";
             MapSqlParameterSource params2 = new MapSqlParameterSource()
-                .addValue("idB", b.getId());
+                    .addValue("idB", b.getId());
             b.setPersonaCadenaTitularidad(jdbcTemplate.query(cadSql, params2, cadenaRowMapper));
         }
         return list;
@@ -199,7 +198,7 @@ public class BeneficiarioFinalRepository {
         params.addValue("textoEnteJuridico", dto.getTextoEnteJuridico());
         params.addValue("calidadEnteJuridico", dto.getCalidadEnteJuridico());
         params.addValue("fechaBeneficiarioEnteJuridico", dto.getFechaBeneficiarioEnteJuridico());
-        
+
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(sql, params, keyHolder);
         int generatedId = keyHolder.getKey().intValue();
@@ -209,31 +208,32 @@ public class BeneficiarioFinalRepository {
             String cSql = "INSERT INTO persona_capital_ppjj (idBeneficiario, nroOrden, fechaCierta, nombresApellidos, valorNominal, participacionDirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :fecha, :nom, :val, :part, :ben, :obs)";
             for (BeneficiarioFinalCapitalDTO c : dto.getPersonaCapitalPPJJ()) {
                 MapSqlParameterSource capitalParams = new MapSqlParameterSource()
-                    .addValue("idB", generatedId)
-                    .addValue("nro", c.getNroOrden() != null ? c.getNroOrden() : "")
-                    .addValue("fecha", c.getFechaCierta() != null ? c.getFechaCierta() : "")
-                    .addValue("nom", c.getNombresApellidos() != null ? c.getNombresApellidos() : "")
-                    .addValue("val", c.getValorNominal() != null ? c.getValorNominal() : "")
-                    .addValue("part", c.getParticipacionDirecta() != null ? c.getParticipacionDirecta() : "")
-                    .addValue("ben", c.getBeneficiarioSiNo() != null ? c.getBeneficiarioSiNo() : "")
-                    .addValue("obs", c.getObservacion() != null ? c.getObservacion() : "");
+                        .addValue("idB", generatedId)
+                        .addValue("nro", c.getNroOrden() != null ? c.getNroOrden() : "")
+                        .addValue("fecha", c.getFechaCierta() != null ? c.getFechaCierta() : "")
+                        .addValue("nom", c.getNombresApellidos() != null ? c.getNombresApellidos() : "")
+                        .addValue("val", c.getValorNominal() != null ? c.getValorNominal() : "")
+                        .addValue("part", c.getParticipacionDirecta() != null ? c.getParticipacionDirecta() : "")
+                        .addValue("ben", c.getBeneficiarioSiNo() != null ? c.getBeneficiarioSiNo() : "")
+                        .addValue("obs", c.getObservacion() != null ? c.getObservacion() : "");
                 jdbcTemplate.update(cSql, capitalParams);
             }
         }
-        
+
         if (dto.getPersonaCadenaTitularidad() != null) {
             String tSql = "INSERT INTO persona_cadena_titularidad (idBeneficiario, nroOrden, tipoPersona, nombresApellidos, personaIntermediaria, participacionIntermediaria, participacionIndirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :tipo, :nom, :pInt, :pInt2, :pInd, :ben, :obs)";
             for (BeneficiarioFinalCadenaTitularidadDTO t : dto.getPersonaCadenaTitularidad()) {
                 MapSqlParameterSource cadenaParams = new MapSqlParameterSource()
-                    .addValue("idB", generatedId)
-                    .addValue("nro", t.getNroOrden() != null ? t.getNroOrden() : "")
-                    .addValue("tipo", t.getTipoPersona() != null ? t.getTipoPersona() : "")
-                    .addValue("nom", t.getNombresApellidos() != null ? t.getNombresApellidos() : "")
-                    .addValue("pInt", t.getPersonaIntermediaria() != null ? t.getPersonaIntermediaria() : "")
-                    .addValue("pInt2", t.getParticipacionIntermediaria() != null ? t.getParticipacionIntermediaria() : "")
-                    .addValue("pInd", t.getParticipacionIndirecta() != null ? t.getParticipacionIndirecta() : "")
-                    .addValue("ben", t.getBeneficiarioSiNo() != null ? t.getBeneficiarioSiNo() : "")
-                    .addValue("obs", t.getObservacion() != null ? t.getObservacion() : "");
+                        .addValue("idB", generatedId)
+                        .addValue("nro", t.getNroOrden() != null ? t.getNroOrden() : "")
+                        .addValue("tipo", t.getTipoPersona() != null ? t.getTipoPersona() : "")
+                        .addValue("nom", t.getNombresApellidos() != null ? t.getNombresApellidos() : "")
+                        .addValue("pInt", t.getPersonaIntermediaria() != null ? t.getPersonaIntermediaria() : "")
+                        .addValue("pInt2",
+                                t.getParticipacionIntermediaria() != null ? t.getParticipacionIntermediaria() : "")
+                        .addValue("pInd", t.getParticipacionIndirecta() != null ? t.getParticipacionIndirecta() : "")
+                        .addValue("ben", t.getBeneficiarioSiNo() != null ? t.getBeneficiarioSiNo() : "")
+                        .addValue("obs", t.getObservacion() != null ? t.getObservacion() : "");
                 jdbcTemplate.update(tSql, cadenaParams);
             }
         }

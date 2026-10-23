@@ -1,12 +1,15 @@
 package com.joa.prexixionapi.modules.pdt621.dto;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import com.joa.prexixionapi.modules.cliente.dto.ClienteDTO;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pdt621ListDTO {
     // ClienteDTO basic info
     private String ruc;
@@ -36,9 +39,17 @@ public class Pdt621ListDTO {
     private Integer confirmacion;
     private Integer sireCV;
 
-    // Totales e Impuestos (Solo Visibles)
+    // Totales e Impuestos
     private Double ventasG;
     private Double ventasNg;
+    private Double expFactPer;
+    private Double comprasG;
+    private Double comprasNgE;
+    private Double comprasNg;
+    private Double igvPorPagar;
+    private Double resultadoIgv;
+    private Double rentaPorPagar;
+    private Double totalDeudaTributariaRenta;
     
     private Integer igvJusto;
     private Integer pago;
@@ -61,4 +72,10 @@ public class Pdt621ListDTO {
 
     private Integer administracion;
     private String abrGestionRegimenTributario;
+
+    private String fechaVencimientoPle;
+    private String fechaVencimientoSire;
+    private String situacionPle;
+    private String ple;
+    private String rucSire;
 }

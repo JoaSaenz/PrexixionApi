@@ -18,7 +18,6 @@ import com.joa.prexixionapi.utils.DateUtils;
 
 import lombok.extern.slf4j.Slf4j;
 import com.joa.prexixionapi.modules.loginCompra.services.LoginCompraExcelService;
-import com.joa.prexixionapi.modules.loginCompra.dto.LoginCompraDTO;
 import com.joa.prexixionapi.modules.loginCompra.dto.LoginCompraListDTO;
 import com.joa.prexixionapi.modules.loginCompra.dto.LoginCompraRequest;
 import com.joa.prexixionapi.modules.loginCompra.repositories.LoginCompraRepository;
@@ -84,11 +83,9 @@ public class LoginCompraExcelService {
 
             XSSFColor RED = new XSSFColor(new java.awt.Color(255, 0, 0), colorMap);
             XSSFColor GREEN = new XSSFColor(new java.awt.Color(0, 204, 0), colorMap);
-            XSSFColor YELLOW = new XSSFColor(new java.awt.Color(255, 255, 0), colorMap);
             XSSFColor ORANGE = new XSSFColor(new java.awt.Color(255, 102, 0), colorMap);
 
             XSSFColor LIGHT_GREY = new XSSFColor(new java.awt.Color(240, 240, 240), colorMap);
-            XSSFColor GREY = new XSSFColor(new java.awt.Color(153, 153, 153), colorMap);
 
             XSSFColor BLACK = new XSSFColor(new java.awt.Color(0, 0, 0), colorMap);
             XSSFColor WHITE = new XSSFColor(new java.awt.Color(255, 255, 255), colorMap);
@@ -99,7 +96,6 @@ public class LoginCompraExcelService {
             XSSFFont dataSimpleFont = PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9, negrita);
             XSSFFont dataGreenFont = PoiUtils.fuente((XSSFWorkbook) wb, GREEN, 9, negrita);
             XSSFFont dataRedFont = PoiUtils.fuente((XSSFWorkbook) wb, RED, 9, negrita);
-            XSSFFont dataGreyFont = PoiUtils.fuente((XSSFWorkbook) wb, GREY, 9, negrita);
             XSSFFont dataOrangeFont = PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, negrita);
             XSSFFont dataStarFont = PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9, negrita);
             dataStarFont.setFontName("Wingdings");
@@ -680,7 +676,8 @@ public class LoginCompraExcelService {
         String fechaF = req.getFechaF();
         String fechaI = req.getFechaI() != null && !req.getFechaI().isEmpty() ? req.getFechaI() : fechaF;
 
-        String periodo = req.getPeriodoI() != null && !req.getPeriodoI().isEmpty() ? req.getPeriodoI() : req.getPeriodoF();
+        String periodo = req.getPeriodoI() != null && !req.getPeriodoI().isEmpty() ? req.getPeriodoI()
+                : req.getPeriodoF();
         String anio = "";
         String mes = "";
         if (periodo != null && periodo.length() >= 7) {
@@ -706,7 +703,7 @@ public class LoginCompraExcelService {
             anio = fechaF.substring(0, 4);
             mes = fechaF.substring(5, 7);
         }
-        List<LoginCompraDTO> list = loginCompraRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
+        List<LoginCompraListDTO> list = loginCompraRepository.listExcelDiario(proceso, fechaI, fechaF, anio, mes);
 
         int acumulado = loginCompraRepository.countAcumulado(proceso, fechaF, anio, mes);
         int realizado = 0;
@@ -746,12 +743,10 @@ public class LoginCompraExcelService {
 
             XSSFColor GREEN = new XSSFColor(new java.awt.Color(0, 204, 0), colorMap);
             XSSFColor YELLOW = new XSSFColor(new java.awt.Color(255, 255, 0), colorMap);
-            XSSFColor ORANGE = new XSSFColor(new java.awt.Color(255, 102, 0), colorMap);
 
             XSSFColor LIGHT_GREY = new XSSFColor(new java.awt.Color(240, 240, 240), colorMap);
             XSSFColor GREY = new XSSFColor(new java.awt.Color(153, 153, 153), colorMap);
 
-            XSSFColor BLACK = new XSSFColor(new java.awt.Color(0, 0, 0), colorMap);
             XSSFColor WHITE = new XSSFColor(new java.awt.Color(255, 255, 255), colorMap);
             // </editor-fold>
 
@@ -764,7 +759,6 @@ public class LoginCompraExcelService {
             XSSFFont dataRedFont = PoiUtils.fuente((XSSFWorkbook) wb, RED, 9, negrita);
             XSSFFont dataGreyFont = PoiUtils.fuente((XSSFWorkbook) wb, GREY, 9, negrita);
             XSSFFont dataYellowFont = PoiUtils.fuente((XSSFWorkbook) wb, YELLOW, 9, negrita);
-            XSSFFont dataOrangeFont = PoiUtils.fuente((XSSFWorkbook) wb, ORANGE, 9, negrita);
             XSSFFont dataLightBlueFont = PoiUtils.fuente((XSSFWorkbook) wb, LIGHT_BLUE, 9, negrita);
             XSSFFont dataStarFont = PoiUtils.fuente((XSSFWorkbook) wb, MATTE_BLACK, 9, negrita);
             dataStarFont.setFontName("Wingdings");
@@ -1032,10 +1026,9 @@ public class LoginCompraExcelService {
 
             rowNum++;
             int inicioFilt = rowNum;
-            int i = 1;
 
             // <editor-fold defaultstate="collapsed" desc=" L L E N A D O D E L A D A T A ">
-            for (LoginCompraDTO clie : list) {
+            for (LoginCompraListDTO clie : list) {
 
                 colNum = 0;
 
@@ -1127,7 +1120,6 @@ public class LoginCompraExcelService {
                 // PROCESO DATA
                 Cell procesoData = dataRow.createCell(colNum);
 
-                int procesoRegistrosValor = 0;
                 int procesoValidacionValor = 0;
                 int procesoConfirmacionValor = 0;
                 String procesoFecha = "";
@@ -1188,7 +1180,6 @@ public class LoginCompraExcelService {
                 procesoUsuarioData.setCellStyle(dataLeftStyle);
                 colNum++;
 
-                i++;
                 rowNum++;
             }
             // </editor-fold>

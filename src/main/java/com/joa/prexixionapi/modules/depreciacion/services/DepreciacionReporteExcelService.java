@@ -421,7 +421,9 @@ public class DepreciacionReporteExcelService {
             colNum++;
 
             Cell cell15 = data.createCell(colNum);
-            cell15.setCellValue(bien.getTipoCambio());
+            if (bien.getTipoCambio() != null) {
+                cell15.setCellValue(bien.getTipoCambio());
+            }
             cell15.setCellStyle(styleCenter);
             colNum++;
 
@@ -859,7 +861,9 @@ public class DepreciacionReporteExcelService {
                 colNumBT++;
 
                 Cell cTipoCambioBT = dataBT.createCell(colNumBT);
-                cTipoCambioBT.setCellValue(bien.getTipoCambio());
+                if (bien.getTipoCambio() != null) {
+                    cTipoCambioBT.setCellValue(bien.getTipoCambio());
+                }
                 cTipoCambioBT.setCellStyle(styleCenter);
                 colNumBT++;
 

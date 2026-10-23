@@ -2,32 +2,29 @@ package com.joa.prexixionapi.modules.loginVenta.dto;
 
 import lombok.Data;
 
+/**
+ * DTO para la gestión individual de Login Ventas (consulta por ID / getOne y guardado / insertUpdate).
+ * Contiene únicamente los atributos requeridos por el formulario modal de registro y edición.
+ */
 @Data
 public class LoginVentaDTO {
-    // Datos del ClienteDTO
+
+    // Identificadores y datos del cliente en el formulario
     private String ruc;
-    private String y;
     private String razonSocial;
-    private String nombreCorto;
+    private String anio;
+    private String mes;
+    private String sire;
+    private Integer version;
 
-    // Clasificaciones y Grupos
-    private Integer estadoId;
-    private String estadoDescripcion;
-    private String tipoServicioAbr;
-    private String tipoServicioDesc;
-    private Integer grupoEconomicoId;
-    private String descGrupoEconomico;
-    private Integer categoriaStore;
-    private String regimenTributario;
-
-    // Sire Global
-    private Integer sunatSire;
-    private Integer externoSire;
-    private Integer gerenciaSire;
-    private String sireGlobal; // Reemplaza al 'sire' que iba en ClienteDTO
-
-    // Login Ventas - Campos de Base de Datos
+    // Asignación de responsable
     private String responsable;
+
+    // Montos
+    private Integer seeVentas;
+    private Integer extVentas;
+
+    // Control de Procesos y Auditoría
     private Integer registro;
     private String registroUsuario;
     private String registroFecha;
@@ -47,22 +44,6 @@ public class LoginVentaDTO {
     private String confirmacionFecha;
     private String confirmacionHora;
 
-    private Integer seeVentas;
-    private Integer extVentas;
+    // Observaciones
     private String observacion;
-    private Integer version;
-
-    // Login Ventas - Campos Calculados / Lógicos
-    private String fechaVencimiento;
-    private String diaVencimiento;
-    private String mesVencimiento;
-    private Integer difference;
-    private String descResponsable;
-    private String movimiento;
-    private Integer comprasFilas;
-    private String modalidad;
-    private String anio;
-    private String mes;
-    private String prioridad;
-    private String ple;
 }

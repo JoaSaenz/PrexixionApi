@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
-import java.util.Map;
 import com.joa.prexixionapi.modules.beneficiarioFinal.dto.BeneficiarioFinalDataDTO;
 import com.joa.prexixionapi.modules.beneficiarioFinal.repositories.BeneficiarioFinalDataRepository;
 

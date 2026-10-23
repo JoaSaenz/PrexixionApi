@@ -14,16 +14,23 @@ public class LoginCompraListDTO {
     private Integer categoriaStore;
     private Integer grupoEconomicoId;
     private String descGrupoEconomico;
+    private String tipoServicioAbr;
+    private String prioridad;
+    private String ple;
     
     private String regimenTributario;
     private String anio;
     private String mes;
     
     private String fechaVencimiento;
+    private Integer difference;
     private String movimiento;
     private Integer comprasFilas;
     
     private Integer ventasConfirmacion;
+    private String ventasConfirmacionUsuario;
+    private String ventasConfirmacionFecha;
+
     private Integer sireCompras;
     private String sireUsuario;
     private String sireFecha;

@@ -35,7 +35,7 @@ public class ActivoRepository {
                 LEFT JOIN bienesTipos t ON b.idTipo = t.id
                 LEFT JOIN monedas m ON b.idMoneda = m.abreviatura
                 LEFT JOIN bienesEstados e ON b.idEstado = e.id
-                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaInicio
+                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaCompra AND b.idMoneda = 'USD'
                 WHERE b.idCliente = :idCliente 
                 ORDER BY b.id
                 """;
@@ -107,7 +107,7 @@ public class ActivoRepository {
                 LEFT JOIN bienesTipos t ON b.idTipo = t.id
                 LEFT JOIN monedas m ON b.idMoneda = m.abreviatura
                 LEFT JOIN bienesEstados e ON b.idEstado = e.id
-                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaInicio
+                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaCompra AND b.idMoneda = 'USD'
                 WHERE b.idCliente = :idCliente AND b.id = :id
                 """;
         MapSqlParameterSource params = new MapSqlParameterSource()
@@ -209,7 +209,7 @@ public class ActivoRepository {
                 LEFT JOIN bienesTipos t ON b.idTipo = t.id
                 LEFT JOIN monedas m ON b.idMoneda = m.abreviatura
                 LEFT JOIN bienesEstados e ON b.idEstado = e.id
-                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaInicio
+                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaCompra AND b.idMoneda = 'USD'
                 WHERE b.idCliente = :idCliente AND b.idTipo = 'RV' 
                 ORDER BY b.id
                 """;
@@ -288,7 +288,7 @@ public class ActivoRepository {
                 LEFT JOIN bienesTipos t ON b.idTipo = t.id
                 LEFT JOIN monedas m ON b.idMoneda = m.abreviatura
                 LEFT JOIN bienesEstados e ON b.idEstado = e.id
-                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaInicio
+                LEFT JOIN prexixion.dbo.tcambio tc ON tc.fecha = b.fechaCompra AND b.idMoneda = 'USD'
                 LEFT JOIN activosDepreciaciones d ON b.idCliente = d.idCliente AND b.id = d.idBien AND d.anio = :anio
                 WHERE b.idCliente = :idCliente AND d.anio = :anio
                 ORDER BY b.id

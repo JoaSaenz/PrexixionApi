@@ -17,13 +17,13 @@ import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class PoiUtils {
 
-    //HSSF
-    public static HSSFColor crearFuente(HSSFWorkbook wb, HSSFColor.HSSFColorPredefined colorPredefined, int A, int B, int C) {
+    // HSSF
+    public static HSSFColor crearFuente(HSSFWorkbook wb, HSSFColor.HSSFColorPredefined colorPredefined, int A, int B,
+            int C) {
         HSSFPalette palette = ((HSSFWorkbook) wb).getCustomPalette();
         HSSFColor newColor = null;
         try {
@@ -68,7 +68,7 @@ public class PoiUtils {
         font.setColor(color.getIndex());
         return font;
     }
-    
+
     public static Font fuenteAN(HSSFWorkbook wb, HSSFColor.HSSFColorPredefined color, int tamano) {
         Font font = wb.createFont();
         font.setFontName("Aptos Narrow");
@@ -76,7 +76,7 @@ public class PoiUtils {
         font.setColor(color.getIndex());
         return font;
     }
-    
+
     public static Font fuenteAN(HSSFWorkbook wb, HSSFColor.HSSFColorPredefined color, int tamano, Boolean neg) {
         Font font = wb.createFont();
         font.setBold(neg);
@@ -103,7 +103,8 @@ public class PoiUtils {
         return font;
     }
 
-    public static CellStyle createCellStyle(HSSFWorkbook wb, HorizontalAlignment alineacHorizontal, HSSFColor colorFondo, Font fuente) {
+    public static CellStyle createCellStyle(HSSFWorkbook wb, HorizontalAlignment alineacHorizontal,
+            HSSFColor colorFondo, Font fuente) {
         CellStyle estiloCelda = wb.createCellStyle();
         estiloCelda.setAlignment(alineacHorizontal);
         estiloCelda.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -114,7 +115,8 @@ public class PoiUtils {
         return estiloCelda;
     }
 
-    public static CellStyle createCellStyle(HSSFWorkbook wb, HorizontalAlignment alineacHorizontal, HSSFColor.HSSFColorPredefined colorFondo, Font fuente) {
+    public static CellStyle createCellStyle(HSSFWorkbook wb, HorizontalAlignment alineacHorizontal,
+            HSSFColor.HSSFColorPredefined colorFondo, Font fuente) {
         CellStyle estiloCelda = wb.createCellStyle();
         estiloCelda.setAlignment(alineacHorizontal);
         estiloCelda.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -162,7 +164,7 @@ public class PoiUtils {
         sheet.setColumnWidth(colNum, (int) (width * 256) + 200);
     }
 
-    //XSSF
+    // XSSF
     public static XSSFFont fuente(XSSFWorkbook wb, XSSFColor color, int tamano, Boolean neg) {
         XSSFFont font = wb.createFont();
         font.setBold(neg);
@@ -170,7 +172,7 @@ public class PoiUtils {
         font.setFontHeightInPoints((short) tamano);
         font.setColor(color);
         return font;
-    }  
+    }
 
     public static XSSFFont fuente(XSSFWorkbook wb, XSSFColor color, int tamano) {
         XSSFFont font = wb.createFont();
@@ -179,7 +181,7 @@ public class PoiUtils {
         font.setColor(color);
         return font;
     }
-    
+
     public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano, Boolean neg) {
         XSSFFont font = wb.createFont();
         font.setColor(color);
@@ -188,7 +190,7 @@ public class PoiUtils {
         font.setFontName("Aptos Narrow");
         return font;
     }
-    
+
     public static XSSFFont fuenteAN(XSSFWorkbook wb, XSSFColor color, int tamano) {
         XSSFFont font = wb.createFont();
         font.setColor(color);
@@ -197,7 +199,8 @@ public class PoiUtils {
         return font;
     }
 
-    public static XSSFCellStyle createCellStyle(XSSFWorkbook wb, HorizontalAlignment alineacHorizontal, XSSFColor colorFondo, XSSFFont fuente) {
+    public static XSSFCellStyle createCellStyle(XSSFWorkbook wb, HorizontalAlignment alineacHorizontal,
+            XSSFColor colorFondo, XSSFFont fuente) {
         XSSFCellStyle estiloCelda = wb.createCellStyle();
         estiloCelda.setAlignment(alineacHorizontal);
         estiloCelda.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -214,7 +217,8 @@ public class PoiUtils {
     /**
      * Crea un estilo moderno con fuente Aptos Narrow, centrado y bordes finos.
      */
-    public static XSSFCellStyle createModernStyle(XSSFWorkbook wb, HorizontalAlignment alignment, XSSFColor colorFondo, XSSFFont font) {
+    public static XSSFCellStyle createModernStyle(XSSFWorkbook wb, HorizontalAlignment alignment, XSSFColor colorFondo,
+            XSSFFont font) {
         XSSFCellStyle style = createCellStyle(wb, alignment, colorFondo, font);
         addBorders(style, BorderStyle.THIN, IndexedColors.GREY_25_PERCENT);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -225,7 +229,8 @@ public class PoiUtils {
      * Crea un estilo de cabecera moderna (fondo oscuro, letra blanca, negrita).
      */
     public static XSSFCellStyle createHeaderStyle(XSSFWorkbook wb, XSSFColor colorFondo) {
-        XSSFFont font = fuenteAN(wb, new XSSFColor(new java.awt.Color(255, 255, 255), new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap()), 11, true);
+        XSSFFont font = fuenteAN(wb, new XSSFColor(new java.awt.Color(255, 255, 255),
+                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap()), 11, true);
         return createModernStyle(wb, HorizontalAlignment.CENTER, colorFondo, font);
     }
 
@@ -233,7 +238,8 @@ public class PoiUtils {
      * Crea un estilo de sub-cabecera moderna.
      */
     public static XSSFCellStyle createSubHeaderStyle(XSSFWorkbook wb, XSSFColor colorFondo) {
-        XSSFFont font = fuenteAN(wb, new XSSFColor(new java.awt.Color(255, 255, 255), new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap()), 10, true);
+        XSSFFont font = fuenteAN(wb, new XSSFColor(new java.awt.Color(255, 255, 255),
+                new org.apache.poi.xssf.usermodel.DefaultIndexedColorMap()), 10, true);
         return createModernStyle(wb, HorizontalAlignment.CENTER, colorFondo, font);
     }
 }
