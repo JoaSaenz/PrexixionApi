@@ -1,5 +1,6 @@
 package com.joa.prexixionapi.modules.loginProcesos.controllers;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosListDTO;
 import com.joa.prexixionapi.modules.loginProcesos.services.LoginProcesosService;
 import com.joa.prexixionapi.modules.loginProcesos.services.LoginProcesosExcelService;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosRequest;
+import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosVentaDTO;
 
 @RestController
 @RequiredArgsConstructor
@@ -113,4 +116,27 @@ public class LoginProcesosController {
             @RequestParam(required = true) String periodoF) {
         return ResponseEntity.ok(loginProcesosService.getVencimientoLimits(periodoI, periodoF));
     }
+
+    @GetMapping("/ventas")
+    public ResponseEntity<List<LoginProcesosVentaDTO>> getVentas(
+            @RequestParam String ruc,
+            @RequestParam String anio,
+            @RequestParam String mes) {
+        return ResponseEntity.ok(loginProcesosService.getListaVentas(ruc, anio, mes));
+    }
+
+    @GetMapping("/ventas/mes-anterior")
+    public ResponseEntity<List<LoginProcesosVentaDTO>> getVentasMesAnterior(
+            @RequestParam String ruc,
+            @RequestParam String anio,
+            @RequestParam String mes) {
+        return ResponseEntity.ok(loginProcesosService.getVentasMesAnterior(ruc, anio, mes));
+    }
+
+    @DeleteMapping("/ventas/{idVenta}")
+    public ResponseEntity<ApiResponse<Integer>> deleteVenta(@PathVariable int idVenta) {
+        int rows = loginProcesosService.deleteVenta(idVenta);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Venta eliminada exitosamente", rows));
+    }
+
 }

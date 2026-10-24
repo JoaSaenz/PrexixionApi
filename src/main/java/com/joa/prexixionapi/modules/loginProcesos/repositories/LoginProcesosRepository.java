@@ -15,6 +15,7 @@ import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosRequest;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosDTO;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosListDTO;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosAvanceDTO;
+import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosVentaDTO;
 import com.joa.prexixionapi.modules.loginProcesos.repositories.LoginProcesosRepository;
 import com.joa.prexixionapi.common.utils.QueryUtils;
 
@@ -928,6 +929,39 @@ public class LoginProcesosRepository {
                 .avanceTM(rs.getInt("avanceTM"))
                 .avanceTT(rs.getInt("avanceTT"))
                 .build());
+    }
+
+    public List<LoginProcesosVentaDTO> getListaVentas(String ruc, String anio, String mes) {
+        String sql = """
+            SELECT v.idVenta, v.ruc, v.anio, v.mes, v.idTipo, v.serie, v.desde, v.hasta, v.fchUltima, tC.descripcion AS TipoDescripcion
+            FROM loginProcesos_registroVentas v
+            LEFT JOIN loginProcesos_tipoComprobante tC ON v.idTipo = tC.id
+            WHERE v.ruc = :ruc AND v.anio = :anio AND v.mes = :mes
+            ORDER BY v.serie ASC
+        """;
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("ruc", ruc)
+                .addValue("anio", anio)
+                .addValue("mes", mes);
+
+        return jdbcTemplate.query(sql, params, (rs, rowNum) -> LoginProcesosVentaDTO.builder()
+                .idVenta(rs.getInt("idVenta"))
+                .ruc(rs.getString("ruc"))
+                .anio(rs.getString("anio"))
+                .mes(rs.getString("mes"))
+                .tipoVenta(new GclassDTO(rs.getInt("idTipo"), rs.getString("TipoDescripcion")))
+                .serie(rs.getString("serie"))
+                .desde(rs.getString("desde"))
+                .hasta(rs.getString("hasta"))
+                .fchUltima(rs.getString("fchUltima"))
+                .build());
+    }
+
+    public int deleteVenta(int idVenta) {
+        String sql = "DELETE FROM loginProcesos_registroVentas WHERE idVenta = :idVenta";
+        MapSqlParameterSource params = new MapSqlParameterSource().addValue("idVenta", idVenta);
+        return jdbcTemplate.update(sql, params);
     }
 }
 

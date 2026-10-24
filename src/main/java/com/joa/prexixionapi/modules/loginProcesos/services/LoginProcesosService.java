@@ -13,6 +13,7 @@ import com.joa.prexixionapi.common.dto.IndicadorDTO;
 import lombok.extern.slf4j.Slf4j;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosDTO;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosListDTO;
+import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosVentaDTO;
 import com.joa.prexixionapi.modules.loginProcesos.services.LoginProcesosService;
 import com.joa.prexixionapi.modules.loginProcesos.dto.LoginProcesosRequest;
 import com.joa.prexixionapi.modules.loginProcesos.repositories.LoginProcesosRepository;
@@ -190,5 +191,28 @@ public class LoginProcesosService {
             log.error("Error inserting/updating LoginProcesosDTO", e);
             throw e;
         }
+    }
+
+    public List<LoginProcesosVentaDTO> getListaVentas(String ruc, String anio, String mes) {
+        return loginProcesosRepository.getListaVentas(ruc, anio, mes);
+    }
+
+    public List<LoginProcesosVentaDTO> getVentasMesAnterior(String ruc, String anio, String mes) {
+        try {
+            int a = Integer.parseInt(anio);
+            int m = Integer.parseInt(mes);
+            java.time.YearMonth ym = java.time.YearMonth.of(a, m).minusMonths(1);
+            String anioAnt = String.valueOf(ym.getYear());
+            String mesAnt = ym.getMonthValue() < 10 ? "0" + ym.getMonthValue() : String.valueOf(ym.getMonthValue());
+            return loginProcesosRepository.getListaVentas(ruc, anioAnt, mesAnt);
+        } catch (Exception e) {
+            log.error("Error calculando mes anterior para ruc: {}, anio: {}, mes: {}", ruc, anio, mes, e);
+            return new ArrayList<>();
+        }
+    }
+
+    @Transactional
+    public int deleteVenta(int idVenta) {
+        return loginProcesosRepository.deleteVenta(idVenta);
     }
 }

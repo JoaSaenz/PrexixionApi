@@ -104,12 +104,12 @@ public class BeneficiarioFinalRepository {
         List<BeneficiarioFinalDTO> list = jdbcTemplate.query(sql, params, rowMapper);
 
         for (BeneficiarioFinalDTO b : list) {
-            String capSql = "SELECT * FROM persona_capital_ppjj WHERE idBeneficiario = :idB";
+            String capSql = "SELECT * FROM bf3800_personas_capital WHERE idBeneficiario = :idB";
             MapSqlParameterSource params1 = new MapSqlParameterSource()
                     .addValue("idB", b.getId());
             b.setPersonaCapitalPPJJ(jdbcTemplate.query(capSql, params1, capitalRowMapper));
 
-            String cadSql = "SELECT * FROM persona_cadena_titularidad WHERE idBeneficiario = :idB";
+            String cadSql = "SELECT * FROM bf3800_personas_titularidad WHERE idBeneficiario = :idB";
             MapSqlParameterSource params2 = new MapSqlParameterSource()
                     .addValue("idB", b.getId());
             b.setPersonaCadenaTitularidad(jdbcTemplate.query(cadSql, params2, cadenaRowMapper));
@@ -126,12 +126,12 @@ public class BeneficiarioFinalRepository {
         List<BeneficiarioFinalDTO> list = jdbcTemplate.query(sql, params, rowMapper);
 
         for (BeneficiarioFinalDTO b : list) {
-            String capSql = "SELECT * FROM persona_capital_ppjj WHERE idBeneficiario = :idB";
+            String capSql = "SELECT * FROM bf3800_personas_capital WHERE idBeneficiario = :idB";
             MapSqlParameterSource params1 = new MapSqlParameterSource()
                     .addValue("idB", b.getId());
             b.setPersonaCapitalPPJJ(jdbcTemplate.query(capSql, params1, capitalRowMapper));
 
-            String cadSql = "SELECT * FROM persona_cadena_titularidad WHERE idBeneficiario = :idB";
+            String cadSql = "SELECT * FROM bf3800_personas_titularidad WHERE idBeneficiario = :idB";
             MapSqlParameterSource params2 = new MapSqlParameterSource()
                     .addValue("idB", b.getId());
             b.setPersonaCadenaTitularidad(jdbcTemplate.query(cadSql, params2, cadenaRowMapper));
@@ -143,9 +143,9 @@ public class BeneficiarioFinalRepository {
         List<BeneficiarioFinalDTO> list = findByIdClienteAndAnioAndMes(idCliente, anio, mes);
         for (BeneficiarioFinalDTO b : list) {
             MapSqlParameterSource params1 = new MapSqlParameterSource().addValue("idB", b.getId());
-            jdbcTemplate.update("DELETE FROM persona_capital_ppjj WHERE idBeneficiario = :idB", params1);
+            jdbcTemplate.update("DELETE FROM bf3800_personas_capital WHERE idBeneficiario = :idB", params1);
             MapSqlParameterSource params2 = new MapSqlParameterSource().addValue("idB", b.getId());
-            jdbcTemplate.update("DELETE FROM persona_cadena_titularidad WHERE idBeneficiario = :idB", params2);
+            jdbcTemplate.update("DELETE FROM bf3800_personas_titularidad WHERE idBeneficiario = :idB", params2);
             MapSqlParameterSource params3 = new MapSqlParameterSource().addValue("id", b.getId());
             jdbcTemplate.update("DELETE FROM bf3800_beneficiarios WHERE id = :id", params3);
         }
@@ -205,7 +205,7 @@ public class BeneficiarioFinalRepository {
         dto.setId(generatedId);
 
         if (dto.getPersonaCapitalPPJJ() != null) {
-            String cSql = "INSERT INTO persona_capital_ppjj (idBeneficiario, nroOrden, fechaCierta, nombresApellidos, valorNominal, participacionDirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :fecha, :nom, :val, :part, :ben, :obs)";
+            String cSql = "INSERT INTO bf3800_personas_capital (idBeneficiario, nroOrden, fechaCierta, nombresApellidos, valorNominal, participacionDirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :fecha, :nom, :val, :part, :ben, :obs)";
             for (BeneficiarioFinalCapitalDTO c : dto.getPersonaCapitalPPJJ()) {
                 MapSqlParameterSource capitalParams = new MapSqlParameterSource()
                         .addValue("idB", generatedId)
@@ -221,7 +221,7 @@ public class BeneficiarioFinalRepository {
         }
 
         if (dto.getPersonaCadenaTitularidad() != null) {
-            String tSql = "INSERT INTO persona_cadena_titularidad (idBeneficiario, nroOrden, tipoPersona, nombresApellidos, personaIntermediaria, participacionIntermediaria, participacionIndirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :tipo, :nom, :pInt, :pInt2, :pInd, :ben, :obs)";
+            String tSql = "INSERT INTO bf3800_personas_titularidad (idBeneficiario, nroOrden, tipoPersona, nombresApellidos, personaIntermediaria, participacionIntermediaria, participacionIndirecta, beneficiarioSiNo, observacion) VALUES (:idB, :nro, :tipo, :nom, :pInt, :pInt2, :pInd, :ben, :obs)";
             for (BeneficiarioFinalCadenaTitularidadDTO t : dto.getPersonaCadenaTitularidad()) {
                 MapSqlParameterSource cadenaParams = new MapSqlParameterSource()
                         .addValue("idB", generatedId)
